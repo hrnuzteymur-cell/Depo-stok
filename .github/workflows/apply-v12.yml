@@ -17,7 +17,6 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          import re
           p=Path('index.html')
           s=p.read_text(encoding='utf-8')
           s=s.replace('Kansan Depo · v11','Kansan Depo · v12').replace('>v11</span>','>v12</span>')
@@ -75,14 +74,11 @@ jobs:
           s=s[:start]+new+s[end:]
           s=s.replace("let desc=existing?.description||cleanOCRDescription(raw,code);","let desc=existing?.description||extractDescriptionNearCode(res?.data||{},code);")
           p.write_text(s,encoding='utf-8')
+          a=s.index('<script>')+8
+          b=s.rindex('</script>')
+          Path('/tmp/kansan-v12.js').write_text(s[a:b],encoding='utf-8')
           PY
-          node --check <(python3 - <<'PY'
-          from pathlib import Path
-          s=Path('index.html').read_text()
-          a=s.index('<script>')+8;b=s.rindex('</script>')
-          print(s[a:b])
-          PY
-          )
+          node --check /tmp/kansan-v12.js
       - name: Commit v12
         run: |
           git config user.name "github-actions[bot]"
