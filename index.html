@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Kansan Depo · v25</title>
+<title>Kansan Depo · v26</title>
 <style>
   :root {
     --bg: #f0f2f5;
@@ -361,7 +361,7 @@
       </div>
     </nav>
     <div class="sidebar-footer">
-      <div class="ver">Kansan Depo v25</div>
+      <div class="ver">Kansan Depo v26</div>
     </div>
   </aside>
 
@@ -1334,7 +1334,9 @@ function renderSettings() {
     <div class="data-actions">
       <button class="btn btn-secondary" onclick="exportData()">📤 Dışa Aktar (JSON)</button>
       <label class="btn btn-secondary" style="cursor:pointer">📥 İçe Aktar (JSON)<input type="file" accept=".json" onchange="importData(event)" style="display:none"></label>
+      <button class="btn btn-secondary" onclick="restoreSafetyBackup()" ${localStorage.getItem(KEY + '-safety-backup') ? '' : 'disabled'}>↩️ Son Güvenlik Yedeğini Geri Yükle</button>
     </div>
+    <div class="alert alert-info">İçe aktarma ve sıfırlama öncesinde mevcut verilerin otomatik güvenlik yedeği alınır.</div>
     <div class="divider"></div>
     <div class="fgrid g2">
       <div class="stat" style="text-align:center">
@@ -1352,7 +1354,7 @@ function renderSettings() {
   <div class="card">
     <div class="card-title">Uygulama Hakkında</div>
     <p style="font-size:13px;color:var(--muted);line-height:1.6">
-      <b>Kansan Depo v25</b><br>
+      <b>Kansan Depo v26</b><br>
       Stok ve lokasyon yönetim sistemi.<br>
       Ürün kaydı, barkod tarama, stok girişi, raf yönetimi, transfer ve makine çıkışı desteklenir.<br>
       Tüm veriler tarayıcınıza kaydedilir.
@@ -1361,7 +1363,13 @@ function renderSettings() {
 }
 
 function exportData() {
-  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const payload = {
+    format: 'kansan-depo-backup',
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    data: state
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = `kansan-depo-${new Date().toISOString().slice(0, 10)}.json`;
@@ -1369,15 +1377,49 @@ function exportData() {
 }
 window.exportData = exportData;
 
+function validateBackup(input) {
+  const data = input?.format === 'kansan-depo-backup' ? input.data : input;
+  if (!data || typeof data !== 'object') return { ok: false, error: 'Yedek içeriği geçersiz' };
+  const required = ['products','stock','movements','machines','shelves'];
+  for (const key of required) {
+    if (!Array.isArray(data[key])) return { ok: false, error: `${key} listesi bulunamadı` };
+  }
+  const productCodes = new Set();
+  for (const product of data.products) {
+    const code = String(product?.productCode || product?.barcode || product?.code || '').trim();
+    if (!code) return { ok: false, error: 'Ürün kodu eksik bir kayıt var' };
+    if (productCodes.has(code)) return { ok: false, error: `Tekrarlanan ürün kodu: ${code}` };
+    productCodes.add(code);
+  }
+  for (const row of data.stock) {
+    const code = String(row?.barcode || row?.productCode || '').trim();
+    const location = String(row?.location || '').trim();
+    const qty = Number(row?.qty);
+    if (!productCodes.has(code)) return { ok: false, error: `Stoğu bulunan ürün kayıtlı değil: ${code || '?'}` };
+    if (!location) return { ok: false, error: `Rafı eksik stok kaydı: ${code}` };
+    if (!Number.isFinite(qty) || qty <= 0) return { ok: false, error: `Geçersiz stok miktarı: ${code}` };
+  }
+  return { ok: true, data };
+}
+
+function createSafetyBackup() {
+  localStorage.setItem(KEY + '-safety-backup', JSON.stringify({
+    createdAt: new Date().toISOString(),
+    data: state
+  }));
+}
+
 function importData(e) {
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = (ev) => {
     try {
-      const data = JSON.parse(ev.target.result);
-      if (!data.products) { toast('Geçersiz dosya', 'err'); return; }
-      Object.assign(state, data);
+      const parsed = JSON.parse(ev.target.result);
+      const checked = validateBackup(parsed);
+      if (!checked.ok) { toast(checked.error, 'err'); return; }
+      createSafetyBackup();
+      Object.assign(state, checked.data);
       save(); toast('Veriler içe aktarıldı'); renderPage();
     } catch { toast('Dosya okunamadı', 'err'); }
   };
@@ -1385,9 +1427,24 @@ function importData(e) {
 }
 window.importData = importData;
 
+function restoreSafetyBackup() {
+  const rawBackup = localStorage.getItem(KEY + '-safety-backup');
+  if (!rawBackup) { toast('Güvenlik yedeği bulunamadı', 'err'); return; }
+  if (!confirm('Mevcut veriler son güvenlik yedeğiyle değiştirilsin mi?')) return;
+  try {
+    const backup = JSON.parse(rawBackup);
+    const checked = validateBackup(backup.data || backup);
+    if (!checked.ok) { toast(checked.error, 'err'); return; }
+    Object.assign(state, checked.data);
+    save(); toast('Güvenlik yedeği geri yüklendi'); renderPage();
+  } catch { toast('Güvenlik yedeği okunamadı', 'err'); }
+}
+window.restoreSafetyBackup = restoreSafetyBackup;
+
 function resetAll() {
   if (!confirm('TÜM veriler (ürünler, stok, hareketler) kalıcı olarak silinecek. Emin misiniz?')) return;
   if (!confirm('Son onay: Bu işlem geri alınamaz!')) return;
+  createSafetyBackup();
   Object.assign(state, { products: [], stock: [], movements: [], machines: [], shelves: [], pendingCode: '' });
   save(); toast('Tüm veriler sıfırlandı'); renderPage();
 }
