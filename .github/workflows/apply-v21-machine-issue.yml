@@ -1,0 +1,126 @@
+name: Apply v21 machine issue integrity
+on:
+  push:
+    paths:
+      - '.github/workflows/apply-v21-machine-issue.yml'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply machine issue integrity
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          if '<title>Kansan Depo · v20</title>' not in s:
+              raise SystemExit('Expected v20 title not found')
+
+          start=s.index('function machineSave() {')
+          end=s.index('window.machineSave = machineSave;', start)+len('window.machineSave = machineSave;')
+          block=r'''function issueToMachine(code, machine, from, q) {
+            const EPS = 1e-9;
+            if (!pBy(code)) return { ok: false, error: 'Ürün kayıtlı değil' };
+            if (!state.machines.includes(machine)) return { ok: false, error: 'Makine kayıtlı değil' };
+            if (!state.shelves.includes(from)) return { ok: false, error: 'Çıkış rafı kayıtlı değil' };
+            if (!Number.isFinite(q) || q <= 0) return { ok: false, error: 'Miktar sıfırdan büyük olmalı' };
+
+            const sourceBefore = qtyAt(code, from);
+            const totalBefore = totalQty(code);
+            if (sourceBefore + EPS < q) return { ok: false, error: `${from} rafında yeterli stok yok` };
+
+            const stockBefore = state.stock.map(row => ({ ...row }));
+            if (!remStock(code, from, q)) return { ok: false, error: `${from} rafında yeterli stok yok` };
+
+            const sourceAfter = qtyAt(code, from);
+            const totalAfter = totalQty(code);
+            const valid =
+              Math.abs(sourceAfter - (sourceBefore - q)) <= EPS &&
+              Math.abs(totalAfter - (totalBefore - q)) <= EPS;
+
+            if (!valid) {
+              state.stock = stockBefore;
+              return { ok: false, error: 'Makine çıkışı stok kontrolü başarısız. İşlem geri alındı.' };
+            }
+            return { ok: true, totalBefore, totalAfter };
+          }
+          window.issueToMachine = issueToMachine;
+
+          function machineSave() {
+            const code = document.getElementById('mCode').value.trim();
+            const machine = document.getElementById('mMachine').value;
+            const from = document.getElementById('mFrom').value;
+            const q = num(document.getElementById('mQty').value);
+            const note = document.getElementById('mNote')?.value.trim() || '';
+            if (!code) { toast('Ürün kodu girin', 'err'); return; }
+            if (!machine) { toast('Makine seçin', 'err'); return; }
+            if (!from) { toast('Çıkış rafı seçin', 'err'); return; }
+
+            const result = issueToMachine(code, machine, from, q);
+            if (!result.ok) { toast(result.error, 'err'); return; }
+
+            logMovement('MAKINE', code, q, from, '', machine, note);
+            save();
+            const unit = pBy(code)?.unit || 'Adet';
+            toast(`${q} ${unit} → ${machine}`);
+            document.getElementById('mCode').value = '';
+            document.getElementById('mQty').value = '';
+            const inf = document.getElementById('mInfo'); if (inf) inf.style.display = 'none';
+          }
+          window.machineSave = machineSave;'''
+          s=s[:start]+block+s[end:]
+          s=s.replace('<title>Kansan Depo · v20</title>','<title>Kansan Depo · v21</title>',1)
+          p.write_text(s)
+          PY
+      - name: Verify JavaScript and machine issue math
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text()
+          assert '<title>Kansan Depo · v21</title>' in s
+          assert 'function issueToMachine(code, machine, from, q)' in s
+          assert "state.machines.includes(machine)" in s
+          assert "state.shelves.includes(from)" in s
+          assert 'Math.abs(totalAfter - (totalBefore - q)) <= EPS' in s
+          assert "const unit = pBy(code)?.unit || 'Adet';" in s
+          js=s.split('<script>',1)[1].split('</script>',1)[0]
+          Path('/tmp/app.js').write_text(js)
+          PY
+          node --check /tmp/app.js
+          node <<'JS'
+          const EPS=1e-9;
+          let stock=[
+            {barcode:'P1',location:'R1',qty:2},
+            {barcode:'P1',location:'R1',qty:5},
+            {barcode:'P1',location:'R2',qty:4},
+            {barcode:'P2',location:'R1',qty:8}
+          ];
+          const qtyAt=(c,l)=>stock.filter(s=>s.barcode===c&&s.location===l).reduce((n,s)=>n+s.qty,0);
+          const totalQty=c=>stock.filter(s=>s.barcode===c).reduce((n,s)=>n+s.qty,0);
+          function remStock(c,l,q){const available=qtyAt(c,l);if(!Number.isFinite(q)||q<=0||available+EPS<q)return false;let remaining=q;for(const row of stock.filter(s=>s.barcode===c&&s.location===l)){if(remaining<=EPS)break;const take=Math.min(row.qty,remaining);row.qty-=take;remaining-=take;}stock=stock.filter(s=>s.qty>EPS);return remaining<=EPS;}
+
+          const totalBefore=totalQty('P1');
+          const otherBefore=totalQty('P2');
+          if(!remStock('P1','R1',6)) throw Error('duplicate-row machine issue failed');
+          if(qtyAt('P1','R1')!==1) throw Error('source did not decrease exactly');
+          if(totalQty('P1')!==totalBefore-6) throw Error('total did not decrease exactly');
+          if(totalQty('P2')!==otherBefore) throw Error('other product changed');
+
+          const snapshot=JSON.stringify(stock);
+          if(remStock('P1','R1',99)) throw Error('insufficient stock accepted');
+          if(JSON.stringify(stock)!==snapshot) throw Error('insufficient stock mutated data');
+          console.log('MACHINE_ISSUE_TEST_OK');
+          JS
+      - name: Commit v21
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'v21: makine çıkışında stok bütünlüğü'
+          git push
