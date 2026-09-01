@@ -1,0 +1,63 @@
+name: Apply v17 remove receiving
+on:
+  push:
+    paths:
+      - '.github/workflows/apply-v17-remove-receiving.yml'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove Mal Kabul and TB
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace('Kansan Depo · v16','Kansan Depo · v17').replace('Kansan Depo v16','Kansan Depo v17')
+          s=re.sub(r'\n\s*\.tb-status \{.*?\n\s*\.tb-step \{.*?\}\n','\n',s,flags=re.S)
+          s=s.replace('    .page-receiving .tb-items { max-height: 90px; }\n','')
+          s=re.sub(r'\n\s*<button class="nav-btn" data-page="receiving".*?</button>','',s)
+          s=s.replace("  transportUnits: [],\n  receivingDraft: { tbCode: '', items: [] },\n",'')
+          s=re.sub(r"\nif \(!Array\.isArray\(state\.transportUnits\)\).*?\nif \(!Array\.isArray\(state\.receivingDraft\.items\)\) state\.receivingDraft\.items = \[\];",'',s,flags=re.S)
+          needle="state.machines = [...new Set(state.machines.map(x => String(x).trim().toUpperCase()).filter(Boolean))];\n"
+          insert="\n// v17: Mal Kabul / TB modülü kaldırıldı; eski TB taslak alanları artık kullanılmaz.\ndelete state.transportUnits;\ndelete state.receivingDraft;\n"
+          s=s.replace(needle,needle+insert)
+          s=re.sub(r"function tbQty\(code\).*?function tbStatusClass\(tb\) \{.*?\}\n",'',s,flags=re.S)
+          s=s.replace("function totalQty(code) { return state.stock.filter(s => s.barcode === code).reduce((a, s) => a + s.qty, 0) + tbQty(code); }","function totalQty(code) { return state.stock.filter(s => s.barcode === code).reduce((a, s) => a + s.qty, 0); }")
+          s=s.replace("  dashboard: 'Ana Sayfa', products: 'Ürünler', receiving: 'Mal Kabul', entry: 'Stok Girişi',","  dashboard: 'Ana Sayfa', products: 'Ürünler', entry: 'Stok Girişi',")
+          s=s.replace("dashboard: renderDashboard, products: renderProducts, receiving: renderReceiving, entry: renderEntry","dashboard: renderDashboard, products: renderProducts, entry: renderEntry")
+          s=re.sub(r'\n\s*<button class="action-btn" onclick="goPage\(\'receiving\'\)">.*?</button>','',s,flags=re.S)
+          s=re.sub(r'\n// ─── MAL KABUL / TAŞIMA BİRİMİ ─+.*?\n// ─── ENTRY ─+','\n// ─── ENTRY ───────────────────────────────────────────────────────────────────',s,flags=re.S)
+          s=re.sub(r"\n\s*const tbLocs = state\.transportUnits.*?\n\s*const allLocs = \[\.\.\.locs, \.\.\.tbLocs\];","\n    const allLocs = locs;",s,flags=re.S)
+          s=s.replace("state.products.length + state.stock.length + state.movements.length + state.transportUnits.length","state.products.length + state.stock.length + state.movements.length")
+          s=s.replace('Ürün kaydı, barkod tarama, mal kabul/TB, raf yönetimi, transfer ve makine çıkışı desteklenir.','Ürün kaydı, barkod tarama, stok girişi, raf yönetimi, transfer ve makine çıkışı desteklenir.')
+          s=s.replace("Object.assign(state, { products: [], stock: [], movements: [], machines: [], shelves: [], transportUnits: [], receivingDraft: { tbCode:'', items:[] }, pendingCode: '' });","Object.assign(state, { products: [], stock: [], movements: [], machines: [], shelves: [], pendingCode: '' });")
+          s=s.replace("if (type === 'MAL_KABUL') return '<span class=\"badge badge-in\">Mal Kabul</span>';","if (type === 'MAL_KABUL') return '<span class=\"badge\">Eski Mal Kabul</span>';")
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Check JavaScript
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('index.html').read_text(encoding='utf-8')
+          m=re.search(r'<script>([\s\S]*?)</script>\s*</body>',s)
+          assert m, 'script bulunamadi'
+          Path('/tmp/v17.js').write_text(m.group(1),encoding='utf-8')
+          assert 'renderReceiving' not in s
+          assert "goPage('receiving')" not in s
+          assert 'Kansan Depo · v17' in s
+          PY
+          node --check /tmp/v17.js
+      - name: Commit v17
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git diff --cached --quiet && exit 0
+          git commit -m 'v17: Mal Kabul ve TB kaldırıldı'
+          git push
