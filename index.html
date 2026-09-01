@@ -3,13 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Kansan Depo · v30</title>
+<title>Kansan Depo · v30 Final</title>
 <meta name="theme-color" content="#1e40af">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="final-mobile.css">
 <style>
   :root {
     --bg: #f0f2f5;
@@ -1739,5 +1740,6 @@ document.querySelectorAll('[data-page]').forEach(b => b.addEventListener('click'
 history.replaceState({ page: state.page || 'dashboard' }, '', location.href);
 renderPage();
 </script>
+<script src="final-mobile.js"></script>
 </body>
 </html>

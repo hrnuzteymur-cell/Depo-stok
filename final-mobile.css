@@ -1,0 +1,41 @@
+/* Kansan Depo v30 Final - mobile safety and usability layer */
+:root { --app-vh: 100dvh; }
+html, body { overscroll-behavior: none; }
+button, input, select, textarea { touch-action: manipulation; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 3px solid rgba(30,64,175,.22);
+  outline-offset: 2px;
+}
+@media (max-width: 760px) {
+  html, body, .layout { height: var(--app-vh, 100dvh); min-height: var(--app-vh, 100dvh); }
+  .main { min-width: 0; }
+  .page {
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+    padding-bottom: max(18px, env(safe-area-inset-bottom));
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
+  .topbar {
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+    min-height: 54px;
+  }
+  .field input, .field select, .field textarea { font-size: 16px; min-height: 44px; }
+  .btn { min-height: 44px; padding: 10px 14px; }
+  .btn-scan { width: 44px; min-width: 44px; min-height: 44px; padding: 8px; }
+  .action-btn { min-height: 78px; }
+  .table-wrap { max-height: min(52dvh, 440px); -webkit-overflow-scrolling: touch; }
+  th, td { padding: 9px 10px; }
+  .toast {
+    left: 12px; right: 12px; bottom: max(12px, env(safe-area-inset-bottom));
+    max-width: none; text-align: center;
+  }
+  .overlay { padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom)); }
+  .overlay-close { min-height: 44px; }
+}
+@media (max-width: 380px) {
+  .stat-value { font-size: 22px; }
+  .action-name { font-size: 12px; }
+  .action-desc { font-size: 10px; }
+}
