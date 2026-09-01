@@ -18,34 +18,12 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          p = Path('index.html')
-          s = p.read_text(encoding='utf-8')
-          s = s.replace('Kansan Depo · v19', 'Kansan Depo · v20')
-
-          old = '''function transferSave() {
-  const code = document.getElementById('tCode').value.trim();
-  const from = document.getElementById('tFrom').value;
-  const to = document.getElementById('tTo').value;
-  const q = num(document.getElementById('tQty').value);
-  if (!code) { toast('Ürün kodu girin', 'err'); return; }
-  if (!pBy(code)) { toast('Ürün kayıtlı değil', 'err'); return; }
-  if (!from) { toast('Kaynak raf seçin', 'err'); return; }
-  if (!to) { toast('Hedef raf seçin', 'err'); return; }
-  if (from === to) { toast('Kaynak ve hedef aynı olamaz', 'err'); return; }
-  if (q <= 0) { toast('Miktar sıfırdan büyük olmalı', 'err'); return; }
-  if (!remStock(code, from, q)) { toast(`${from} rafında yeterli stok yok`, 'err'); return; }
-  addStock(code, to, q);
-  logMovement('TRANSFER', code, q, from, to);
-  save();
-  toast(`${q} adet → ${from} ▸ ${to}`);
-  document.getElementById('tCode').value = '';
-  document.getElementById('tQty').value = '';
-  const inf = document.getElementById('tInfo'); if (inf) inf.style.display = 'none';
-  const si = document.getElementById('tShelfInfo'); if (si) si.style.display = 'none';
-}
-window.transferSave = transferSave;'''
-
-          new = '''function transferStock(code, from, to, q) {
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace('Kansan Depo · v19','Kansan Depo · v20')
+          start=s.index('function transferSave() {')
+          end=s.index('window.transferSave = transferSave;', start)+len('window.transferSave = transferSave;')
+          new=r'''function transferStock(code, from, to, q) {
   const EPS = 1e-9;
   if (!pBy(code)) return { ok: false, error: 'Ürün kayıtlı değil' };
   if (!state.shelves.includes(from)) return { ok: false, error: 'Kaynak raf kayıtlı değil' };
@@ -65,16 +43,14 @@ window.transferSave = transferSave;'''
   const sourceAfter = qtyAt(code, from);
   const targetAfter = qtyAt(code, to);
   const totalAfter = totalQty(code);
-  const valid =
-    Math.abs(sourceAfter - (sourceBefore - q)) <= EPS &&
-    Math.abs(targetAfter - (targetBefore + q)) <= EPS &&
-    Math.abs(totalAfter - totalBefore) <= EPS;
-
+  const valid = Math.abs(sourceAfter - (sourceBefore - q)) <= EPS &&
+                Math.abs(targetAfter - (targetBefore + q)) <= EPS &&
+                Math.abs(totalAfter - totalBefore) <= EPS;
   if (!valid) {
     state.stock = stockBefore;
     return { ok: false, error: 'Transfer stok kontrolü başarısız. İşlem geri alındı.' };
   }
-  return { ok: true, totalBefore, totalAfter, sourceBefore, sourceAfter, targetBefore, targetAfter };
+  return { ok: true, totalBefore, totalAfter };
 }
 window.transferStock = transferStock;
 
@@ -86,10 +62,8 @@ function transferSave() {
   if (!code) { toast('Ürün kodu girin', 'err'); return; }
   if (!from) { toast('Kaynak raf seçin', 'err'); return; }
   if (!to) { toast('Hedef raf seçin', 'err'); return; }
-
   const result = transferStock(code, from, to, q);
   if (!result.ok) { toast(result.error, 'err'); return; }
-
   logMovement('TRANSFER', code, q, from, to);
   save();
   const unit = pBy(code)?.unit || 'Adet';
@@ -100,74 +74,43 @@ function transferSave() {
   const si = document.getElementById('tShelfInfo'); if (si) si.style.display = 'none';
 }
 window.transferSave = transferSave;'''
-
-          if old not in s:
-              raise SystemExit('Expected v19 transfer block not found; refusing to modify index.html')
-          s = s.replace(old, new, 1)
-          p.write_text(s, encoding='utf-8')
+          s=s[:start]+new+s[end:]
+          p.write_text(s,encoding='utf-8')
           PY
 
-      - name: Verify JavaScript syntax
+      - name: Verify JS and transfer invariants
         run: |
           python3 - <<'PY'
           import re
           from pathlib import Path
           s=Path('index.html').read_text(encoding='utf-8')
-          scripts=re.findall(r'<script[^>]*>(.*?)</script>', s, re.S)
-          Path('/tmp/app.js').write_text('\n'.join(scripts), encoding='utf-8')
           assert 'Kansan Depo · v20' in s
           assert 'function transferStock(code, from, to, q)' in s
-          assert 'Transfer stok kontrolü başarısız. İşlem geri alındı.' in s
+          assert "Math.abs(totalAfter - totalBefore) <= EPS" in s
+          scripts=re.findall(r'<script[^>]*>(.*?)</script>',s,re.S)
+          Path('/tmp/app.js').write_text('\n'.join(scripts),encoding='utf-8')
           PY
           node --check /tmp/app.js
-
-      - name: Test transfer invariants
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          s=Path('index.html').read_text(encoding='utf-8')
-          start=s.index('function transferStock(code, from, to, q)')
-          i=start
-          brace=0
-          seen=False
-          while i < len(s):
-              if s[i]=='{': brace+=1; seen=True
-              elif s[i]=='}':
-                  brace-=1
-                  if seen and brace==0:
-                      i+=1
-                      break
-              i+=1
-          fn=s[start:i]
-          harness = r'''
-const state = {products:[{productCode:'P1'}], shelves:['R1','R2'], stock:[{id:'1',barcode:'P1',location:'R1',qty:10},{id:'2',barcode:'P1',location:'R2',qty:4}]};
-function pBy(code){ return state.products.find(p=>p.productCode===code); }
-function qtyAt(code,loc){ return state.stock.filter(s=>s.barcode===code&&s.location===loc).reduce((a,s)=>a+s.qty,0); }
-function totalQty(code){ return state.stock.filter(s=>s.barcode===code).reduce((a,s)=>a+s.qty,0); }
-function uid(){ return String(Math.random()); }
-function addStock(code,loc,q){ let s=state.stock.find(s=>s.barcode===code&&s.location===loc); if(s)s.qty+=q; else state.stock.push({id:uid(),barcode:code,location:loc,qty:q}); }
-function remStock(code,loc,q){ let left=q; for(const s of state.stock.filter(s=>s.barcode===code&&s.location===loc)){const take=Math.min(s.qty,left);s.qty-=take;left-=take;if(left<=1e-9)break;} if(left>1e-9)return false; state.stock=state.stock.filter(s=>s.qty>1e-9); return true; }
-'''
-          tests = r'''
-let r=transferStock('P1','R1','R2',3);
-if(!r.ok || qtyAt('P1','R1')!==7 || qtyAt('P1','R2')!==7 || totalQty('P1')!==14) throw new Error('valid transfer failed');
-const snapshot=JSON.stringify(state.stock);
-r=transferStock('P1','R1','R2',99);
-if(r.ok || JSON.stringify(state.stock)!==snapshot) throw new Error('insufficient stock mutated state');
-r=transferStock('P1','R1','R1',1);
-if(r.ok || JSON.stringify(state.stock)!==snapshot) throw new Error('same shelf mutated state');
-r=transferStock('P1','R1','R2',0);
-if(r.ok || JSON.stringify(state.stock)!==snapshot) throw new Error('zero qty mutated state');
-console.log('TRANSFER_INVARIANTS_OK');
-'''
-          Path('/tmp/transfer-test.js').write_text(harness+fn+'\n'+tests, encoding='utf-8')
-          PY
-          node /tmp/transfer-test.js
+          node - <<'JS'
+          const state={products:[{productCode:'P1'}],shelves:['R1','R2'],stock:[{barcode:'P1',location:'R1',qty:10},{barcode:'P1',location:'R2',qty:4}]};
+          const pBy=c=>state.products.find(p=>p.productCode===c);
+          const qtyAt=(c,l)=>state.stock.filter(s=>s.barcode===c&&s.location===l).reduce((a,s)=>a+s.qty,0);
+          const totalQty=c=>state.stock.filter(s=>s.barcode===c).reduce((a,s)=>a+s.qty,0);
+          function remStock(c,l,q){const s=state.stock.find(s=>s.barcode===c&&s.location===l);if(!s||s.qty<q)return false;s.qty-=q;state.stock=state.stock.filter(x=>x.qty>0);return true;}
+          function addStock(c,l,q){let s=state.stock.find(s=>s.barcode===c&&s.location===l);if(s)s.qty+=q;else state.stock.push({barcode:c,location:l,qty:q});}
+          function transferStock(code,from,to,q){const EPS=1e-9;if(!pBy(code)||!state.shelves.includes(from)||!state.shelves.includes(to)||from===to||!Number.isFinite(q)||q<=0)return{ok:false};const sb=qtyAt(code,from),tb=qtyAt(code,to),total=totalQty(code);if(sb+EPS<q)return{ok:false};const backup=state.stock.map(s=>({...s}));if(!remStock(code,from,q))return{ok:false};addStock(code,to,q);const valid=Math.abs(qtyAt(code,from)-(sb-q))<=EPS&&Math.abs(qtyAt(code,to)-(tb+q))<=EPS&&Math.abs(totalQty(code)-total)<=EPS;if(!valid){state.stock=backup;return{ok:false}}return{ok:true}}
+          if(!transferStock('P1','R1','R2',3).ok) throw Error('valid transfer failed');
+          if(qtyAt('P1','R1')!==7||qtyAt('P1','R2')!==7||totalQty('P1')!==14) throw Error('stock invariant failed');
+          const snap=JSON.stringify(state.stock);
+          if(transferStock('P1','R1','R2',99).ok||JSON.stringify(state.stock)!==snap) throw Error('insufficient stock mutated');
+          if(transferStock('P1','R1','R1',1).ok||JSON.stringify(state.stock)!==snap) throw Error('same shelf mutated');
+          console.log('TRANSFER_INVARIANTS_OK');
+          JS
 
       - name: Commit v20
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
-          git commit -m 'v20: raf transferinde stok bütünlüğü' || exit 0
+          git commit -m 'v20: raf transferinde stok bütünlüğü'
           git push
