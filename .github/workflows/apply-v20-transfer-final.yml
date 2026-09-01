@@ -19,7 +19,6 @@ jobs:
           s=p.read_text()
           if '<title>Kansan Depo · v19</title>' not in s:
               raise SystemExit('Expected v19 title not found')
-
           old_qty="function qtyAt(code, loc) { const s = state.stock.find(s => s.barcode === code && s.location === loc); return s ? s.qty : 0; }"
           new_qty="""function qtyAt(code, loc) {
             return state.stock
@@ -29,7 +28,6 @@ jobs:
           if old_qty not in s:
               raise SystemExit('Expected qtyAt not found')
           s=s.replace(old_qty,new_qty,1)
-
           rem_start=s.index('function remStock(code, loc, q) {')
           rem_end=s.index('function logMovement(',rem_start)
           new_rem="""function remStock(code, loc, q) {
@@ -48,7 +46,6 @@ jobs:
           }
           """
           s=s[:rem_start]+new_rem+s[rem_end:]
-
           tr_start=s.index('function transferSave() {')
           tr_end=s.index('window.transferSave = transferSave;',tr_start)+len('window.transferSave = transferSave;')
           new_transfer=r'''function transferStock(code, from, to, q) {
@@ -58,16 +55,13 @@ jobs:
             if (!state.shelves.includes(to)) return { ok: false, error: 'Hedef raf kayıtlı değil' };
             if (from === to) return { ok: false, error: 'Kaynak ve hedef aynı olamaz' };
             if (!Number.isFinite(q) || q <= 0) return { ok: false, error: 'Miktar sıfırdan büyük olmalı' };
-
             const sourceBefore = qtyAt(code, from);
             const targetBefore = qtyAt(code, to);
             const totalBefore = totalQty(code);
             if (sourceBefore + EPS < q) return { ok: false, error: `${from} rafında yeterli stok yok` };
-
             const stockBefore = state.stock.map(s => ({ ...s }));
             if (!remStock(code, from, q)) return { ok: false, error: `${from} rafında yeterli stok yok` };
             addStock(code, to, q);
-
             const sourceAfter = qtyAt(code, from);
             const targetAfter = qtyAt(code, to);
             const totalAfter = totalQty(code);
@@ -75,7 +69,6 @@ jobs:
               Math.abs(sourceAfter - (sourceBefore - q)) <= EPS &&
               Math.abs(targetAfter - (targetBefore + q)) <= EPS &&
               Math.abs(totalAfter - totalBefore) <= EPS;
-
             if (!valid) {
               state.stock = stockBefore;
               return { ok: false, error: 'Transfer stok kontrolü başarısız. İşlem geri alındı.' };
@@ -83,7 +76,6 @@ jobs:
             return { ok: true, totalBefore, totalAfter };
           }
           window.transferStock = transferStock;
-
           function transferSave() {
             const code = document.getElementById('tCode').value.trim();
             const from = document.getElementById('tFrom').value;
@@ -124,11 +116,7 @@ jobs:
           node --check /tmp/app.js
           node <<'JS'
           const EPS=1e-9;
-          let stock=[
-            {barcode:'P1',location:'R1',qty:2},
-            {barcode:'P1',location:'R1',qty:5},
-            {barcode:'P1',location:'R2',qty:4}
-          ];
+          let stock=[{barcode:'P1',location:'R1',qty:2},{barcode:'P1',location:'R1',qty:5},{barcode:'P1',location:'R2',qty:4}];
           const qtyAt=(c,l)=>stock.filter(s=>s.barcode===c&&s.location===l).reduce((n,s)=>n+s.qty,0);
           const totalQty=c=>stock.filter(s=>s.barcode===c).reduce((n,s)=>n+s.qty,0);
           function remStock(c,l,q){const available=qtyAt(c,l);if(!Number.isFinite(q)||q<=0||available+EPS<q)return false;let remaining=q;for(const row of stock.filter(s=>s.barcode===c&&s.location===l)){if(remaining<=EPS)break;const take=Math.min(row.qty,remaining);row.qty-=take;remaining-=take;}stock=stock.filter(s=>s.qty>EPS);return remaining<=EPS;}
