@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Kansan Depo · v26</title>
+<title>Kansan Depo · v27</title>
 <style>
   :root {
     --bg: #f0f2f5;
@@ -343,7 +343,7 @@
         <div class="nav-label">Genel</div>
         <button class="nav-btn active" data-page="dashboard"><span class="nav-icon">🏠</span> Ana Sayfa</button>
         <button class="nav-btn" data-page="search"><span class="nav-icon">🔍</span> Ürün Ara</button>
-        <button class="nav-btn" data-page="movements"><span class="nav-icon">📋</span> Hareketler</button>
+        <button class="nav-btn" data-page="movements"><span class="nav-icon">📋</span> Hareketler</button>\n        <button class="nav-btn" data-page="reports"><span class="nav-icon">📊</span> Raporlar</button>
         <button class="nav-btn" data-page="count"><span class="nav-icon">🧮</span> Sayım</button>
       </div>
       <div class="nav-section">
@@ -361,7 +361,7 @@
       </div>
     </nav>
     <div class="sidebar-footer">
-      <div class="ver">Kansan Depo v26</div>
+      <div class="ver">Kansan Depo v27</div>
     </div>
   </aside>
 
@@ -390,7 +390,7 @@
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
-<script src="count.js"></script>
+<script src="count.js"></script>\n<script src="reports.js"></script>
 <script>
 // ─── State ───────────────────────────────────────────────────────────────────
 const KEY = 'kansan-depo-v3';
@@ -502,7 +502,7 @@ const PAGE_TITLES = {
   dashboard: 'Ana Sayfa', products: 'Ürünler', entry: 'Stok Girişi',
   search: 'Ürün Ara', shelves: 'Raf Yönetimi', 'machines-def': 'Makine Tanımları',
   transfer: 'Raf Transferi', machine: 'Makineye Çıkış', movements: 'Hareket Geçmişi',
-  count: 'Stok Sayımı', settings: 'Ayarlar'
+  count: 'Stok Sayımı', reports: 'Stok Raporları', settings: 'Ayarlar'
 };
 function goPage(p, fromHistory = false) {
   if (!PAGE_TITLES[p]) p = 'dashboard';
@@ -532,7 +532,7 @@ function renderPage() {
   document.getElementById('topbarTitle').textContent = title;
   document.getElementById('backBtn').classList.toggle('visible', state.page !== 'dashboard');
   document.querySelectorAll('[data-page]').forEach(b => b.classList.toggle('active', b.dataset.page === state.page));
-  const pages = { dashboard: renderDashboard, products: renderProducts, entry: renderEntry, search: renderSearch, shelves: renderShelves, 'machines-def': renderMachinesDef, transfer: renderTransfer, machine: renderMachine, movements: renderMovements, count: window.renderCount, settings: renderSettings };
+  const pages = { dashboard: renderDashboard, products: renderProducts, entry: renderEntry, search: renderSearch, shelves: renderShelves, 'machines-def': renderMachinesDef, transfer: renderTransfer, machine: renderMachine, movements: renderMovements, count: window.renderCount, reports: window.renderReports, settings: renderSettings };
   const fn = pages[state.page] || renderDashboard;
   const cls = String(state.page).replace(/[^a-z0-9-]/gi, '-');
   document.getElementById('page').innerHTML = `<div class="page-shell page-${cls}">${fn()}</div>`;
@@ -591,6 +591,11 @@ function renderDashboard() {
       <span class="action-icon">🧮</span>
       <span class="action-name">Sayım</span>
       <span class="action-desc">Fiziksel stok kontrolü</span>
+    </button>
+    <button class="action-btn" onclick="goPage('reports')">
+      <span class="action-icon">📊</span>
+      <span class="action-name">Raporlar</span>
+      <span class="action-desc">Stok ve hareket özeti</span>
     </button>
   </div>
   ${recentMoves.length ? `
@@ -1354,7 +1359,7 @@ function renderSettings() {
   <div class="card">
     <div class="card-title">Uygulama Hakkında</div>
     <p style="font-size:13px;color:var(--muted);line-height:1.6">
-      <b>Kansan Depo v26</b><br>
+      <b>Kansan Depo v27</b><br>
       Stok ve lokasyon yönetim sistemi.<br>
       Ürün kaydı, barkod tarama, stok girişi, raf yönetimi, transfer ve makine çıkışı desteklenir.<br>
       Tüm veriler tarayıcınıza kaydedilir.
