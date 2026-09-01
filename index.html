@@ -22,64 +22,7 @@ function machine(){let opts=state.machines.length?`<option value="">Makine seçi
 function movementTable(r){if(!r.length)return '<div class="empty">Hareket kaydı yok.</div>';return `<div class="table"><table><thead><tr><th>Tarih</th><th>Tür</th><th>Ürün</th><th>Barkod</th><th>Miktar</th><th>Kaynak</th><th>Hedef</th><th>Makine</th></tr></thead><tbody>${r.map(x=>`<tr><td>${esc(x.date)}</td><td><span class="badge ${x.type==='GIRIS'?'in':x.type==='TRANSFER'?'move':'out'}">${esc(x.type)}</span></td><td>${esc(x.productName)}</td><td>${esc(x.barcode)}</td><td>${x.qty}</td><td>${esc(x.from)}</td><td>${esc(x.to)}</td><td>${esc(x.machine)}</td></tr>`).join('')}</tbody></table></div>`}function movements(){return `<div class="panel"><div class="title">Stok Hareket Geçmişi</div>${movementTable(state.movements)}</div>`}
 function render(){document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===state.tab));main.innerHTML=state.tab==='dashboard'?dash():state.tab==='urunler'?products():state.tab==='giris'?entry():state.tab==='ara'?searchPage():state.tab==='raf'?raf():state.tab==='transfer'?transfer():state.tab==='makine'?machine():movements()}function go(t){state.tab=t;save();render()}document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.tab));render();
 </script>
-<script id="KANSAN_DEPO_AKIS_V1">
-(function(){
-  const targets={
-    pBarcode:'Ürün barkodunu okut',pCode:'Ürün kodunu okut',
-    eBarcode:'Ürün barkodunu okut',eLocation:'Raf barkodunu okut',
-    sQuery:'Ürün barkodu veya kodunu okut',lQuery:'Raf barkodunu okut',
-    tBarcode:'Ürün barkodunu okut',tFrom:'Kaynak rafı okut',tTo:'Hedef rafı okut',
-    mBarcode:'Ürün barkodunu okut',mFrom:'Çıkış rafını okut'
-  };
-  function styleBtn(btn,label,id){
-    btn.type='button';btn.textContent='📷';btn.title=label;btn.setAttribute('aria-label',label);
-    btn.dataset.kansanScanner=id;
-    btn.style.width='54px';btn.style.minWidth='54px';btn.style.border='0';btn.style.borderRadius='12px';
-    btn.style.background='#e8efef';btn.style.color='#173b4c';btn.style.fontSize='22px';btn.style.cursor='pointer';
-    btn.onclick=function(){if(typeof scanTo==='function')scanTo(id);else alert('Barkod okuyucu hazır değil.');};
-  }
-  function enhance(id,label){
-    const input=document.getElementById(id);if(!input)return;
-    let parent=input.parentElement;
-    let existing=parent&&parent.querySelector('button[data-kansan-scanner="'+id+'"]');
-    if(existing){styleBtn(existing,label,id);return;}
-    if(parent){
-      const buttons=Array.from(parent.querySelectorAll('button'));
-      const match=buttons.find(b=>(b.getAttribute('onclick')||'').includes("scanTo('"+id+"')"));
-      if(match){styleBtn(match,label,id);return;}
-    }
-    const btn=document.createElement('button');styleBtn(btn,label,id);
-    if(parent && (parent.classList.contains('scan')||parent.classList.contains('scanner-row')||parent.classList.contains('scan-input'))){
-      input.insertAdjacentElement('afterend',btn);return;
-    }
-    const wrap=document.createElement('div');wrap.className='scanner-row';wrap.dataset.kansanScanWrap='1';
-    wrap.style.display='flex';wrap.style.gap='8px';wrap.style.alignItems='stretch';wrap.style.width='100%';
-    input.parentNode.insertBefore(wrap,input);wrap.appendChild(input);input.style.flex='1';wrap.appendChild(btn);
-  }
-  function enhanceAll(){Object.entries(targets).forEach(([id,label])=>enhance(id,label));}
-  const originalRender=window.render;
-  if(typeof originalRender==='function'){
-    window.render=function(){const r=originalRender.apply(this,arguments);setTimeout(enhanceAll,0);return r;};
-  }
-  const originalAddProduct=window.addProduct;
-  if(typeof originalAddProduct==='function'){
-    window.addProduct=function(){
-      const barcode=(document.getElementById('pBarcode')?.value||'').trim();
-      const before=Array.isArray(window.state?.products)?window.state.products.length:(typeof state!=='undefined'&&Array.isArray(state.products)?state.products.length:0);
-      const r=originalAddProduct.apply(this,arguments);
-      const after=(typeof state!=='undefined'&&Array.isArray(state.products))?state.products.length:before;
-      if(barcode && after>before){
-        state.tab='giris';if(typeof save==='function')save();if(typeof render==='function')render();
-        setTimeout(()=>{const x=document.getElementById('eBarcode');if(x)x.value=barcode;enhanceAll();},30);
-      }
-      return r;
-    };
-  }
-  document.addEventListener('click',()=>setTimeout(enhanceAll,25));
-  new MutationObserver(enhanceAll).observe(document.documentElement,{childList:true,subtree:true});
-  setTimeout(enhanceAll,0);
-})();
-</script>
+
 <script id="KANSAN_REAL_SCANNER_V2">
 let __kScanStream=null,__kScanTimer=null,__kScanOverlay=null;
 function closeKansanScanner(){
