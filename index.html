@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Kansan Depo · v16</title>
+<title>Kansan Depo · v17</title>
 <style>
   :root {
     --bg: #f0f2f5;
@@ -257,14 +257,6 @@
   .page-shelves > .card:last-child .table-wrap,
   .page-movements > .card:last-child .table-wrap,
   .page-receiving > .card:last-child .table-wrap { flex: 1; min-height: 0; overflow: auto; }
-  .tb-status { display:inline-flex; padding:3px 8px; border-radius:999px; font-size:10px; font-weight:800; }
-  .tb-empty { background:#eef2ff; color:#3730a3; }
-  .tb-open { background:var(--amber-bg); color:var(--amber); }
-  .tb-full { background:var(--green-bg); color:var(--green); }
-  .tb-items { display:flex; flex-direction:column; gap:6px; margin-top:10px; max-height:150px; overflow:auto; }
-  .tb-item { display:grid; grid-template-columns:minmax(0,1fr) auto auto; gap:8px; align-items:center; background:var(--bg); border-radius:8px; padding:8px 10px; font-size:12px; }
-  .tb-item b { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .tb-step { font-size:10px; font-weight:900; letter-spacing:.06em; color:var(--brand); text-transform:uppercase; margin-bottom:8px; }
 
   @media (max-width: 768px) {
     html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
@@ -313,7 +305,6 @@
     .page-products .pending-card .fgrid { grid-template-columns: 1fr 1fr 1fr; }
     .page-products .pending-card .card-title { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .page-products > .card:last-child { flex:1; }
-    .page-receiving .tb-items { max-height: 90px; }
   }
   @media (max-width: 430px) and (max-height: 760px) {
     .page { padding: 7px; }
@@ -357,7 +348,6 @@
       <div class="nav-section">
         <div class="nav-label">Ürün & Stok</div>
         <button class="nav-btn" data-page="products"><span class="nav-icon">📦</span> Ürünler</button>
-        <button class="nav-btn" data-page="receiving"><span class="nav-icon">🚚</span> Mal Kabul</button>
         <button class="nav-btn" data-page="entry"><span class="nav-icon">➕</span> Stok Girişi</button>
         <button class="nav-btn" data-page="transfer"><span class="nav-icon">🔄</span> Raf Transferi</button>
         <button class="nav-btn" data-page="machine"><span class="nav-icon">⚙️</span> Makineye Çıkış</button>
@@ -370,7 +360,7 @@
       </div>
     </nav>
     <div class="sidebar-footer">
-      <div class="ver">Kansan Depo v16</div>
+      <div class="ver">Kansan Depo v17</div>
     </div>
   </aside>
 
@@ -414,8 +404,6 @@ const state = {
   shelves: [],
   page: 'dashboard',
   pendingCode: '',
-  transportUnits: [],
-  receivingDraft: { tbCode: '', items: [] },
   ...raw
 };
 // Sanitize
@@ -424,9 +412,6 @@ if (!Array.isArray(state.stock)) state.stock = [];
 if (!Array.isArray(state.movements)) state.movements = [];
 if (!Array.isArray(state.machines)) state.machines = [];
 if (!Array.isArray(state.shelves)) state.shelves = [];
-if (!Array.isArray(state.transportUnits)) state.transportUnits = [];
-if (!state.receivingDraft || typeof state.receivingDraft !== 'object') state.receivingDraft = { tbCode: '', items: [] };
-if (!Array.isArray(state.receivingDraft.items)) state.receivingDraft.items = [];
 state.products = state.products.map(p => ({
   ...p,
   productCode: String(p.productCode || p.barcode || p.code || '').trim(),
@@ -441,6 +426,10 @@ state.stock = state.stock.map(s => ({
 state.shelves = [...new Set(state.shelves.map(x => String(x).trim().toUpperCase()).filter(Boolean))].sort();
 state.machines = [...new Set(state.machines.map(x => String(x).trim().toUpperCase()).filter(Boolean))];
 
+// v17: Mal Kabul / TB modülü kaldırıldı; eski TB taslak alanları artık kullanılmaz.
+delete state.transportUnits;
+delete state.receivingDraft;
+
 function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
 save();
 
@@ -452,11 +441,6 @@ function uid() { return Date.now() + '-' + Math.random().toString(36).slice(2, 7
 function now() { return new Date().toLocaleString('tr-TR'); }
 function num(v) { const n = Number(v); return Number.isFinite(n) ? n : 0; }
 function pBy(code) { code = String(code || '').trim(); return state.products.find(p => p.productCode === code); }
-function tbQty(code) { return state.transportUnits.reduce((sum, tb) => sum + (tb.items || []).filter(i => i.productCode === code).reduce((a, i) => a + num(i.qty), 0), 0); }
-function totalQty(code) { return state.stock.filter(s => s.barcode === code).reduce((a, s) => a + s.qty, 0) + tbQty(code); }
-function tbBy(code) { code = String(code || '').trim().toUpperCase(); return state.transportUnits.find(t => t.code === code); }
-function tbStatusLabel(tb) { return tb?.status === 'RECEIVED' ? 'Mal Kabul Tamam' : tb?.status === 'OPEN' ? 'Hazırlanıyor' : 'Boş'; }
-function tbStatusClass(tb) { return tb?.status === 'RECEIVED' ? 'tb-full' : tb?.status === 'OPEN' ? 'tb-open' : 'tb-empty'; }
 function qtyAt(code, loc) { const s = state.stock.find(s => s.barcode === code && s.location === loc); return s ? s.qty : 0; }
 function addStock(code, loc, q) {
   let s = state.stock.find(s => s.barcode === code && s.location === loc);
@@ -497,7 +481,7 @@ function toast(msg, type = 'ok') {
 
 // ─── Navigation ───────────────────────────────────────────────────────────────
 const PAGE_TITLES = {
-  dashboard: 'Ana Sayfa', products: 'Ürünler', receiving: 'Mal Kabul', entry: 'Stok Girişi',
+  dashboard: 'Ana Sayfa', products: 'Ürünler', entry: 'Stok Girişi',
   search: 'Ürün Ara', shelves: 'Raf Yönetimi', 'machines-def': 'Makine Tanımları',
   transfer: 'Raf Transferi', machine: 'Makineye Çıkış', movements: 'Hareket Geçmişi',
   settings: 'Ayarlar'
@@ -530,7 +514,7 @@ function renderPage() {
   document.getElementById('topbarTitle').textContent = title;
   document.getElementById('backBtn').classList.toggle('visible', state.page !== 'dashboard');
   document.querySelectorAll('[data-page]').forEach(b => b.classList.toggle('active', b.dataset.page === state.page));
-  const pages = { dashboard: renderDashboard, products: renderProducts, receiving: renderReceiving, entry: renderEntry, search: renderSearch, shelves: renderShelves, 'machines-def': renderMachinesDef, transfer: renderTransfer, machine: renderMachine, movements: renderMovements, settings: renderSettings };
+  const pages = { dashboard: renderDashboard, products: renderProducts, entry: renderEntry, search: renderSearch, shelves: renderShelves, 'machines-def': renderMachinesDef, transfer: renderTransfer, machine: renderMachine, movements: renderMovements, settings: renderSettings };
   const fn = pages[state.page] || renderDashboard;
   const cls = String(state.page).replace(/[^a-z0-9-]/gi, '-');
   document.getElementById('page').innerHTML = `<div class="page-shell page-${cls}">${fn()}</div>`;
@@ -554,11 +538,6 @@ function renderDashboard() {
       <span class="action-icon">📷</span>
       <span class="action-name">Ürün Ekle / Tara</span>
       <span class="action-desc">Etiketten otomatik oku</span>
-    </button>
-    <button class="action-btn" onclick="goPage('receiving')">
-      <span class="action-icon">🚚</span>
-      <span class="action-name">Mal Kabul</span>
-      <span class="action-desc">Boş TB okut, ürünü içine al</span>
     </button>
     <button class="action-btn" onclick="goPage('entry')">
       <span class="action-icon">➕</span>
@@ -613,7 +592,7 @@ function renderDashboard() {
 }
 
 function moveBadge(type) {
-  if (type === 'MAL_KABUL') return '<span class="badge badge-in">Mal Kabul</span>';
+  if (type === 'MAL_KABUL') return '<span class="badge">Eski Mal Kabul</span>';
   if (type === 'GIRIS') return '<span class="badge badge-in">Giriş</span>';
   if (type === 'TRANSFER') return '<span class="badge badge-move">Transfer</span>';
   if (type === 'MAKINE') return '<span class="badge badge-machine">Makine</span>';
@@ -724,134 +703,6 @@ window.placePending = placePending;
 function cancelPending() { state.pendingCode = ''; save(); renderPage(); }
 window.cancelPending = cancelPending;
 
-// ─── MAL KABUL / TAŞIMA BİRİMİ ────────────────────────────────────────────────
-function renderReceiving() {
-  const d = state.receivingDraft || { tbCode:'', items:[] };
-  const tb = d.tbCode ? tbBy(d.tbCode) : null;
-  const units = state.transportUnits.slice().reverse();
-  return `
-  <div class="card">
-    <div class="card-title">Mal Kabul — Taşıma Birimi (TB)</div>
-    <div class="card-sub">Önce boş TB barkodunu okutun. Sonra içine alınacak ürünleri barkodla ekleyin.</div>
-    <div class="tb-step">1 · Boş TB</div>
-    <div class="scan-row">
-      <div class="field" style="flex:1"><label>TB Kodu *</label><input id="rTb" value="${esc(d.tbCode || '')}" placeholder="Boş TB barkodu" autocomplete="off" oninput="receivingTbChanged()"></div>
-      <button class="btn-scan" onclick="scanReceivingTb()" title="TB okut">📷</button>
-    </div>
-    <div id="rTbInfo" class="alert ${tb && tb.status==='RECEIVED' ? 'alert-error' : 'alert-info'}" style="${d.tbCode ? '' : 'display:none'}">${d.tbCode ? (tb ? `TB ${esc(d.tbCode)} — ${tbStatusLabel(tb)}` : `Yeni boş TB: ${esc(d.tbCode)}`) : ''}</div>
-
-    <div class="divider"></div>
-    <div class="tb-step">2 · Ürün Ekle</div>
-    <div class="fgrid g3">
-      <div class="field"><label>Ürün Kodu *</label><div class="scan-row"><div class="field"><input id="rCode" placeholder="Ürün barkodu" autocomplete="off" oninput="receivingProductChanged()"></div><button class="btn-scan" onclick="scanReceivingProduct()">📷</button></div></div>
-      <div class="field"><label>Ürün İsmi *</label><input id="rDesc" placeholder="Ürün adı"></div>
-      <div class="field"><label>Adet *</label><input id="rQty" type="number" min="0.01" step="0.01" placeholder="0"></div>
-    </div>
-    <div class="btn-row"><button class="btn btn-secondary" onclick="addReceivingItem()">＋ TB'ye Ekle</button><button class="btn btn-primary" onclick="completeReceiving()" ${d.items?.length ? '' : 'disabled'}>Mal Kabulü Tamamla</button><button class="btn btn-ghost" onclick="clearReceivingDraft()">Temizle</button></div>
-    ${d.items?.length ? `<div class="tb-items">${d.items.map((i,idx)=>`<div class="tb-item"><b>${esc(i.productCode)} — ${esc(i.description)}</b><span>${num(i.qty).toLocaleString('tr-TR')} ${esc(i.unit||'Adet')}</span><button class="btn btn-danger" style="padding:4px 7px" onclick="removeReceivingItem(${idx})">×</button></div>`).join('')}</div>` : ''}
-  </div>
-  <div class="card">
-    <div class="card-title">Taşıma Birimleri (${state.transportUnits.length})</div>
-    ${units.length ? `<div class="table-wrap"><table><thead><tr><th>TB</th><th>Durum</th><th>Ürün</th><th>Toplam Adet</th><th>Tarih</th></tr></thead><tbody>${units.map(tb=>`<tr><td><b>${esc(tb.code)}</b></td><td><span class="tb-status ${tbStatusClass(tb)}">${tbStatusLabel(tb)}</span></td><td>${(tb.items||[]).length}</td><td>${(tb.items||[]).reduce((a,i)=>a+num(i.qty),0).toLocaleString('tr-TR')}</td><td>${esc(tb.receivedAt || tb.createdAt || '')}</td></tr>`).join('')}</tbody></table></div>` : '<div class="empty-state">Henüz TB kaydı yok.</div>'}
-  </div>`;
-}
-
-function receivingTbChanged() {
-  const v = (document.getElementById('rTb')?.value || '').trim().toUpperCase();
-  state.receivingDraft.tbCode = v;
-  const info = document.getElementById('rTbInfo');
-  if (!info) return;
-  if (!v) { info.style.display='none'; return; }
-  const tb = tbBy(v);
-  info.style.display='';
-  if (tb?.status === 'RECEIVED') { info.className='alert alert-error'; info.textContent=`TB ${v} dolu / mal kabulü tamamlanmış. Boş bir TB okutun.`; }
-  else { info.className='alert alert-success'; info.textContent = tb ? `✓ TB ${v} hazır — ${tbStatusLabel(tb)}` : `✓ Yeni boş TB ${v} hazır.`; }
-  save();
-}
-window.receivingTbChanged = receivingTbChanged;
-
-async function scanReceivingTb() {
-  try {
-    const v = (await scanBarcodeValue('Boş TB Barkodunu Tara')).trim().toUpperCase();
-    const existing = tbBy(v);
-    if (existing?.status === 'RECEIVED') { toast('Bu TB dolu. Boş bir TB okutun.', 'err'); return; }
-    if (!existing) state.transportUnits.push({ code:v, status:'EMPTY', items:[], createdAt:now() });
-    state.receivingDraft = { tbCode:v, items:[] };
-    save(); renderPage(); toast('Boş TB okundu: ' + v);
-  } catch (e) { toast(e.message, 'err'); }
-}
-window.scanReceivingTb = scanReceivingTb;
-
-function receivingProductChanged() {
-  const code = document.getElementById('rCode')?.value.trim();
-  const p = pBy(code);
-  const d = document.getElementById('rDesc');
-  if (p && d && !d.value.trim()) d.value = p.description;
-}
-window.receivingProductChanged = receivingProductChanged;
-
-async function scanReceivingProduct() {
-  try {
-    if (!state.receivingDraft.tbCode) { toast('Önce boş TB okutun', 'err'); return; }
-    const code = (await scanBarcodeValue('Ürün Barkodunu Tara')).trim();
-    const el = document.getElementById('rCode'); if (el) el.value = code;
-    receivingProductChanged();
-  } catch (e) { toast(e.message, 'err'); }
-}
-window.scanReceivingProduct = scanReceivingProduct;
-
-function addReceivingItem() {
-  const tbCode = (state.receivingDraft.tbCode || '').trim().toUpperCase();
-  const code = document.getElementById('rCode')?.value.trim();
-  const desc = document.getElementById('rDesc')?.value.trim();
-  const q = num(document.getElementById('rQty')?.value);
-  if (!tbCode) { toast('Önce boş TB okutun', 'err'); return; }
-  const tb = tbBy(tbCode);
-  if (tb?.status === 'RECEIVED') { toast('Bu TB artık boş değil', 'err'); return; }
-  if (!code) { toast('Ürün kodu gerekli', 'err'); return; }
-  if (!desc) { toast('Ürün ismi gerekli', 'err'); return; }
-  if (q <= 0) { toast('Adet sıfırdan büyük olmalı', 'err'); return; }
-  let p = pBy(code);
-  if (!p) state.products.push({ id:uid(), productCode:code, barcode:code, code, description:desc, name:desc, unit:'Adet' });
-  else if (!p.description) p.description = desc;
-  const ex = state.receivingDraft.items.find(i => i.productCode === code);
-  if (ex) { ex.qty += q; if (desc) ex.description = desc; }
-  else state.receivingDraft.items.push({ productCode:code, description:desc, qty:q, unit:p?.unit || 'Adet' });
-  if (tb) tb.status = 'OPEN';
-  save(); renderPage(); toast(`${code} TB'ye eklendi`);
-}
-window.addReceivingItem = addReceivingItem;
-
-function removeReceivingItem(idx) {
-  state.receivingDraft.items.splice(idx,1); save(); renderPage();
-}
-window.removeReceivingItem = removeReceivingItem;
-
-function clearReceivingDraft() {
-  const code = state.receivingDraft.tbCode;
-  const tb = tbBy(code);
-  if (tb && tb.status === 'OPEN' && !(tb.items||[]).length) tb.status = 'EMPTY';
-  state.receivingDraft = { tbCode:'', items:[] }; save(); renderPage();
-}
-window.clearReceivingDraft = clearReceivingDraft;
-
-function completeReceiving() {
-  const d = state.receivingDraft;
-  const code = (d.tbCode || '').trim().toUpperCase();
-  if (!code) { toast('TB okutun', 'err'); return; }
-  if (!d.items?.length) { toast('TB içine en az bir ürün ekleyin', 'err'); return; }
-  let tb = tbBy(code);
-  if (!tb) { tb = { code, status:'EMPTY', items:[], createdAt:now() }; state.transportUnits.push(tb); }
-  if (tb.status === 'RECEIVED') { toast('Bu TB daha önce mal kabul edilmiş', 'err'); return; }
-  tb.items = d.items.map(i => ({...i}));
-  tb.status = 'RECEIVED';
-  tb.receivedAt = now();
-  tb.items.forEach(i => logMovement('MAL_KABUL', i.productCode, num(i.qty), 'MAL KABUL', `TB:${code}`, '', 'Taşıma birimine alındı'));
-  state.receivingDraft = { tbCode:'', items:[] };
-  save(); renderPage(); toast(`Mal kabul tamamlandı — TB ${code}`);
-}
-window.completeReceiving = completeReceiving;
-
 // ─── ENTRY ───────────────────────────────────────────────────────────────────
 function renderEntry() {
   return `
@@ -952,8 +803,7 @@ function doSearch() {
   }
   results.innerHTML = matches.map(p => {
     const locs = state.stock.filter(s => s.barcode === p.productCode);
-    const tbLocs = state.transportUnits.filter(tb => (tb.items || []).some(i => i.productCode === p.productCode)).map(tb => ({ location: 'TB: ' + tb.code, qty: (tb.items || []).filter(i => i.productCode === p.productCode).reduce((a,i)=>a+num(i.qty),0) }));
-    const allLocs = [...locs, ...tbLocs];
+    const allLocs = locs;
     const total = allLocs.reduce((a, s) => a + s.qty, 0);
     return `
     <div class="product-result">
@@ -1272,7 +1122,7 @@ function renderSettings() {
         <div class="stat-label">Veri Boyutu</div>
       </div>
       <div class="stat" style="text-align:center">
-        <div class="stat-value">${state.products.length + state.stock.length + state.movements.length + state.transportUnits.length}</div>
+        <div class="stat-value">${state.products.length + state.stock.length + state.movements.length}</div>
         <div class="stat-label">Toplam Kayıt</div>
       </div>
     </div>
@@ -1282,9 +1132,9 @@ function renderSettings() {
   <div class="card">
     <div class="card-title">Uygulama Hakkında</div>
     <p style="font-size:13px;color:var(--muted);line-height:1.6">
-      <b>Kansan Depo v16</b><br>
+      <b>Kansan Depo v17</b><br>
       Stok ve lokasyon yönetim sistemi.<br>
-      Ürün kaydı, barkod tarama, mal kabul/TB, raf yönetimi, transfer ve makine çıkışı desteklenir.<br>
+      Ürün kaydı, barkod tarama, stok girişi, raf yönetimi, transfer ve makine çıkışı desteklenir.<br>
       Tüm veriler tarayıcınıza kaydedilir.
     </p>
   </div>`;
@@ -1318,7 +1168,7 @@ window.importData = importData;
 function resetAll() {
   if (!confirm('TÜM veriler (ürünler, stok, hareketler) kalıcı olarak silinecek. Emin misiniz?')) return;
   if (!confirm('Son onay: Bu işlem geri alınamaz!')) return;
-  Object.assign(state, { products: [], stock: [], movements: [], machines: [], shelves: [], transportUnits: [], receivingDraft: { tbCode:'', items:[] }, pendingCode: '' });
+  Object.assign(state, { products: [], stock: [], movements: [], machines: [], shelves: [], pendingCode: '' });
   save(); toast('Tüm veriler sıfırlandı'); renderPage();
 }
 window.resetAll = resetAll;
