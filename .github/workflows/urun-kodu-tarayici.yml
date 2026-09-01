@@ -1,0 +1,39 @@
+name: Urun kodu tarayici ekle
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: "!contains(github.event.head_commit.message, '[urun-kodu-tarayici]')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Urun kodu alanina barkod okuma ekle
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          old = '<div class="field"><label>Ürün Kodu</label><input id="pCode" placeholder="Örn. RM-001"></div>'
+          new = '<div class="field"><label>Ürün Kodu</label><div class="scan-input"><input id="pCode" placeholder="Kodu okut veya yaz"><button onclick="scanTo(\'pCode\')" title="Ürün kodunu okut">▣</button></div></div>'
+          if old in s:
+              p.write_text(s.replace(old, new, 1), encoding='utf-8')
+              print('Ürün kodu tarayıcı alanı eklendi.')
+          elif "scanTo('pCode')" in s:
+              print('Zaten güncel.')
+          else:
+              raise SystemExit('Beklenen Ürün Kodu alanı bulunamadı.')
+          PY
+      - name: Degisikligi yayinla
+        run: |
+          if git diff --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Ürün kodu tarayıcı desteği [urun-kodu-tarayici]"
+          git push
