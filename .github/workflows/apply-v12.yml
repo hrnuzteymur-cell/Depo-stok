@@ -1,0 +1,92 @@
+name: Apply v12 OCR fix
+on:
+  push:
+    paths:
+      - '.github/workflows/apply-v12.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Patch index.html
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace('Kansan Depo · v11','Kansan Depo · v12').replace('>v11</span>','>v12</span>')
+          start=s.index('function cleanOCRDescription(text,code){')
+          end=s.index('async function scanProductLabel(){', start)
+          new=r'''function isJunkLabelLine(line){
+           line=String(line||'').replace(/\s+/g,' ').trim();
+           if(!line)return true;
+           if(/^(barkod|barcode|raf kodu|raf|tarih|date|barkod bas|barkod baş)/i.test(line))return true;
+           if(/\b\d{1,2}[.\-/]\d{1,2}[.\-/]\d{2,4}\b/.test(line))return true;
+           return false;
+          }
+          function normalizeCodeText(v){return String(v||'').toUpperCase().replace(/[^A-Z0-9]/g,'')}
+          function cleanOCRDescription(text,code){
+           const lines=String(text||'').split(/\r?\n/).map(x=>x.replace(/\s+/g,' ').trim()).filter(Boolean);
+           const codeNorm=normalizeCodeText(code);
+           let codeIndex=-1;
+           for(let i=0;i<lines.length;i++){
+             const n=normalizeCodeText(lines[i]);
+             if(codeNorm && (n===codeNorm || n.includes(codeNorm))){codeIndex=i;break}
+           }
+           if(codeIndex>=0){
+             for(let i=codeIndex+1;i<Math.min(lines.length,codeIndex+4);i++){
+               const line=lines[i],n=normalizeCodeText(line);
+               if(!isJunkLabelLine(line)&&n!==codeNorm&&!/^\d{5,}$/.test(n)&&/[A-ZÇĞİÖŞÜ]/i.test(line)&&line.length>=3)return line.trim();
+             }
+           }
+           return '';
+          }
+          function extractDescriptionNearCode(data,code){
+           const codeNorm=normalizeCodeText(code);
+           const rawLines=Array.isArray(data?.lines)?data.lines:[];
+           const lines=rawLines.map(l=>({text:String(l.text||'').replace(/\s+/g,' ').trim(),bbox:l.bbox||{}})).filter(l=>l.text);
+           if(lines.length){
+             const ci=lines.findIndex(l=>{const n=normalizeCodeText(l.text);return codeNorm&&(n===codeNorm||n.includes(codeNorm))});
+             if(ci>=0){
+               const c=lines[ci],cb=c.bbox||{};
+               const candidates=lines.map((l,i)=>({l,i})).filter(({l,i})=>{
+                 if(i===ci||isJunkLabelLine(l.text))return false;
+                 const n=normalizeCodeText(l.text);
+                 if(!n||n===codeNorm||/^\d{5,}$/.test(n))return false;
+                 if(!/[A-ZÇĞİÖŞÜ]/i.test(l.text)||l.text.length<3)return false;
+                 const b=l.bbox||{};
+                 if(Number.isFinite(cb.y1)&&Number.isFinite(b.y0)&&b.y0<cb.y1-5)return false;
+                 if(Number.isFinite(cb.x0)&&Number.isFinite(b.x0)&&Math.abs(b.x0-cb.x0)>Math.max(180,(cb.x1||cb.x0)-cb.x0+80))return false;
+                 return true;
+               }).sort((a,b)=>(a.l.bbox?.y0??99999)-(b.l.bbox?.y0??99999));
+               if(candidates.length)return candidates[0].l.text.trim();
+               for(let i=ci+1;i<Math.min(lines.length,ci+4);i++)if(!isJunkLabelLine(lines[i].text))return lines[i].text.trim();
+             }
+           }
+           return cleanOCRDescription(data?.text||'',code);
+          }
+          '''
+          s=s[:start]+new+s[end:]
+          s=s.replace("let desc=existing?.description||cleanOCRDescription(raw,code);","let desc=existing?.description||extractDescriptionNearCode(res?.data||{},code);")
+          p.write_text(s,encoding='utf-8')
+          PY
+          node --check <(python3 - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text()
+          a=s.index('<script>')+8;b=s.rindex('</script>')
+          print(s[a:b])
+          PY
+          )
+      - name: Commit v12
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "v12: ürün tanımını kodun alt satırından ayır" || exit 0
+          git push
