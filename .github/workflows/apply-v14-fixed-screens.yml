@@ -1,0 +1,43 @@
+name: Apply v14 fixed screens
+on:
+  push:
+    paths:
+      - '.github/workflows/apply-v14-fixed-screens.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch index to fixed full-screen navigation
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('index.html')
+          s=p.read_text()
+          s=s.replace('Kansan Depo · v13','Kansan Depo · v14')
+          s=s.replace('>v13</span>','>v14</span>')
+          # Remove v13 scroll behavior from go()
+          s=re.sub(r"function go\(t\)\{state\.tab=t;save\(\);render\(\);if\(t!==['\"]dashboard['\"]\)requestAnimationFrame\(\(\)=>document\.getElementById\(['\"]activeTool['\"]\)\?\.scrollIntoView\(\{behavior:['\"]smooth['\"],block:['\"]start['\"]\}\)\)\}\)",
+                   "function go(t){state.tab=t;save();render()}",s)
+          # Replace v13 render if present: dashboard plus activeTool => single screen only.
+          s=re.sub(r"function render\(\)\{navActive\(\);document\.getElementById\(['\"]main['\"]\)\.innerHTML=.*?\}\s*document\.querySelectorAll\(\['\"]\[data-tab\]['\"]\)",
+                   "function render(){navActive();const main=document.getElementById('main');const page=state.tab==='dashboard'?dashboard():state.tab==='urunler'?products():state.tab==='giris'?entry():state.tab==='ara'?searchPage():state.tab==='raf'?rafPage():state.tab==='transfer'?transferPage():state.tab==='makine'?machinePage():movementsPage();main.innerHTML=state.tab==='dashboard'?page:`<section class=\\\"screenPage\\\"><div class=\\\"screenBack\\\"><button class=\\\"btn sec\\\" onclick=\\\"go('dashboard')\\\">← Ana Sayfa</button></div><div class=\\\"screenBody\\\">${page}</div></section>`}document.querySelectorAll('[data-tab]')",
+                   s, count=1, flags=re.S)
+          # Fallback if render signature did not match above: append override later.
+          css='''\n/* v14 - sabit tam ekran sayfalar */\nhtml,body{height:100%;overflow:hidden!important}\nbody{overscroll-behavior:none}\n.app{height:100dvh!important;min-height:0!important;overflow:hidden!important}\n.top{position:fixed!important;left:0;right:0;top:0;height:58px!important;z-index:100!important}\nmain{position:fixed!important;left:0!important;right:0!important;top:58px!important;bottom:0!important;margin:0!important;max-width:none!important;padding:14px!important;overflow:hidden!important}\n.side,.bottom{display:none!important}\n.welcome{height:108px;overflow:hidden}\n.welcome h2{font-size:clamp(22px,5vw,34px)!important;line-height:1.05!important;margin:3px 0 8px!important}\n.welcome p{margin:0!important}\n.actions{height:calc(100dvh - 58px - 108px - 102px - 42px)!important;min-height:0!important;margin:10px 0!important;display:grid!important;grid-template-columns:repeat(2,1fr)!important;grid-template-rows:repeat(3,1fr)!important;gap:9px!important}\n.act{min-height:0!important;height:auto!important;padding:12px!important;overflow:hidden}\n.act b{font-size:clamp(13px,3.6vw,18px)!important;line-height:1.08}.act small{font-size:clamp(9px,2.6vw,12px)!important}\nmain>.panel,.welcome~.panel{height:92px!important;margin:0!important;padding:12px!important;overflow:hidden!important}\n.screenPage{height:100%;display:flex;flex-direction:column;overflow:hidden}\n.screenBack{height:46px;flex:0 0 46px;display:flex;align-items:flex-start}\n.screenBack .btn{padding:8px 11px!important;font-size:12px!important}\n.screenBody{flex:1;min-height:0;overflow:hidden!important;display:flex;flex-direction:column}\n.screenBody>.panel,.screenBody>div>.panel{margin:0!important;height:100%!important;max-height:100%!important;overflow:hidden!important;padding:12px!important}\n.screenBody .grid{gap:7px!important}\n.screenBody .field{gap:4px!important}\n.screenBody input,.screenBody select,.screenBody textarea{padding:8px 9px!important;min-height:38px!important;font-size:14px!important}\n.screenBody textarea{min-height:64px!important;max-height:84px!important}\n.screenBody .btn{padding:9px 11px!important;font-size:13px!important}\n.screenBody .scanbtn{width:46px!important;min-width:46px!important;font-size:18px!important}\n.screenBody .scanbig{min-height:62px!important;font-size:14px!important}\n.screenBody .title{margin-bottom:8px!important;font-size:15px!important}\n.screenBody .note{font-size:10px!important}\n.screenBody .table{max-height:42vh!important;overflow:hidden!important;font-size:9px!important}\n.screenBody table{font-size:9px!important;table-layout:fixed!important}\n.screenBody th,.screenBody td{padding:5px!important;overflow:hidden!important;text-overflow:ellipsis!important}\n.screenBody .chips{max-height:72px!important;overflow:hidden!important;margin-top:6px!important}\n@media(max-width:720px){main{padding:10px!important}.welcome{height:98px}.actions{height:calc(100dvh - 58px - 98px - 92px - 30px)!important;gap:8px!important}.act{padding:10px!important}.screenBack{height:42px;flex-basis:42px}.screenBody .g4,.screenBody .g3,.screenBody .g2{grid-template-columns:1fr 1fr!important}.screenBody .panel{border-radius:14px!important}.screenBody .table{max-height:34vh!important}}\n@media(max-width:430px) and (max-height:760px){.screenBody input,.screenBody select{min-height:34px!important;padding:6px 8px!important}.screenBody .grid{gap:5px!important}.screenBody .field label{font-size:8px!important}.screenBody textarea{min-height:52px!important}.screenBody .title{font-size:13px!important}.screenBody .btn{padding:7px 9px!important}.screenBody .panel{padding:9px!important}}\n'''
+          s=s.replace('</style>',css+'\n</style>',1)
+          # Add a robust late override for go/render regardless of original implementation.
+          override='''\n<script>\nwindow.addEventListener('DOMContentLoaded',()=>{\n  window.go=function(t){state.tab=t;save();window.render()};\n  window.render=function(){\n    navActive();\n    const main=document.getElementById('main');\n    const page=state.tab==='dashboard'?dashboard():state.tab==='urunler'?products():state.tab==='giris'?entry():state.tab==='ara'?searchPage():state.tab==='raf'?rafPage():state.tab==='transfer'?transferPage():state.tab==='makine'?machinePage():movementsPage();\n    main.innerHTML=state.tab==='dashboard'?page:`<section class="screenPage"><div class="screenBack"><button class="btn sec" onclick="go('dashboard')">← Ana Sayfa</button></div><div class="screenBody">${page}</div></section>`;\n  };\n  state.tab='dashboard'; save(); render();\n});\n</script>\n'''
+          s=s.replace('</body>',override+'\n</body>',1)
+          p.write_text(s)
+          PY
+      - name: Commit v14
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "v14: sabit tam ekran sayfa yapisi" || exit 0
+          git push
