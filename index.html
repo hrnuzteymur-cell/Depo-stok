@@ -19,4 +19,32 @@ function transfer(){return `<div class="panel"><div class="title">Raf Transferi<
 function machine(){let opts=state.machines.length?`<option value="">Makine seçiniz</option>${state.machines.map(m=>`<option>${esc(m)}</option>`).join('')}`:'<option value="">Önce aşağıdan makine ekleyin</option>';return `<div class="panel"><div class="title">Makineye Çıkış</div><div class="grid g4"><div class="field"><label>Barkod</label><input id="mBarcode"></div><div class="field"><label>Çıkış Rafı</label><input id="mFrom"></div><div class="field"><label>Miktar</label><input id="mQty" type="number"></div><div class="field"><label>Makine</label><select id="mMachine">${opts}</select></div></div><div class="grid g2" style="margin-top:10px"><div class="field"><label>Operatör</label><input id="mOperator"></div><div class="field"><label>Not</label><input id="mNote"></div></div><div style="margin-top:12px"><button class="btn" onclick="machineSave()">Makineye Ver / Stoktan Düş</button></div></div><div class="panel"><div class="title">Makine Tanımları</div><div class="scan"><input id="newMachine" placeholder="Makine adını manuel yaz"><button class="btn sec" onclick="addMachine()">Kaydet</button></div>${state.machines.length?`<div class="chips">${state.machines.map(m=>`<span class="chip"><b>${esc(m)}</b><button onclick="removeMachine('${String(m).replace(/'/g,"\\'")}')">×</button></span>`).join('')}</div>`:'<div class="note" style="margin-top:10px">Henüz kayıtlı makine yok.</div>'}</div>`}function addMachine(){let v=newMachine.value.trim().toUpperCase();if(!v)return alert('Makine adını yaz.');if(state.machines.includes(v))return alert('Bu makine zaten kayıtlı.');state.machines.push(v);save();render()}function removeMachine(v){if(!confirm(v+' silinsin mi?'))return;state.machines=state.machines.filter(m=>m!==v);save();render()}function machineSave(){let b=mBarcode.value.trim(),f=mFrom.value.trim().toUpperCase(),q=num(mQty.value),m=mMachine.value;if(!ensure(b)||!f||q<=0)return;if(!m)return alert('Önce makine seç veya yeni makine kaydet.');if(!remStock(b,f,q))return alert('Bu rafta yeterli stok yok.');move('MAKINE',b,q,f,'',m,(mOperator.value.trim()?('Operatör: '+mOperator.value.trim()+' · '):'')+mNote.value.trim());save();alert('Makine çıkışı kaydedildi.');render()}
 function movementTable(r){if(!r.length)return '<div class="empty">Hareket kaydı yok.</div>';return `<div class="table"><table><thead><tr><th>Tarih</th><th>Tür</th><th>Ürün</th><th>Barkod</th><th>Miktar</th><th>Kaynak</th><th>Hedef</th><th>Makine</th></tr></thead><tbody>${r.map(x=>`<tr><td>${esc(x.date)}</td><td><span class="badge ${x.type==='GIRIS'?'in':x.type==='TRANSFER'?'move':'out'}">${esc(x.type)}</span></td><td>${esc(x.productName)}</td><td>${esc(x.barcode)}</td><td>${x.qty}</td><td>${esc(x.from)}</td><td>${esc(x.to)}</td><td>${esc(x.machine)}</td></tr>`).join('')}</tbody></table></div>`}function movements(){return `<div class="panel"><div class="title">Stok Hareket Geçmişi</div>${movementTable(state.movements)}</div>`}
 function render(){document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===state.tab));main.innerHTML=state.tab==='dashboard'?dash():state.tab==='urunler'?products():state.tab==='giris'?entry():state.tab==='ara'?searchPage():state.tab==='raf'?raf():state.tab==='transfer'?transfer():state.tab==='makine'?machine():movements()}function go(t){state.tab=t;save();render()}document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.tab));render();
-</script></body></html>
+</script><script id="KANSAN_PRODUCT_SCANNER_FIX_V1">
+(function(){
+  function enhance(id,label){
+    var input=document.getElementById(id); if(!input) return;
+    var parent=input.parentElement;
+    if(parent && parent.dataset && parent.dataset.scannerWrap==='1') return;
+    if(parent){
+      Array.from(parent.querySelectorAll('button')).forEach(function(b){
+        if((b.getAttribute('onclick')||'').indexOf("scanTo('"+id+"')")>=0) b.remove();
+      });
+    }
+    var wrap=document.createElement('div');
+    wrap.dataset.scannerWrap='1';
+    wrap.style.display='flex';wrap.style.gap='8px';wrap.style.alignItems='stretch';wrap.style.width='100%';
+    input.parentNode.insertBefore(wrap,input);wrap.appendChild(input);input.style.flex='1';
+    var btn=document.createElement('button');btn.type='button';btn.textContent='📷';btn.title=label;btn.setAttribute('aria-label',label);
+    btn.style.width='54px';btn.style.minWidth='54px';btn.style.border='0';btn.style.borderRadius='12px';btn.style.background='#e8efef';btn.style.color='#173b4c';btn.style.fontSize='22px';btn.style.cursor='pointer';
+    btn.onclick=function(){ if(typeof scanTo==='function') scanTo(id); else alert('Barkod okuyucu hazır değil.'); };
+    wrap.appendChild(btn);
+  }
+  function run(){enhance('pBarcode','Ürün barkodunu okut');enhance('pCode','Ürün kodunu okut');}
+  var oldRender=window.render;
+  if(typeof oldRender==='function') window.render=function(){var r=oldRender.apply(this,arguments);setTimeout(run,0);return r;};
+  document.addEventListener('click',function(){setTimeout(run,30);});
+  new MutationObserver(function(){run();}).observe(document.documentElement,{childList:true,subtree:true});
+  setTimeout(run,0);
+})();
+</script>
+</body></html>
