@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kansan-depo-v30';
+const CACHE_NAME = 'kansan-depo-v31';
 const APP_SHELL = [
   './',
   './index.html',
