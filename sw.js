@@ -1,10 +1,10 @@
-const CACHE_NAME = 'kansan-depo-v28';
+const CACHE_NAME = 'kansan-depo-v29';
 const APP_SHELL = [
   './',
   './index.html',
   './count.js',
   './reports.js',
-  './pwa.js',
+  './pwa.js',\n  './cloud-config.js',
   './manifest.webmanifest',
   './icon.svg'
 ];
