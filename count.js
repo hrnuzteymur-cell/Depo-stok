@@ -92,7 +92,141 @@ function countSave() {
   onCountChange();
 }
 
+// ─── v24 / Aşama 6: Kritik Stok Seviyesi ────────────────────────────────────
+function criticalMinOf(product) {
+  const value = Number(product?.minStock);
+  return Number.isFinite(value) && value > 0 ? value : 0;
+}
+
+function criticalStockItems() {
+  return state.products
+    .map(product => {
+      const minStock = criticalMinOf(product);
+      const currentStock = totalQty(product.productCode);
+      return { product, minStock, currentStock };
+    })
+    .filter(item => item.minStock > 0 && item.currentStock <= item.minStock)
+    .sort((a, b) => (a.currentStock - a.minStock) - (b.currentStock - b.minStock));
+}
+
+function setCriticalStockLevel(code, minimum) {
+  const product = pBy(code);
+  const value = Number(minimum);
+  if (!product) return { ok: false, error: 'Ürün kayıtlı değil' };
+  if (!Number.isFinite(value) || value < 0) return { ok: false, error: 'Kritik seviye 0 veya daha büyük olmalı' };
+
+  const stockBefore = JSON.stringify(state.stock);
+  const movementCountBefore = state.movements.length;
+  product.minStock = value;
+
+  if (JSON.stringify(state.stock) !== stockBefore || state.movements.length !== movementCountBefore) {
+    return { ok: false, error: 'Kritik seviye kaydı stok verisini değiştirdi. İşlem iptal edildi.' };
+  }
+  return { ok: true, minimum: value, currentStock: totalQty(code), critical: value > 0 && totalQty(code) <= value };
+}
+
+function criticalProductOptions() {
+  if (!state.products.length) return '<option value="">— Önce ürün ekleyin —</option>';
+  return '<option value="">— Ürün seçin —</option>' + state.products
+    .map(p => `<option value="${esc(p.productCode)}">${esc(p.productCode)} · ${esc(p.description)}</option>`)
+    .join('');
+}
+
+function criticalListHtml(items) {
+  if (!items.length) return '<div class="alert alert-success">✓ Kritik seviyenin altında ürün yok.</div>';
+  return `<div class="stock-locs">${items.map(item => {
+    const p = item.product;
+    const unit = p.unit || 'Adet';
+    return `<div class="stock-loc-row"><span class="loc-name">⚠ ${esc(p.description)} <span style="color:var(--muted);font-weight:600">(${esc(p.productCode)})</span></span><span class="loc-qty" style="color:var(--red)">${item.currentStock.toLocaleString('tr-TR')} / min ${item.minStock.toLocaleString('tr-TR')} ${esc(unit)}</span></div>`;
+  }).join('')}</div>`;
+}
+
+function updateCriticalEditor() {
+  const code = document.getElementById('criticalProduct')?.value || '';
+  const input = document.getElementById('criticalMin');
+  const info = document.getElementById('criticalInfo');
+  if (!input || !info) return;
+  if (!code) { input.value = ''; info.style.display = 'none'; return; }
+  const p = pBy(code);
+  if (!p) { input.value = ''; info.style.display = 'none'; return; }
+  input.value = criticalMinOf(p) || 0;
+  const unit = p.unit || 'Adet';
+  const current = totalQty(code);
+  info.className = 'alert alert-info';
+  info.textContent = `Mevcut stok: ${current} ${unit}. 0 değeri kritik stok takibini kapatır.`;
+  info.style.display = '';
+}
+
+function saveCriticalStockLevel() {
+  const code = document.getElementById('criticalProduct')?.value || '';
+  const raw = document.getElementById('criticalMin')?.value ?? '';
+  if (!code) { toast('Ürün seçin', 'err'); return; }
+  if (raw === '') { toast('Kritik stok seviyesini girin', 'err'); return; }
+  const result = setCriticalStockLevel(code, Number(raw));
+  if (!result.ok) { toast(result.error, 'err'); return; }
+  save();
+  toast(result.minimum === 0 ? 'Kritik stok takibi kapatıldı' : `Kritik stok seviyesi ${result.minimum} olarak kaydedildi`);
+  renderPage();
+}
+
+function injectCriticalStockUI() {
+  const dashboard = document.querySelector('.page-dashboard');
+  if (dashboard && !dashboard.querySelector('[data-critical-dashboard]')) {
+    const items = criticalStockItems();
+    if (items.length) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.dataset.criticalDashboard = '1';
+      card.style.borderColor = '#fecaca';
+      card.innerHTML = `<div class="card-title" style="color:var(--red)">⚠ Kritik Stok (${items.length})</div>${criticalListHtml(items)}`;
+      const actions = dashboard.querySelector('.action-grid');
+      if (actions) dashboard.insertBefore(card, actions);
+      else dashboard.appendChild(card);
+    }
+  }
+
+  const products = document.querySelector('.page-products');
+  if (products && !products.querySelector('[data-critical-manager]')) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.criticalManager = '1';
+    card.innerHTML = `
+      <div class="card-title">Kritik Stok Seviyesi</div>
+      <div class="card-sub">Ürün toplam stoğu bu seviyeye veya altına düştüğünde ana sayfada uyarı gösterilir. 0 = takip kapalı.</div>
+      <div class="fgrid g2">
+        <div class="field"><label>Ürün</label><select id="criticalProduct" onchange="updateCriticalEditor()">${criticalProductOptions()}</select></div>
+        <div class="field"><label>Minimum Stok</label><input id="criticalMin" type="number" min="0" step="0.01" placeholder="0"></div>
+      </div>
+      <div id="criticalInfo" class="alert alert-info" style="display:none"></div>
+      <div class="btn-row"><button class="btn btn-primary" onclick="saveCriticalStockLevel()">Kritik Seviyeyi Kaydet</button></div>
+      <div class="divider"></div>
+      <div class="card-title" style="margin-bottom:8px">Şu An Kritik Olanlar</div>
+      ${criticalListHtml(criticalStockItems())}`;
+    const first = products.firstElementChild;
+    if (first?.nextSibling) products.insertBefore(card, first.nextSibling);
+    else products.appendChild(card);
+  }
+}
+
+function startCriticalStockObserver() {
+  injectCriticalStockUI();
+  const page = document.getElementById('page');
+  if (!page || page.dataset.criticalObserver === '1') return;
+  page.dataset.criticalObserver = '1';
+  const observer = new MutationObserver(() => requestAnimationFrame(injectCriticalStockUI));
+  observer.observe(page, { childList: true, subtree: true });
+}
+
 window.renderCount = renderCount;
 window.onCountChange = onCountChange;
 window.reconcileCount = reconcileCount;
 window.countSave = countSave;
+window.criticalMinOf = criticalMinOf;
+window.criticalStockItems = criticalStockItems;
+window.setCriticalStockLevel = setCriticalStockLevel;
+window.updateCriticalEditor = updateCriticalEditor;
+window.saveCriticalStockLevel = saveCriticalStockLevel;
+window.injectCriticalStockUI = injectCriticalStockUI;
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startCriticalStockObserver);
+else setTimeout(startCriticalStockObserver, 0);
