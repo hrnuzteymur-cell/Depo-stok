@@ -1,0 +1,154 @@
+name: Apply v20 transfer final
+on:
+  push:
+    paths:
+      - '.github/workflows/apply-v20-transfer-final.yml'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply transfer integrity
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          if '<title>Kansan Depo · v19</title>' not in s:
+              raise SystemExit('Expected v19 title not found')
+
+          old_qty="function qtyAt(code, loc) { const s = state.stock.find(s => s.barcode === code && s.location === loc); return s ? s.qty : 0; }"
+          new_qty="""function qtyAt(code, loc) {
+            return state.stock
+              .filter(s => s.barcode === code && s.location === loc)
+              .reduce((sum, s) => sum + s.qty, 0);
+          }"""
+          if old_qty not in s:
+              raise SystemExit('Expected qtyAt not found')
+          s=s.replace(old_qty,new_qty,1)
+
+          rem_start=s.index('function remStock(code, loc, q) {')
+          rem_end=s.index('function logMovement(',rem_start)
+          new_rem="""function remStock(code, loc, q) {
+            const EPS = 1e-9;
+            const available = qtyAt(code, loc);
+            if (!Number.isFinite(q) || q <= 0 || available + EPS < q) return false;
+            let remaining = q;
+            for (const row of state.stock.filter(s => s.barcode === code && s.location === loc)) {
+              if (remaining <= EPS) break;
+              const take = Math.min(row.qty, remaining);
+              row.qty -= take;
+              remaining -= take;
+            }
+            state.stock = state.stock.filter(s => s.qty > EPS);
+            return remaining <= EPS;
+          }
+          """
+          s=s[:rem_start]+new_rem+s[rem_end:]
+
+          tr_start=s.index('function transferSave() {')
+          tr_end=s.index('window.transferSave = transferSave;',tr_start)+len('window.transferSave = transferSave;')
+          new_transfer=r'''function transferStock(code, from, to, q) {
+            const EPS = 1e-9;
+            if (!pBy(code)) return { ok: false, error: 'Ürün kayıtlı değil' };
+            if (!state.shelves.includes(from)) return { ok: false, error: 'Kaynak raf kayıtlı değil' };
+            if (!state.shelves.includes(to)) return { ok: false, error: 'Hedef raf kayıtlı değil' };
+            if (from === to) return { ok: false, error: 'Kaynak ve hedef aynı olamaz' };
+            if (!Number.isFinite(q) || q <= 0) return { ok: false, error: 'Miktar sıfırdan büyük olmalı' };
+
+            const sourceBefore = qtyAt(code, from);
+            const targetBefore = qtyAt(code, to);
+            const totalBefore = totalQty(code);
+            if (sourceBefore + EPS < q) return { ok: false, error: `${from} rafında yeterli stok yok` };
+
+            const stockBefore = state.stock.map(s => ({ ...s }));
+            if (!remStock(code, from, q)) return { ok: false, error: `${from} rafında yeterli stok yok` };
+            addStock(code, to, q);
+
+            const sourceAfter = qtyAt(code, from);
+            const targetAfter = qtyAt(code, to);
+            const totalAfter = totalQty(code);
+            const valid =
+              Math.abs(sourceAfter - (sourceBefore - q)) <= EPS &&
+              Math.abs(targetAfter - (targetBefore + q)) <= EPS &&
+              Math.abs(totalAfter - totalBefore) <= EPS;
+
+            if (!valid) {
+              state.stock = stockBefore;
+              return { ok: false, error: 'Transfer stok kontrolü başarısız. İşlem geri alındı.' };
+            }
+            return { ok: true, totalBefore, totalAfter };
+          }
+          window.transferStock = transferStock;
+
+          function transferSave() {
+            const code = document.getElementById('tCode').value.trim();
+            const from = document.getElementById('tFrom').value;
+            const to = document.getElementById('tTo').value;
+            const q = num(document.getElementById('tQty').value);
+            if (!code) { toast('Ürün kodu girin', 'err'); return; }
+            if (!from) { toast('Kaynak raf seçin', 'err'); return; }
+            if (!to) { toast('Hedef raf seçin', 'err'); return; }
+            const result = transferStock(code, from, to, q);
+            if (!result.ok) { toast(result.error, 'err'); return; }
+            logMovement('TRANSFER', code, q, from, to);
+            save();
+            const unit = pBy(code)?.unit || 'Adet';
+            toast(`${q} ${unit} → ${from} ▸ ${to}`);
+            document.getElementById('tCode').value = '';
+            document.getElementById('tQty').value = '';
+            const inf = document.getElementById('tInfo'); if (inf) inf.style.display = 'none';
+            const si = document.getElementById('tShelfInfo'); if (si) si.style.display = 'none';
+          }
+          window.transferSave = transferSave;'''
+          s=s[:tr_start]+new_transfer+s[tr_end:]
+          s=s.replace('<title>Kansan Depo · v19</title>','<title>Kansan Depo · v20</title>',1)
+          p.write_text(s)
+          PY
+      - name: Verify JavaScript and transfer math
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text()
+          assert '<title>Kansan Depo · v20</title>' in s
+          assert 'function transferStock(code, from, to, q)' in s
+          assert 'Math.abs(totalAfter - totalBefore) <= EPS' in s
+          assert '.reduce((sum, s) => sum + s.qty, 0)' in s
+          js=s.split('<script>',1)[1].split('</script>',1)[0]
+          Path('/tmp/app.js').write_text(js)
+          PY
+          node --check /tmp/app.js
+          node <<'JS'
+          const EPS=1e-9;
+          let stock=[
+            {barcode:'P1',location:'R1',qty:2},
+            {barcode:'P1',location:'R1',qty:5},
+            {barcode:'P1',location:'R2',qty:4}
+          ];
+          const qtyAt=(c,l)=>stock.filter(s=>s.barcode===c&&s.location===l).reduce((n,s)=>n+s.qty,0);
+          const totalQty=c=>stock.filter(s=>s.barcode===c).reduce((n,s)=>n+s.qty,0);
+          function remStock(c,l,q){const available=qtyAt(c,l);if(!Number.isFinite(q)||q<=0||available+EPS<q)return false;let remaining=q;for(const row of stock.filter(s=>s.barcode===c&&s.location===l)){if(remaining<=EPS)break;const take=Math.min(row.qty,remaining);row.qty-=take;remaining-=take;}stock=stock.filter(s=>s.qty>EPS);return remaining<=EPS;}
+          function addStock(c,l,q){let row=stock.find(s=>s.barcode===c&&s.location===l);if(row)row.qty+=q;else stock.push({barcode:c,location:l,qty:q});}
+          const before=totalQty('P1');
+          if(!remStock('P1','R1',6))throw Error('duplicate-row removal failed');
+          addStock('P1','R2',6);
+          if(qtyAt('P1','R1')!==1)throw Error('source amount wrong');
+          if(qtyAt('P1','R2')!==10)throw Error('target amount wrong');
+          if(totalQty('P1')!==before)throw Error('total stock changed');
+          const snapshot=JSON.stringify(stock);
+          if(remStock('P1','R1',99))throw Error('insufficient stock accepted');
+          if(JSON.stringify(stock)!==snapshot)throw Error('insufficient stock mutated data');
+          console.log('TRANSFER_MATH_OK');
+          JS
+      - name: Commit v20
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'v20: raf transferinde stok bütünlüğü'
+          git push
