@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Kansan Depo · v29</title>
+<title>Kansan Depo · v30</title>
 <meta name="theme-color" content="#1e40af">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -367,7 +367,7 @@
       </div>
     </nav>
     <div class="sidebar-footer">
-      <div class="ver">Kansan Depo v29</div>
+      <div class="ver">Kansan Depo v30</div>
     </div>
   </aside>
 
@@ -1338,16 +1338,45 @@ window.clearMovements = clearMovements;
 
 // ─── SETTINGS ─────────────────────────────────────────────────────────────────
 function renderSettings() {
+  const backups = getSafetyBackups();
+  const reasonLabels = {
+    import: 'İçe aktarma öncesi',
+    reset: 'Sıfırlama öncesi',
+    restore: 'Geri yükleme öncesi',
+    manual: 'Elle oluşturuldu',
+    legacy: 'Önceki sürümden'
+  };
+  const history = backups.length ? backups.map(backup => {
+    const summary = backup.summary || backupSummary(backup.data);
+    const date = new Date(backup.createdAt);
+    const dateText = Number.isNaN(date.getTime()) ? 'Tarih bilinmiyor' : date.toLocaleString('tr-TR');
+    return `
+      <div class="stock-loc-row">
+        <div>
+          <div class="loc-name">${esc(dateText)}</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:3px">
+            ${esc(reasonLabels[backup.reason] || 'Otomatik yedek')} ·
+            ${summary.products} ürün · ${summary.stock} stok · ${summary.movements} hareket
+          </div>
+        </div>
+        <button class="btn btn-secondary" onclick="restoreSafetyBackup('${backup.id}')">Geri Yükle</button>
+      </div>`;
+  }).join('') : '<div class="empty-state" style="padding:18px">Henüz güvenlik yedeği yok.</div>';
+
   return `
   <div class="card">
     <div class="card-title">Veri Yönetimi</div>
     <div class="card-sub">Tüm veriler cihazınızda saklanır.</div>
     <div class="data-actions">
       <button class="btn btn-secondary" onclick="exportData()">📤 Dışa Aktar (JSON)</button>
-      <label class="btn btn-secondary" style="cursor:pointer">📥 İçe Aktar (JSON)<input type="file" accept=".json" onchange="importData(event)" style="display:none"></label>
-      <button class="btn btn-secondary" onclick="restoreSafetyBackup()" ${localStorage.getItem(KEY + '-safety-backup') ? '' : 'disabled'}>↩️ Son Güvenlik Yedeğini Geri Yükle</button>
+      <label class="btn btn-secondary" style="cursor:pointer">📥 İçe Aktar (JSON)<input type="file" accept=".json,application/json" onchange="importData(event)" style="display:none"></label>
+      <button class="btn btn-secondary" onclick="createManualBackup()">🛡️ Şimdi Yedekle</button>
+      <button class="btn btn-secondary" onclick="restoreSafetyBackup()" ${backups.length ? '' : 'disabled'}>↩️ Son Yedeği Geri Yükle</button>
     </div>
-    <div class="alert alert-info">İçe aktarma ve sıfırlama öncesinde mevcut verilerin otomatik güvenlik yedeği alınır.</div>
+    <div class="alert alert-info">İçe aktarma, geri yükleme ve sıfırlama öncesinde mevcut verilerin otomatik güvenlik yedeği alınır. Son 5 yedek saklanır.</div>
+    <div class="divider"></div>
+    <div class="card-title">Güvenlik Yedeği Geçmişi</div>
+    <div class="stock-locs">${history}</div>
     <div class="divider"></div>
     <div class="fgrid g2">
       <div class="stat" style="text-align:center">
@@ -1365,7 +1394,7 @@ function renderSettings() {
   <div class="card">
     <div class="card-title">Uygulama Hakkında</div>
     <p style="font-size:13px;color:var(--muted);line-height:1.6">
-      <b>Kansan Depo v29</b><br>
+      <b>Kansan Depo v30</b><br>
       Stok ve lokasyon yönetim sistemi.<br>
       Ürün kaydı, barkod tarama, stok girişi, raf yönetimi, transfer ve makine çıkışı desteklenir.<br>
       Tüm veriler tarayıcınıza kaydedilir.
@@ -1373,18 +1402,39 @@ function renderSettings() {
   </div>`;
 }
 
+const SAFETY_BACKUP_HISTORY_KEY = KEY + '-safety-backups';
+const LEGACY_SAFETY_BACKUP_KEY = KEY + '-safety-backup';
+const MAX_SAFETY_BACKUPS = 5;
+
+function snapshotState() {
+  return JSON.parse(JSON.stringify(state));
+}
+
+function backupSummary(data) {
+  return {
+    products: Array.isArray(data?.products) ? data.products.length : 0,
+    stock: Array.isArray(data?.stock) ? data.stock.length : 0,
+    movements: Array.isArray(data?.movements) ? data.movements.length : 0
+  };
+}
+
 function exportData() {
+  const data = snapshotState();
   const payload = {
     format: 'kansan-depo-backup',
-    version: 1,
+    version: 2,
     exportedAt: new Date().toISOString(),
-    data: state
+    summary: backupSummary(data),
+    data
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
+  const url = URL.createObjectURL(blob);
+  a.href = url;
   a.download = `kansan-depo-${new Date().toISOString().slice(0, 10)}.json`;
   a.click();
+  URL.revokeObjectURL(url);
+  toast('JSON yedeği indirildi');
 }
 window.exportData = exportData;
 
@@ -1413,12 +1463,60 @@ function validateBackup(input) {
   return { ok: true, data };
 }
 
-function createSafetyBackup() {
-  localStorage.setItem(KEY + '-safety-backup', JSON.stringify({
-    createdAt: new Date().toISOString(),
-    data: state
-  }));
+function getSafetyBackups() {
+  let backups = [];
+  try {
+    const parsed = JSON.parse(localStorage.getItem(SAFETY_BACKUP_HISTORY_KEY) || '[]');
+    if (Array.isArray(parsed)) backups = parsed;
+  } catch {}
+
+  try {
+    const legacyRaw = localStorage.getItem(LEGACY_SAFETY_BACKUP_KEY);
+    if (legacyRaw) {
+      const legacy = JSON.parse(legacyRaw);
+      const createdAt = legacy.createdAt || new Date().toISOString();
+      if (!backups.some(item => item.createdAt === createdAt)) {
+        const data = legacy.data || legacy;
+        backups.push({
+          id: `legacy-${Date.parse(createdAt) || Date.now()}`,
+          createdAt,
+          reason: 'legacy',
+          summary: backupSummary(data),
+          data
+        });
+        backups = backups.slice(-MAX_SAFETY_BACKUPS);
+        localStorage.setItem(SAFETY_BACKUP_HISTORY_KEY, JSON.stringify(backups));
+      }
+      localStorage.removeItem(LEGACY_SAFETY_BACKUP_KEY);
+    }
+  } catch {}
+
+  return backups
+    .filter(item => item && item.id && item.data)
+    .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)))
+    .slice(0, MAX_SAFETY_BACKUPS);
 }
+
+function createSafetyBackup(reason = 'manual') {
+  const data = snapshotState();
+  const backup = {
+    id: `backup-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    createdAt: new Date().toISOString(),
+    reason,
+    summary: backupSummary(data),
+    data
+  };
+  const backups = [backup, ...getSafetyBackups()].slice(0, MAX_SAFETY_BACKUPS);
+  localStorage.setItem(SAFETY_BACKUP_HISTORY_KEY, JSON.stringify(backups));
+  return backup;
+}
+
+function createManualBackup() {
+  createSafetyBackup('manual');
+  toast('Güvenlik yedeği oluşturuldu');
+  renderPage();
+}
+window.createManualBackup = createManualBackup;
 
 function importData(e) {
   const file = e.target.files[0];
@@ -1429,35 +1527,37 @@ function importData(e) {
       const parsed = JSON.parse(ev.target.result);
       const checked = validateBackup(parsed);
       if (!checked.ok) { toast(checked.error, 'err'); return; }
-      createSafetyBackup();
+      createSafetyBackup('import');
       Object.assign(state, checked.data);
       save(); toast('Veriler içe aktarıldı'); renderPage();
     } catch { toast('Dosya okunamadı', 'err'); }
+    finally { e.target.value = ''; }
   };
   reader.readAsText(file);
 }
 window.importData = importData;
 
-function restoreSafetyBackup() {
-  const rawBackup = localStorage.getItem(KEY + '-safety-backup');
-  if (!rawBackup) { toast('Güvenlik yedeği bulunamadı', 'err'); return; }
-  if (!confirm('Mevcut veriler son güvenlik yedeğiyle değiştirilsin mi?')) return;
-  try {
-    const backup = JSON.parse(rawBackup);
-    const checked = validateBackup(backup.data || backup);
-    if (!checked.ok) { toast(checked.error, 'err'); return; }
-    Object.assign(state, checked.data);
-    save(); toast('Güvenlik yedeği geri yüklendi'); renderPage();
-  } catch { toast('Güvenlik yedeği okunamadı', 'err'); }
+function restoreSafetyBackup(backupId = '') {
+  const backups = getSafetyBackups();
+  const backup = backupId ? backups.find(item => item.id === backupId) : backups[0];
+  if (!backup) { toast('Güvenlik yedeği bulunamadı', 'err'); return; }
+  const checked = validateBackup(backup.data);
+  if (!checked.ok) { toast(checked.error, 'err'); return; }
+  const date = new Date(backup.createdAt);
+  const dateText = Number.isNaN(date.getTime()) ? 'seçili' : date.toLocaleString('tr-TR');
+  if (!confirm(`${dateText} tarihli yedek geri yüklensin mi? Mevcut veriler önce otomatik yedeklenecek.`)) return;
+  createSafetyBackup('restore');
+  Object.assign(state, checked.data);
+  save(); toast('Güvenlik yedeği geri yüklendi'); renderPage();
 }
 window.restoreSafetyBackup = restoreSafetyBackup;
 
 function resetAll() {
   if (!confirm('TÜM veriler (ürünler, stok, hareketler) kalıcı olarak silinecek. Emin misiniz?')) return;
-  if (!confirm('Son onay: Bu işlem geri alınamaz!')) return;
-  createSafetyBackup();
+  if (!confirm('Son onay: Mevcut veriler güvenlik yedeğine alındıktan sonra silinecek.')) return;
+  createSafetyBackup('reset');
   Object.assign(state, { products: [], stock: [], movements: [], machines: [], shelves: [], pendingCode: '' });
-  save(); toast('Tüm veriler sıfırlandı'); renderPage();
+  save(); toast('Tüm veriler sıfırlandı; önceki durum yedeklendi'); renderPage();
 }
 window.resetAll = resetAll;
 
