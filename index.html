@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Kansan Depo · v19</title>
+<title>Kansan Depo · v20</title>
 <style>
   :root {
     --bg: #f0f2f5;
@@ -441,17 +441,28 @@ function uid() { return Date.now() + '-' + Math.random().toString(36).slice(2, 7
 function now() { return new Date().toLocaleString('tr-TR'); }
 function num(v) { const n = Number(v); return Number.isFinite(n) ? n : 0; }
 function pBy(code) { code = String(code || '').trim(); return state.products.find(p => p.productCode === code); }
-function qtyAt(code, loc) { const s = state.stock.find(s => s.barcode === code && s.location === loc); return s ? s.qty : 0; }
+function qtyAt(code, loc) {
+  return state.stock
+    .filter(s => s.barcode === code && s.location === loc)
+    .reduce((sum, s) => sum + s.qty, 0);
+}
 function addStock(code, loc, q) {
   let s = state.stock.find(s => s.barcode === code && s.location === loc);
   if (s) s.qty += q; else state.stock.push({ id: uid(), barcode: code, location: loc, qty: q });
 }
 function remStock(code, loc, q) {
-  let s = state.stock.find(s => s.barcode === code && s.location === loc);
-  if (!s || s.qty < q) return false;
-  s.qty -= q;
-  state.stock = state.stock.filter(s => s.qty > 0);
-  return true;
+  const EPS = 1e-9;
+  const available = qtyAt(code, loc);
+  if (!Number.isFinite(q) || q <= 0 || available + EPS < q) return false;
+  let remaining = q;
+  for (const row of state.stock.filter(s => s.barcode === code && s.location === loc)) {
+    if (remaining <= EPS) break;
+    const take = Math.min(row.qty, remaining);
+    row.qty -= take;
+    remaining -= take;
+  }
+  state.stock = state.stock.filter(s => s.qty > EPS);
+  return remaining <= EPS;
 }
 function logMovement(type, code, q, from, to, machine, note) {
   const p = pBy(code);
@@ -1067,22 +1078,53 @@ function onTransferFromChange() {
 }
 window.onTransferFromChange = onTransferFromChange;
 
+function transferStock(code, from, to, q) {
+  const EPS = 1e-9;
+  if (!pBy(code)) return { ok: false, error: 'Ürün kayıtlı değil' };
+  if (!state.shelves.includes(from)) return { ok: false, error: 'Kaynak raf kayıtlı değil' };
+  if (!state.shelves.includes(to)) return { ok: false, error: 'Hedef raf kayıtlı değil' };
+  if (from === to) return { ok: false, error: 'Kaynak ve hedef aynı olamaz' };
+  if (!Number.isFinite(q) || q <= 0) return { ok: false, error: 'Miktar sıfırdan büyük olmalı' };
+
+  const sourceBefore = qtyAt(code, from);
+  const targetBefore = qtyAt(code, to);
+  const totalBefore = totalQty(code);
+  if (sourceBefore + EPS < q) return { ok: false, error: `${from} rafında yeterli stok yok` };
+
+  const stockBefore = state.stock.map(s => ({ ...s }));
+  if (!remStock(code, from, q)) return { ok: false, error: `${from} rafında yeterli stok yok` };
+  addStock(code, to, q);
+
+  const sourceAfter = qtyAt(code, from);
+  const targetAfter = qtyAt(code, to);
+  const totalAfter = totalQty(code);
+  const valid =
+    Math.abs(sourceAfter - (sourceBefore - q)) <= EPS &&
+    Math.abs(targetAfter - (targetBefore + q)) <= EPS &&
+    Math.abs(totalAfter - totalBefore) <= EPS;
+
+  if (!valid) {
+    state.stock = stockBefore;
+    return { ok: false, error: 'Transfer stok kontrolü başarısız. İşlem geri alındı.' };
+  }
+  return { ok: true, totalBefore, totalAfter };
+}
+window.transferStock = transferStock;
+
 function transferSave() {
   const code = document.getElementById('tCode').value.trim();
   const from = document.getElementById('tFrom').value;
   const to = document.getElementById('tTo').value;
   const q = num(document.getElementById('tQty').value);
   if (!code) { toast('Ürün kodu girin', 'err'); return; }
-  if (!pBy(code)) { toast('Ürün kayıtlı değil', 'err'); return; }
   if (!from) { toast('Kaynak raf seçin', 'err'); return; }
   if (!to) { toast('Hedef raf seçin', 'err'); return; }
-  if (from === to) { toast('Kaynak ve hedef aynı olamaz', 'err'); return; }
-  if (q <= 0) { toast('Miktar sıfırdan büyük olmalı', 'err'); return; }
-  if (!remStock(code, from, q)) { toast(`${from} rafında yeterli stok yok`, 'err'); return; }
-  addStock(code, to, q);
+  const result = transferStock(code, from, to, q);
+  if (!result.ok) { toast(result.error, 'err'); return; }
   logMovement('TRANSFER', code, q, from, to);
   save();
-  toast(`${q} adet → ${from} ▸ ${to}`);
+  const unit = pBy(code)?.unit || 'Adet';
+  toast(`${q} ${unit} → ${from} ▸ ${to}`);
   document.getElementById('tCode').value = '';
   document.getElementById('tQty').value = '';
   const inf = document.getElementById('tInfo'); if (inf) inf.style.display = 'none';
