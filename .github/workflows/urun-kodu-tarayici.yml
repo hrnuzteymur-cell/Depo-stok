@@ -17,17 +17,19 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import re
           p = Path('index.html')
           s = p.read_text(encoding='utf-8')
-          old = '<div class="field"><label>Ürün Kodu</label><input id="pCode" placeholder="Örn. RM-001"></div>'
-          new = '<div class="field"><label>Ürün Kodu</label><div class="scan-input"><input id="pCode" placeholder="Kodu okut veya yaz"><button onclick="scanTo(\'pCode\')" title="Ürün kodunu okut">▣</button></div></div>'
-          if old in s:
-              p.write_text(s.replace(old, new, 1), encoding='utf-8')
-              print('Ürün kodu tarayıcı alanı eklendi.')
-          elif "scanTo('pCode')" in s:
+          if "scanTo('pCode')" in s:
               print('Zaten güncel.')
           else:
-              raise SystemExit('Beklenen Ürün Kodu alanı bulunamadı.')
+              pat = r'<div class="field"><label>Ürün Kodu</label><input[^>]*id="pCode"[^>]*></div>'
+              new = '<div class="field"><label>Ürün Kodu</label><div class="scan-input"><input id="pCode" placeholder="Kodu okut veya yaz"><button onclick="scanTo(\'pCode\')" title="Ürün kodunu okut">▣</button></div></div>'
+              s2, n = re.subn(pat, new, s, count=1)
+              if n != 1:
+                  raise SystemExit('Beklenen Ürün Kodu alanı bulunamadı.')
+              p.write_text(s2, encoding='utf-8')
+              print('Ürün kodu tarayıcı alanı eklendi.')
           PY
       - name: Degisikligi yayinla
         run: |
