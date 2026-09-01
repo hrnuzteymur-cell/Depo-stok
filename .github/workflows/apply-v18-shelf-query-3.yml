@@ -1,0 +1,187 @@
+name: Apply v18 shelf query final
+on:
+  push:
+    paths:
+      - '.github/workflows/apply-v18-shelf-query-3.yml'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply shelf query
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          if '<title>Kansan Depo · v17</title>' not in s:
+              raise SystemExit('Expected v17 title not found')
+          start=s.index('// ─── SHELVES ─')
+          end=s.index('// ─── MACHINES DEF ─', start)
+          block=r'''// ─── SHELVES ─────────────────────────────────────────────────────────────────
+          function shelfInventory(r) {
+            const grouped = new Map();
+            state.stock.filter(s => s.location === r && s.qty > 0).forEach(s => {
+              grouped.set(s.barcode, (grouped.get(s.barcode) || 0) + s.qty);
+            });
+            return [...grouped.entries()].map(([code, qty]) => {
+              const p = pBy(code);
+              return { code, qty, description: p?.description || 'Ürün açıklaması yok', unit: p?.unit || 'Adet' };
+            }).sort((a, b) => a.description.localeCompare(b.description, 'tr'));
+          }
+
+          function renderShelfQueryResult(r) {
+            if (!r) return '';
+            if (!state.shelves.includes(r)) {
+              return `<div class="alert alert-error">${esc(r)} kodlu raf kayıtlı değil.</div>`;
+            }
+            const items = shelfInventory(r);
+            if (!items.length) {
+              return `<div class="card" style="margin-top:12px"><div class="card-title">📍 ${esc(r)}</div><div class="empty-state"><div class="empty-icon">📭</div>Bu rafta kayıtlı stok yok.</div></div>`;
+            }
+            return `
+              <div class="card" style="margin-top:12px">
+                <div class="card-title">📍 ${esc(r)} · ${items.length} farklı ürün</div>
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th>Ürün Kodu</th><th>Ürün Açıklaması</th><th>Miktar</th></tr></thead>
+                    <tbody>${items.map(i => `
+                      <tr>
+                        <td><b>${esc(i.code)}</b></td>
+                        <td>${esc(i.description)}</td>
+                        <td><b>${i.qty.toLocaleString('tr-TR')} ${esc(i.unit)}</b></td>
+                      </tr>`).join('')}</tbody>
+                  </table>
+                </div>
+              </div>`;
+          }
+
+          function queryShelf(code) {
+            const input = document.getElementById('shelfQuery');
+            const result = document.getElementById('shelfQueryResult');
+            const r = String(code ?? input?.value ?? '').trim().toUpperCase();
+            if (input) input.value = r;
+            if (!result) return;
+            if (!r) { result.innerHTML = '<div class="alert alert-warn">Raf kodu girin veya raf barkodunu okutun.</div>'; return; }
+            result.innerHTML = renderShelfQueryResult(r);
+          }
+          window.queryShelf = queryShelf;
+
+          async function scanShelfQuery() {
+            try {
+              const r = (await scanBarcodeValue('Raf Barkodunu Tara')).trim().toUpperCase();
+              const input = document.getElementById('shelfQuery');
+              if (input) input.value = r;
+              queryShelf(r);
+            } catch (e) { toast(e.message, 'err'); }
+          }
+          window.scanShelfQuery = scanShelfQuery;
+
+          function renderShelves() {
+            return `
+            <div class="card">
+              <div class="card-title">Raf Sorgula</div>
+              <div class="card-sub">Raf barkodunu okutun veya raf kodunu yazın. Raftaki tüm ürünler kendi miktarlarıyla gösterilir.</div>
+              <div class="scan-row">
+                <div class="field" style="flex:1"><input id="shelfQuery" placeholder="Raf kodu" autocomplete="off"></div>
+                <button class="btn-scan" onclick="scanShelfQuery()" title="Raf barkodunu tara">📷</button>
+                <button class="btn btn-primary" onclick="queryShelf()">Sorgula</button>
+              </div>
+              <div id="shelfQueryResult"></div>
+            </div>
+            <div class="card">
+              <div class="card-title">Raf Ekle</div>
+              <div class="scan-row">
+                <div class="field" style="flex:1"><input id="newShelf" placeholder="Örn. A1-01, 2B-ÜÇÜNCÜ" autocomplete="off"></div>
+                <button class="btn btn-primary" onclick="addShelf()">Ekle</button>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-title">Tanımlı Raflar (${state.shelves.length})</div>
+              ${state.shelves.length ? `
+              <div class="tag-list">
+                ${state.shelves.map(r => `
+                  <span class="tag" style="cursor:pointer" onclick="document.getElementById('shelfQuery').value='${esc(r)}';queryShelf('${esc(r)}')">
+                    📍 ${esc(r)}
+                    <span style="font-size:10px;opacity:.6;margin-left:4px">${qtyOnShelf(r)}</span>
+                    <button class="tag-remove" onclick="event.stopPropagation();removeShelf('${esc(r)}')" title="Sil">×</button>
+                  </span>`).join('')}
+              </div>
+              <div style="margin-top:14px">
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th>Raf</th><th>Ürün Sayısı</th><th>Durum</th></tr></thead>
+                    <tbody>${state.shelves.map(r => {
+                      const items = shelfInventory(r);
+                      return `<tr style="cursor:pointer" onclick="document.getElementById('shelfQuery').value='${esc(r)}';queryShelf('${esc(r)}')"><td><b>${esc(r)}</b></td><td>${items.length} ürün</td><td>${items.length ? 'Dolu' : 'Boş'}</td></tr>`;
+                    }).join('')}</tbody>
+                  </table>
+                </div>
+              </div>` : '<div class="empty-state"><div class="empty-icon">🗂️</div>Henüz raf tanımlanmadı.</div>'}
+            </div>`;
+          }
+
+          function qtyOnShelf(r) {
+            const count = shelfInventory(r).length;
+            return count > 0 ? count + ' ürün' : 'boş';
+          }
+
+          function addShelf() {
+            const v = document.getElementById('newShelf')?.value.trim().toUpperCase();
+            if (!v) { toast('Raf adı girin', 'err'); return; }
+            if (state.shelves.includes(v)) { toast('Bu raf zaten var', 'err'); return; }
+            state.shelves.push(v);
+            state.shelves.sort();
+            save(); toast('Raf eklendi: ' + v); renderPage();
+          }
+          window.addShelf = addShelf;
+
+          function removeShelf(r) {
+            if (state.stock.some(s => s.location === r && s.qty > 0)) { toast('Bu rafta stok var, önce transfer edin', 'err'); return; }
+            if (!confirm(`"${r}" rafını silmek istediğinize emin misiniz?`)) return;
+            state.shelves = state.shelves.filter(x => x !== r);
+            save(); toast('Raf silindi'); renderPage();
+          }
+          window.removeShelf = removeShelf;
+
+          '''
+          s=s[:start]+block+s[end:]
+          old="""  const ns = document.getElementById('newShelf');
+            if (ns) ns.addEventListener('keydown', e => { if (e.key === 'Enter') addShelf(); });
+          """
+          new="""  const sq = document.getElementById('shelfQuery');
+            if (sq) sq.addEventListener('keydown', e => { if (e.key === 'Enter') queryShelf(); });
+            const ns = document.getElementById('newShelf');
+            if (ns) ns.addEventListener('keydown', e => { if (e.key === 'Enter') addShelf(); });
+          """
+          if old not in s:
+              raise SystemExit('afterRender shelf listener target not found')
+          s=s.replace(old,new,1)
+          s=s.replace('<title>Kansan Depo · v17</title>','<title>Kansan Depo · v18</title>',1)
+          p.write_text(s)
+          PY
+      - name: Verify JavaScript and feature markers
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text()
+          assert '<title>Kansan Depo · v18</title>' in s
+          assert 'function shelfInventory' in s
+          assert 'function scanShelfQuery' in s
+          assert 'Raf Sorgula' in s
+          js=s.split('<script>',1)[1].split('</script>',1)[0]
+          Path('/tmp/app.js').write_text(js)
+          PY
+          node --check /tmp/app.js
+      - name: Commit v18
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'v18: raf barkodu ile raf sorgulama'
+          git push
