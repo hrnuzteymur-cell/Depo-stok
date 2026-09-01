@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Kansan Depo · v22</title>
+<title>Kansan Depo · v23</title>
 <style>
   :root {
     --bg: #f0f2f5;
@@ -446,6 +446,11 @@ function pBy(code) { code = String(code || '').trim(); return state.products.fin
 function qtyAt(code, loc) {
   return state.stock
     .filter(s => s.barcode === code && s.location === loc)
+    .reduce((sum, s) => sum + s.qty, 0);
+}
+function totalQty(code) {
+  return state.stock
+    .filter(s => s.barcode === code)
     .reduce((sum, s) => sum + s.qty, 0);
 }
 function addStock(code, loc, q) {
@@ -1295,7 +1300,7 @@ function renderSettings() {
   <div class="card">
     <div class="card-title">Uygulama Hakkında</div>
     <p style="font-size:13px;color:var(--muted);line-height:1.6">
-      <b>Kansan Depo v17</b><br>
+      <b>Kansan Depo v23</b><br>
       Stok ve lokasyon yönetim sistemi.<br>
       Ürün kaydı, barkod tarama, stok girişi, raf yönetimi, transfer ve makine çıkışı desteklenir.<br>
       Tüm veriler tarayıcınıza kaydedilir.
