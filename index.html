@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Kansan Depo · v18</title>
+<title>Kansan Depo · v19</title>
 <style>
   :root {
     --bg: #f0f2f5;
@@ -774,14 +774,25 @@ function entrySave() {
 window.entrySave = entrySave;
 
 // ─── SEARCH ──────────────────────────────────────────────────────────────────
+function productLocations(code) {
+  const grouped = new Map();
+  state.stock.filter(s => s.barcode === code && s.qty > 0).forEach(s => {
+    grouped.set(s.location, (grouped.get(s.location) || 0) + s.qty);
+  });
+  return [...grouped.entries()]
+    .map(([location, qty]) => ({ location, qty }))
+    .sort((a, b) => a.location.localeCompare(b.location, 'tr'));
+}
+
 function renderSearch() {
   return `
   <div class="card">
-    <div class="card-title">Ürün Ara</div>
+    <div class="card-title">Ürün Bul</div>
+    <div class="card-sub">Ürün barkodunu okutun veya ürün kodu / açıklaması ile arayın. Ürünün bulunduğu tüm raflar ve her raftaki miktarı gösterilir.</div>
     <div class="fgrid g2">
       <div class="scan-row">
-        <div class="field" style="flex:1"><input id="sQuery" placeholder="Ürün kodu veya tanımı yazın..." oninput="doSearch()" autocomplete="off"></div>
-        <button class="btn-scan" onclick="scanToInput('sQuery', doSearch)" title="Tara">📷</button>
+        <div class="field" style="flex:1"><input id="sQuery" placeholder="Ürün kodu veya açıklaması..." oninput="doSearch()" autocomplete="off"></div>
+        <button class="btn-scan" onclick="scanToInput('sQuery', doSearch)" title="Ürün barkodunu tara">📷</button>
       </div>
       <button class="btn btn-primary" onclick="doSearch()" style="align-self:flex-end">Ara</button>
     </div>
@@ -790,31 +801,36 @@ function renderSearch() {
 }
 
 function doSearch() {
-  const q = (document.getElementById('sQuery')?.value || '').trim().toLowerCase();
+  const raw = (document.getElementById('sQuery')?.value || '').trim();
+  const q = raw.toLowerCase();
   const results = document.getElementById('sResult');
   if (!results) return;
   if (!q) { results.innerHTML = ''; return; }
-  const matches = state.products.filter(p =>
+
+  const exact = state.products.find(p => p.productCode.toLowerCase() === q);
+  const matches = exact ? [exact] : state.products.filter(p =>
     p.productCode.toLowerCase().includes(q) || p.description.toLowerCase().includes(q)
   );
+
   if (!matches.length) {
     results.innerHTML = '<div class="card"><div class="empty-state"><div class="empty-icon">🔍</div>Ürün bulunamadı.</div></div>';
     return;
   }
+
   results.innerHTML = matches.map(p => {
-    const locs = state.stock.filter(s => s.barcode === p.productCode);
-    const allLocs = locs;
-    const total = allLocs.reduce((a, s) => a + s.qty, 0);
+    const locs = productLocations(p.productCode);
+    const total = locs.reduce((sum, s) => sum + s.qty, 0);
+    const unit = p.unit || 'Adet';
     return `
     <div class="product-result">
       <div class="product-result-name">${esc(p.description)}</div>
-      <div class="product-result-code">${esc(p.productCode)} · ${p.unit || 'Adet'}</div>
+      <div class="product-result-code">${esc(p.productCode)} · ${esc(unit)}</div>
+      <div style="margin-top:10px;font-size:12px"><b>Toplam stok: ${total.toLocaleString('tr-TR')} ${esc(unit)}</b></div>
       <div class="product-result-stocks">
-        ${allLocs.length ? `
-        <div class="stock-locs">
-          ${allLocs.map(s => `<div class="stock-loc-row"><span class="loc-name">📍 ${esc(s.location)}</span><span class="loc-qty">${s.qty.toLocaleString('tr-TR')} ${p.unit || 'adet'}</span></div>`).join('')}
-          ${allLocs.length > 1 ? `<div class="stock-loc-row" style="background:var(--brand-light)"><span class="loc-name" style="color:var(--brand)">Toplam</span><span class="loc-qty">${total.toLocaleString('tr-TR')} ${p.unit || 'adet'}</span></div>` : ''}
-        </div>` : '<div class="alert alert-warn">Bu ürünün stoku yok.</div>'}
+        ${locs.length ? `
+          <div class="stock-locs">
+            ${locs.map(s => `<div class="stock-loc-row"><span class="loc-name">📍 ${esc(s.location)}</span><span class="loc-qty">${s.qty.toLocaleString('tr-TR')} ${esc(unit)}</span></div>`).join('')}
+          </div>` : '<div class="alert alert-warn">Bu ürün için raf stoğu bulunmuyor.</div>'}
       </div>
     </div>`;
   }).join('');
