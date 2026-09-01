@@ -1,0 +1,48 @@
+name: Apply v13 single home
+on:
+  push:
+    paths:
+      - '.github/workflows/apply-v13-single-home.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Patch single-page home
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace('Kansan Depo · v12','Kansan Depo · v13').replace('>v12</span>','>v13</span>')
+          css='''\n/* v13 - tek ana sayfa */\n.side,.bottom{display:none!important}\n.top{margin-left:0!important}\nmain{margin-left:0!important;max-width:1180px;margin-right:auto!important;margin-left:auto!important;padding-bottom:40px!important}\n#activeTool{scroll-margin-top:78px;margin-top:18px}\n.tool-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 12px}\n.tool-head b{font-size:16px}\n@media(max-width:720px){main{padding:18px 12px 40px!important}.actions{grid-template-columns:1fr 1fr!important}.top{padding:0 16px!important}}\n'''
+          s=s.replace('</style>',css+'</style>',1)
+          old="function go(t){state.tab=t;save();render()}"
+          new="function go(t){state.tab=t;save();render();if(t!=='dashboard')requestAnimationFrame(()=>document.getElementById('activeTool')?.scrollIntoView({behavior:'smooth',block:'start'}))}"
+          if old not in s: raise SystemExit('go() bulunamadi')
+          s=s.replace(old,new,1)
+          old_render="function render(){navActive();document.getElementById('main').innerHTML=state.tab==='dashboard'?dashboard():state.tab==='urunler'?products():state.tab==='giris'?entry():state.tab==='ara'?searchPage():state.tab==='raf'?rafPage():state.tab==='transfer'?transferPage():state.tab==='makine'?machinePage():movementsPage()}document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));"
+          new_render="function activeTool(){return state.tab==='urunler'?products():state.tab==='giris'?entry():state.tab==='ara'?searchPage():state.tab==='raf'?rafPage():state.tab==='transfer'?transferPage():state.tab==='makine'?machinePage():state.tab==='hareket'?movementsPage():''}function render(){navActive();const tool=activeTool();document.getElementById('main').innerHTML=dashboard()+(tool?`<section id=\"activeTool\"><div class=\"tool-head\"><b>Aktif İşlem</b><button class=\"btn sec\" onclick=\"go('dashboard')\">Kapat</button></div>${tool}</section>`:'')}document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));"
+          if old_render not in s: raise SystemExit('render() bulunamadi')
+          s=s.replace(old_render,new_render,1)
+          p.write_text(s,encoding='utf-8')
+          PY
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text(encoding='utf-8')
+          a=s.index('<script>')+8;b=s.rindex('</script>')
+          Path('/tmp/app.js').write_text(s[a:b],encoding='utf-8')
+          PY
+          node --check /tmp/app.js
+      - name: Commit v13
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "v13: tek ana sayfa ve alt menusuz kullanim" || exit 0
+          git push
