@@ -16,7 +16,11 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           p=Path('index.html'); s=p.read_text()
-          if '<title>Kansan Depo · v21</title>' not in s: raise SystemExit('v21 title missing')
+          if '<title>Kansan Depo · v22</title>' in s:
+              print('v22 is already integrated; continuing with verification')
+              raise SystemExit(0)
+          if '<title>Kansan Depo · v21</title>' not in s:
+              raise SystemExit('expected v21 or v22 title')
           s=s.replace('<script>','<script src="count.js"></script>\n<script>',1)
           s=s.replace("        <button class=\"nav-btn\" data-page=\"movements\"><span class=\"nav-icon\">📋</span> Hareketler</button>","        <button class=\"nav-btn\" data-page=\"movements\"><span class=\"nav-icon\">📋</span> Hareketler</button>\n        <button class=\"nav-btn\" data-page=\"count\"><span class=\"nav-icon\">🧮</span> Sayım</button>",1)
           s=s.replace("  transfer: 'Raf Transferi', machine: 'Makineye Çıkış', movements: 'Hareket Geçmişi',\n  settings: 'Ayarlar'","  transfer: 'Raf Transferi', machine: 'Makineye Çıkış', movements: 'Hareket Geçmişi',\n  count: 'Stok Sayımı', settings: 'Ayarlar'",1)
@@ -56,6 +60,9 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html count.js
-          git commit -m 'v22: stok sayımı ve fark düzeltme'
-          git push
-# trigger
+          if git diff --cached --quiet; then
+            echo 'v22 already committed; nothing to push'
+          else
+            git commit -m 'v22: stok sayımı ve fark düzeltme'
+            git push
+          fi
