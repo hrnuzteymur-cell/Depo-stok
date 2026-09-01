@@ -1,0 +1,24 @@
+name: Package v14 ZIP
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Create ZIP
+        run: |
+          zip -r Kansan_Depo_Stok_v14.zip . -x '.git/*' 'Kansan_Depo_Stok_v14.zip'
+      - name: Upload ZIP artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Kansan_Depo_Stok_v14
+          path: Kansan_Depo_Stok_v14.zip
+          if-no-files-found: error
