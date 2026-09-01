@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Kansan Depo · v23</title>
+<title>Kansan Depo · v25</title>
 <style>
   :root {
     --bg: #f0f2f5;
@@ -361,7 +361,7 @@
       </div>
     </nav>
     <div class="sidebar-footer">
-      <div class="ver">Kansan Depo v23</div>
+      <div class="ver">Kansan Depo v25</div>
     </div>
   </aside>
 
@@ -1228,16 +1228,33 @@ window.machineSave = machineSave;
 // ─── MOVEMENTS ────────────────────────────────────────────────────────────────
 function renderMovements() {
   const filter = state._moveFilter || 'ALL';
-  const filtered = filter === 'ALL' ? state.movements : state.movements.filter(m => m.type === filter);
+  const query = String(state._moveSearch || '').trim().toLocaleLowerCase('tr-TR');
+  const filtered = state.movements.filter(m => {
+    if (filter !== 'ALL' && m.type !== filter) return false;
+    if (!query) return true;
+    return [m.date, m.type, m.barcode, m.productName, m.from, m.to, m.machine, m.note]
+      .some(v => String(v || '').toLocaleLowerCase('tr-TR').includes(query));
+  });
   return `
   <div class="card">
     <div class="card-title">Hareket Geçmişi (${state.movements.length})</div>
+    <div class="fgrid g2" style="margin-bottom:12px">
+      <div class="field">
+        <label>Hareketlerde Ara</label>
+        <input id="moveSearch" value="${esc(state._moveSearch || '')}" placeholder="Ürün kodu, ürün adı, raf, makine veya not" oninput="setMoveSearch(this.value)">
+      </div>
+      <div class="field">
+        <label>Görüntülenen Kayıt</label>
+        <div class="alert alert-info" style="margin:0">${filtered.length} / ${state.movements.length} kayıt gösteriliyor</div>
+      </div>
+    </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
       ${['ALL','GIRIS','CIKIS','TRANSFER','MAKINE','SAYIM'].map(t => `
         <button class="btn ${filter===t?'btn-primary':'btn-ghost'}" style="font-size:11px;padding:7px 12px" onclick="setMoveFilter('${t}')">
           ${t==='ALL'?'Tümü':t==='GIRIS'?'Giriş':t==='CIKIS'?'Çıkış':t==='TRANSFER'?'Transfer':t==='MAKINE'?'Makine':'Sayım'}
         </button>`).join('')}
       <div class="spacer"></div>
+      <button class="btn btn-secondary" onclick="exportMovementsCsv()" style="font-size:11px;padding:7px 12px" ${filtered.length ? '' : 'disabled'}>CSV Dışa Aktar</button>
       <button class="btn btn-danger" onclick="clearMovements()" style="margin-left:auto;font-size:11px;padding:7px 12px">Geçmişi Temizle</button>
     </div>
     ${filtered.length ? `
@@ -1265,6 +1282,41 @@ function setMoveFilter(f) {
   state._moveFilter = f; renderPage();
 }
 window.setMoveFilter = setMoveFilter;
+
+function setMoveSearch(value) {
+  state._moveSearch = value;
+  renderPage();
+  const input = document.getElementById('moveSearch');
+  if (input) { input.focus(); input.setSelectionRange(input.value.length, input.value.length); }
+}
+window.setMoveSearch = setMoveSearch;
+
+function filteredMovements() {
+  const filter = state._moveFilter || 'ALL';
+  const query = String(state._moveSearch || '').trim().toLocaleLowerCase('tr-TR');
+  return state.movements.filter(m => {
+    if (filter !== 'ALL' && m.type !== filter) return false;
+    if (!query) return true;
+    return [m.date, m.type, m.barcode, m.productName, m.from, m.to, m.machine, m.note]
+      .some(v => String(v || '').toLocaleLowerCase('tr-TR').includes(query));
+  });
+}
+
+function exportMovementsCsv() {
+  const rows = filteredMovements();
+  if (!rows.length) { toast('Dışa aktarılacak hareket yok', 'err'); return; }
+  const csvCell = value => `"${String(value ?? '').replace(/"/g, '""')}"`;
+  const header = ['Tarih','İşlem','Ürün Kodu','Ürün Adı','Miktar','Kaynak','Hedef','Makine','Not'];
+  const lines = [header, ...rows.map(m => [m.date,m.type,m.barcode,m.productName,m.qty,m.from,m.to,m.machine,m.note])]
+    .map(row => row.map(csvCell).join(';'));
+  const blob = new Blob(['\uFEFF' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `kansan-hareketler-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+window.exportMovementsCsv = exportMovementsCsv;
 
 function clearMovements() {
   if (!confirm('Tüm hareket geçmişi silinsin mi? Bu işlem geri alınamaz.')) return;
@@ -1300,7 +1352,7 @@ function renderSettings() {
   <div class="card">
     <div class="card-title">Uygulama Hakkında</div>
     <p style="font-size:13px;color:var(--muted);line-height:1.6">
-      <b>Kansan Depo v23</b><br>
+      <b>Kansan Depo v25</b><br>
       Stok ve lokasyon yönetim sistemi.<br>
       Ürün kaydı, barkod tarama, stok girişi, raf yönetimi, transfer ve makine çıkışı desteklenir.<br>
       Tüm veriler tarayıcınıza kaydedilir.
