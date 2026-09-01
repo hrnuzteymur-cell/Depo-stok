@@ -1,0 +1,65 @@
+name: Fix product scanners
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: "!contains(github.event.head_commit.message, '[scanner-fix]')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch product scanner buttons
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          marker='KANSAN_PRODUCT_SCANNER_FIX_V1'
+          if marker in s:
+              print('already patched')
+              raise SystemExit(0)
+          patch=r'''<script id="KANSAN_PRODUCT_SCANNER_FIX_V1">
+          (function(){
+            function enhance(id,label){
+              var input=document.getElementById(id); if(!input) return;
+              var parent=input.parentElement;
+              if(parent && parent.dataset && parent.dataset.scannerWrap==='1') return;
+              if(parent){
+                Array.from(parent.querySelectorAll('button')).forEach(function(b){
+                  if((b.getAttribute('onclick')||'').indexOf("scanTo('"+id+"')")>=0) b.remove();
+                });
+              }
+              var wrap=document.createElement('div');
+              wrap.dataset.scannerWrap='1';
+              wrap.style.display='flex';wrap.style.gap='8px';wrap.style.alignItems='stretch';wrap.style.width='100%';
+              input.parentNode.insertBefore(wrap,input);wrap.appendChild(input);input.style.flex='1';
+              var btn=document.createElement('button');btn.type='button';btn.textContent='📷';btn.title=label;btn.setAttribute('aria-label',label);
+              btn.style.width='54px';btn.style.minWidth='54px';btn.style.border='0';btn.style.borderRadius='12px';btn.style.background='#e8efef';btn.style.color='#173b4c';btn.style.fontSize='22px';btn.style.cursor='pointer';
+              btn.onclick=function(){ if(typeof scanTo==='function') scanTo(id); else alert('Barkod okuyucu hazır değil.'); };
+              wrap.appendChild(btn);
+            }
+            function run(){enhance('pBarcode','Ürün barkodunu okut');enhance('pCode','Ürün kodunu okut');}
+            var oldRender=window.render;
+            if(typeof oldRender==='function') window.render=function(){var r=oldRender.apply(this,arguments);setTimeout(run,0);return r;};
+            document.addEventListener('click',function(){setTimeout(run,30);});
+            new MutationObserver(function(){run();}).observe(document.documentElement,{childList:true,subtree:true});
+            setTimeout(run,0);
+          })();
+          </script>'''
+          if '</body>' not in s: raise SystemExit('body close not found')
+          p.write_text(s.replace('</body>',patch+'\n</body>',1),encoding='utf-8')
+          print('patched')
+          PY
+      - name: Publish
+        run: |
+          if git diff --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Ürün barkodu ve ürün kodu kamera butonlarını düzelt [scanner-fix]"
+          git push
