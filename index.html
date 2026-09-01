@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>Kansan Depo · v13</title>
+<title>Kansan Depo · v14</title>
 <style>
 :root{--bg:#f3f5f4;--s:#fff;--ink:#172326;--m:#718086;--line:#e3e8e6;--n:#102a36;--n2:#173b4c;--a:#e4a21a;--g:#2e7c58;--r:#b7443c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
@@ -40,6 +40,42 @@ main{margin-left:0!important;max-width:1180px;margin-right:auto!important;margin
 .tool-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 12px}
 .tool-head b{font-size:16px}
 @media(max-width:720px){main{padding:18px 12px 40px!important}.actions{grid-template-columns:1fr 1fr!important}.top{padding:0 16px!important}}
+
+/* v14 - sabit tam ekran sayfalar */
+html,body{height:100%;overflow:hidden!important}
+body{overscroll-behavior:none}
+.app{height:100dvh!important;min-height:0!important;overflow:hidden!important}
+.top{position:fixed!important;left:0;right:0;top:0;height:58px!important;z-index:100!important}
+main{position:fixed!important;left:0!important;right:0!important;top:58px!important;bottom:0!important;margin:0!important;max-width:none!important;padding:14px!important;overflow:hidden!important}
+.side,.bottom{display:none!important}
+.welcome{height:108px;overflow:hidden}
+.welcome h2{font-size:clamp(22px,5vw,34px)!important;line-height:1.05!important;margin:3px 0 8px!important}
+.welcome p{margin:0!important}
+.actions{height:calc(100dvh - 58px - 108px - 102px - 42px)!important;min-height:0!important;margin:10px 0!important;display:grid!important;grid-template-columns:repeat(2,1fr)!important;grid-template-rows:repeat(3,1fr)!important;gap:9px!important}
+.act{min-height:0!important;height:auto!important;padding:12px!important;overflow:hidden}
+.act b{font-size:clamp(13px,3.6vw,18px)!important;line-height:1.08}.act small{font-size:clamp(9px,2.6vw,12px)!important}
+main>.panel,.welcome~.panel{height:92px!important;margin:0!important;padding:12px!important;overflow:hidden!important}
+.screenPage{height:100%;display:flex;flex-direction:column;overflow:hidden}
+.screenBack{height:46px;flex:0 0 46px;display:flex;align-items:flex-start}
+.screenBack .btn{padding:8px 11px!important;font-size:12px!important}
+.screenBody{flex:1;min-height:0;overflow:hidden!important;display:flex;flex-direction:column}
+.screenBody>.panel,.screenBody>div>.panel{margin:0!important;height:100%!important;max-height:100%!important;overflow:hidden!important;padding:12px!important}
+.screenBody .grid{gap:7px!important}
+.screenBody .field{gap:4px!important}
+.screenBody input,.screenBody select,.screenBody textarea{padding:8px 9px!important;min-height:38px!important;font-size:14px!important}
+.screenBody textarea{min-height:64px!important;max-height:84px!important}
+.screenBody .btn{padding:9px 11px!important;font-size:13px!important}
+.screenBody .scanbtn{width:46px!important;min-width:46px!important;font-size:18px!important}
+.screenBody .scanbig{min-height:62px!important;font-size:14px!important}
+.screenBody .title{margin-bottom:8px!important;font-size:15px!important}
+.screenBody .note{font-size:10px!important}
+.screenBody .table{max-height:42vh!important;overflow:hidden!important;font-size:9px!important}
+.screenBody table{font-size:9px!important;table-layout:fixed!important}
+.screenBody th,.screenBody td{padding:5px!important;overflow:hidden!important;text-overflow:ellipsis!important}
+.screenBody .chips{max-height:72px!important;overflow:hidden!important;margin-top:6px!important}
+@media(max-width:720px){main{padding:10px!important}.welcome{height:98px}.actions{height:calc(100dvh - 58px - 98px - 92px - 30px)!important;gap:8px!important}.act{padding:10px!important}.screenBack{height:42px;flex-basis:42px}.screenBody .g4,.screenBody .g3,.screenBody .g2{grid-template-columns:1fr 1fr!important}.screenBody .panel{border-radius:14px!important}.screenBody .table{max-height:34vh!important}}
+@media(max-width:430px) and (max-height:760px){.screenBody input,.screenBody select{min-height:34px!important;padding:6px 8px!important}.screenBody .grid{gap:5px!important}.screenBody .field label{font-size:8px!important}.screenBody textarea{min-height:52px!important}.screenBody .title{font-size:13px!important}.screenBody .btn{padding:7px 9px!important}.screenBody .panel{padding:9px!important}}
+
 </style>
 </head>
 <body>
@@ -50,7 +86,7 @@ main{margin-left:0!important;max-width:1180px;margin-right:auto!important;margin
   <button data-tab="dashboard">⌂ Ana Sayfa</button><button data-tab="urunler">□ Ürünler</button><button data-tab="giris">＋ Stok Girişi</button><button data-tab="ara">⌕ Ürün Ara</button><button data-tab="raf">▦ Raf Yönetimi</button><button data-tab="transfer">⇄ Raf Transferi</button><button data-tab="makine">⚙ Makineye Çıkış</button><button data-tab="hareket">≡ Hareketler</button>
  </nav>
 </aside>
-<header class="top">Depo Yönetim Paneli <span style="margin-left:auto;font-size:10px;color:#8a989d;font-weight:700">v13</span></header>
+<header class="top">Depo Yönetim Paneli <span style="margin-left:auto;font-size:10px;color:#8a989d;font-weight:700">v14</span></header>
 <main id="main"></main>
 <nav class="bottom">
  <button data-tab="dashboard">⌂<br>Ana</button><button data-tab="urunler">□<br>Ürün</button><button data-tab="ara">⌕<br>Ara</button><button data-tab="giris">＋<br>Giriş</button><button data-tab="transfer">⇄<br>Transfer</button><button data-tab="raf">▦<br>Raf</button>
@@ -149,5 +185,19 @@ function extractDescriptionNearCode(data,code){
 async function scanProductLabel(){try{await openCamera('Ürün Etiketini Tara',true);const video=document.getElementById('scanVideo'),msg=document.getElementById('scanMsg'),btn=document.getElementById('captureBtn'),bar=document.getElementById('ocrBar');msg.textContent='Etiketin tamamı net görünsün. Etiketi Tara’ya dokun.';btn.onclick=async()=>{btn.disabled=true;btn.textContent='İşleniyor...';const canvas=document.createElement('canvas');canvas.width=video.videoWidth||1280;canvas.height=video.videoHeight||720;canvas.getContext('2d').drawImage(video,0,0,canvas.width,canvas.height);let code=await detectBarcode(canvas);try{const T=await loadTesseract();const res=await T.recognize(canvas,'tur+eng',{logger:m=>{if(m.status==='recognizing text'&&bar)bar.style.width=Math.round((m.progress||0)*100)+'%'}}),raw=res?.data?.text||'';if(!code){const nums=raw.match(/\b\d{6,14}\b/g)||[];code=nums.sort((a,b)=>b.length-a.length)[0]||''}if(!code){btn.disabled=false;btn.textContent='Tekrar Tara';msg.textContent='Ürün kodu okunamadı.';return}const existing=pBy(code),desc=existing?.description||cleanOCRDescription(raw,code);closeScanner();state.tab='urunler';save();render();document.getElementById('pCode').value=code;document.getElementById('pDescription').value=desc;const status=document.getElementById('labelStatus');if(existing){document.getElementById('pUnit').value=existing.unit||'Adet';status.className='status ok';status.textContent='Kayıtlı ürün bulundu. Tanım otomatik getirildi.'}else if(desc){status.className='status ok';status.textContent='Etiket okundu. Ürün kodu ve ürün tanımı otomatik dolduruldu.'}else{status.className='status warn';status.textContent='Ürün kodu okundu; ürün tanımı çıkarılamadı. Tanımı elle düzelt.'}}catch(e){closeScanner();state.tab='urunler';save();render();document.getElementById('pCode').value=code||'';const status=document.getElementById('labelStatus');status.className='status err';status.textContent=(code?'Ürün kodu okundu. ':'')+'OCR tamamlanamadı: '+e.message}}}catch(e){closeScanner();alert('Kamera açılamadı: '+e.message)}}
 render();
 </script>
+
+<script>
+window.addEventListener('DOMContentLoaded',()=>{
+  window.go=function(t){state.tab=t;save();window.render()};
+  window.render=function(){
+    navActive();
+    const main=document.getElementById('main');
+    const page=state.tab==='dashboard'?dashboard():state.tab==='urunler'?products():state.tab==='giris'?entry():state.tab==='ara'?searchPage():state.tab==='raf'?rafPage():state.tab==='transfer'?transferPage():state.tab==='makine'?machinePage():movementsPage();
+    main.innerHTML=state.tab==='dashboard'?page:`<section class="screenPage"><div class="screenBack"><button class="btn sec" onclick="go('dashboard')">← Ana Sayfa</button></div><div class="screenBody">${page}</div></section>`;
+  };
+  state.tab='dashboard'; save(); render();
+});
+</script>
+
 </body>
 </html>
