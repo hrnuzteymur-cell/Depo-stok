@@ -1,0 +1,135 @@
+name: Apply v19 product barcode search
+on:
+  push:
+    paths:
+      - '.github/workflows/apply-v19-product-search.yml'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply product barcode search
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          if '<title>Kansan Depo · v18</title>' not in s:
+              raise SystemExit('Expected v18 title not found')
+          start=s.index('// ─── SEARCH ─')
+          end=s.index('// ─── SHELVES ─', start)
+          block=r'''// ─── SEARCH ──────────────────────────────────────────────────────────────────
+          function productLocations(code) {
+            const grouped = new Map();
+            state.stock.filter(s => s.barcode === code && s.qty > 0).forEach(s => {
+              grouped.set(s.location, (grouped.get(s.location) || 0) + s.qty);
+            });
+            return [...grouped.entries()]
+              .map(([location, qty]) => ({ location, qty }))
+              .sort((a, b) => a.location.localeCompare(b.location, 'tr'));
+          }
+
+          function renderSearch() {
+            return `
+            <div class="card">
+              <div class="card-title">Ürün Bul</div>
+              <div class="card-sub">Ürün barkodunu okutun veya ürün kodu / açıklaması ile arayın. Ürünün bulunduğu tüm raflar ve her raftaki miktarı gösterilir.</div>
+              <div class="fgrid g2">
+                <div class="scan-row">
+                  <div class="field" style="flex:1"><input id="sQuery" placeholder="Ürün kodu veya açıklaması..." oninput="doSearch()" autocomplete="off"></div>
+                  <button class="btn-scan" onclick="scanToInput('sQuery', doSearch)" title="Ürün barkodunu tara">📷</button>
+                </div>
+                <button class="btn btn-primary" onclick="doSearch()" style="align-self:flex-end">Ara</button>
+              </div>
+            </div>
+            <div id="sResult"></div>`;
+          }
+
+          function doSearch() {
+            const raw = (document.getElementById('sQuery')?.value || '').trim();
+            const q = raw.toLowerCase();
+            const results = document.getElementById('sResult');
+            if (!results) return;
+            if (!q) { results.innerHTML = ''; return; }
+
+            const exact = state.products.find(p => p.productCode.toLowerCase() === q);
+            const matches = exact ? [exact] : state.products.filter(p =>
+              p.productCode.toLowerCase().includes(q) || p.description.toLowerCase().includes(q)
+            );
+
+            if (!matches.length) {
+              results.innerHTML = '<div class="card"><div class="empty-state"><div class="empty-icon">🔍</div>Ürün bulunamadı.</div></div>';
+              return;
+            }
+
+            results.innerHTML = matches.map(p => {
+              const locs = productLocations(p.productCode);
+              const total = locs.reduce((sum, s) => sum + s.qty, 0);
+              const unit = p.unit || 'Adet';
+              return `
+              <div class="product-result">
+                <div class="product-result-name">${esc(p.description)}</div>
+                <div class="product-result-code">${esc(p.productCode)} · ${esc(unit)}</div>
+                <div style="margin-top:10px;font-size:12px"><b>Toplam stok: ${total.toLocaleString('tr-TR')} ${esc(unit)}</b></div>
+                <div class="product-result-stocks">
+                  ${locs.length ? `
+                    <div class="stock-locs">
+                      ${locs.map(s => `<div class="stock-loc-row"><span class="loc-name">📍 ${esc(s.location)}</span><span class="loc-qty">${s.qty.toLocaleString('tr-TR')} ${esc(unit)}</span></div>`).join('')}
+                    </div>` : '<div class="alert alert-warn">Bu ürün için raf stoğu bulunmuyor.</div>'}
+                </div>
+              </div>`;
+            }).join('');
+          }
+          window.doSearch = doSearch;
+
+          '''
+          s=s[:start]+block+s[end:]
+          s=s.replace('<title>Kansan Depo · v18</title>','<title>Kansan Depo · v19</title>',1)
+          p.write_text(s)
+          PY
+      - name: Verify JavaScript and product-location logic
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text()
+          assert '<title>Kansan Depo · v19</title>' in s
+          assert 'function productLocations' in s
+          assert 'const exact = state.products.find' in s
+          assert 'Toplam stok:' in s
+          assert 'Ürünün bulunduğu tüm raflar' in s
+          assert 'function shelfInventory' in s
+          js=s.split('<script>',1)[1].split('</script>',1)[0]
+          Path('/tmp/app.js').write_text(js)
+          PY
+          node --check /tmp/app.js
+          node <<'JS'
+          const stock = [
+            {barcode:'A', location:'R1', qty:5},
+            {barcode:'A', location:'R1', qty:2},
+            {barcode:'A', location:'R2', qty:3},
+            {barcode:'B', location:'R1', qty:9},
+          ];
+          function productLocations(code) {
+            const grouped = new Map();
+            stock.filter(s => s.barcode === code && s.qty > 0).forEach(s => grouped.set(s.location, (grouped.get(s.location) || 0) + s.qty));
+            return [...grouped.entries()].map(([location, qty]) => ({location, qty})).sort((a,b) => a.location.localeCompare(b.location,'tr'));
+          }
+          const a = productLocations('A');
+          if (a.length !== 2) throw new Error('Expected two shelves');
+          if (a[0].location !== 'R1' || a[0].qty !== 7) throw new Error('R1 aggregation failed');
+          if (a[1].location !== 'R2' || a[1].qty !== 3) throw new Error('R2 amount failed');
+          if (a.reduce((n,x)=>n+x.qty,0) !== 10) throw new Error('Total failed');
+          console.log('PRODUCT_LOCATION_TEST_OK');
+          JS
+      - name: Commit v19
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'v19: ürün barkodu ile tüm raflarda ürün bulma'
+          git push
