@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Kansan Depo · v17</title>
+<title>Kansan Depo · v18</title>
 <style>
   :root {
     --bg: #f0f2f5;
@@ -822,8 +822,76 @@ function doSearch() {
 window.doSearch = doSearch;
 
 // ─── SHELVES ─────────────────────────────────────────────────────────────────
+function shelfInventory(r) {
+  const grouped = new Map();
+  state.stock.filter(s => s.location === r && s.qty > 0).forEach(s => {
+    grouped.set(s.barcode, (grouped.get(s.barcode) || 0) + s.qty);
+  });
+  return [...grouped.entries()].map(([code, qty]) => {
+    const p = pBy(code);
+    return { code, qty, description: p?.description || 'Ürün açıklaması yok', unit: p?.unit || 'Adet' };
+  }).sort((a, b) => a.description.localeCompare(b.description, 'tr'));
+}
+
+function renderShelfQueryResult(r) {
+  if (!r) return '';
+  if (!state.shelves.includes(r)) {
+    return `<div class="alert alert-error">${esc(r)} kodlu raf kayıtlı değil.</div>`;
+  }
+  const items = shelfInventory(r);
+  if (!items.length) {
+    return `<div class="card" style="margin-top:12px"><div class="card-title">📍 ${esc(r)}</div><div class="empty-state"><div class="empty-icon">📭</div>Bu rafta kayıtlı stok yok.</div></div>`;
+  }
+  return `
+    <div class="card" style="margin-top:12px">
+      <div class="card-title">📍 ${esc(r)} · ${items.length} farklı ürün</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Ürün Kodu</th><th>Ürün Açıklaması</th><th>Miktar</th></tr></thead>
+          <tbody>${items.map(i => `
+            <tr>
+              <td><b>${esc(i.code)}</b></td>
+              <td>${esc(i.description)}</td>
+              <td><b>${i.qty.toLocaleString('tr-TR')} ${esc(i.unit)}</b></td>
+            </tr>`).join('')}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+function queryShelf(code) {
+  const input = document.getElementById('shelfQuery');
+  const result = document.getElementById('shelfQueryResult');
+  const r = String(code ?? input?.value ?? '').trim().toUpperCase();
+  if (input) input.value = r;
+  if (!result) return;
+  if (!r) { result.innerHTML = '<div class="alert alert-warn">Raf kodu girin veya raf barkodunu okutun.</div>'; return; }
+  result.innerHTML = renderShelfQueryResult(r);
+}
+window.queryShelf = queryShelf;
+
+async function scanShelfQuery() {
+  try {
+    const r = (await scanBarcodeValue('Raf Barkodunu Tara')).trim().toUpperCase();
+    const input = document.getElementById('shelfQuery');
+    if (input) input.value = r;
+    queryShelf(r);
+  } catch (e) { toast(e.message, 'err'); }
+}
+window.scanShelfQuery = scanShelfQuery;
+
 function renderShelves() {
   return `
+  <div class="card">
+    <div class="card-title">Raf Sorgula</div>
+    <div class="card-sub">Raf barkodunu okutun veya raf kodunu yazın. Raftaki tüm ürünler kendi miktarlarıyla gösterilir.</div>
+    <div class="scan-row">
+      <div class="field" style="flex:1"><input id="shelfQuery" placeholder="Raf kodu" autocomplete="off"></div>
+      <button class="btn-scan" onclick="scanShelfQuery()" title="Raf barkodunu tara">📷</button>
+      <button class="btn btn-primary" onclick="queryShelf()">Sorgula</button>
+    </div>
+    <div id="shelfQueryResult"></div>
+  </div>
   <div class="card">
     <div class="card-title">Raf Ekle</div>
     <div class="scan-row">
@@ -836,20 +904,19 @@ function renderShelves() {
     ${state.shelves.length ? `
     <div class="tag-list">
       ${state.shelves.map(r => `
-        <span class="tag">
+        <span class="tag" style="cursor:pointer" onclick="document.getElementById('shelfQuery').value='${esc(r)}';queryShelf('${esc(r)}')">
           📍 ${esc(r)}
           <span style="font-size:10px;opacity:.6;margin-left:4px">${qtyOnShelf(r)}</span>
-          <button class="tag-remove" onclick="removeShelf('${esc(r)}')" title="Sil">×</button>
+          <button class="tag-remove" onclick="event.stopPropagation();removeShelf('${esc(r)}')" title="Sil">×</button>
         </span>`).join('')}
     </div>
     <div style="margin-top:14px">
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Raf</th><th>Ürün Sayısı</th><th>Toplam Stok</th></tr></thead>
+          <thead><tr><th>Raf</th><th>Ürün Sayısı</th><th>Durum</th></tr></thead>
           <tbody>${state.shelves.map(r => {
-            const items = state.stock.filter(s => s.location === r);
-            const total = items.reduce((a, s) => a + s.qty, 0);
-            return `<tr><td><b>${esc(r)}</b></td><td>${items.length} ürün</td><td>${total.toLocaleString('tr-TR')}</td></tr>`;
+            const items = shelfInventory(r);
+            return `<tr style="cursor:pointer" onclick="document.getElementById('shelfQuery').value='${esc(r)}';queryShelf('${esc(r)}')"><td><b>${esc(r)}</b></td><td>${items.length} ürün</td><td>${items.length ? 'Dolu' : 'Boş'}</td></tr>`;
           }).join('')}</tbody>
         </table>
       </div>
@@ -858,8 +925,8 @@ function renderShelves() {
 }
 
 function qtyOnShelf(r) {
-  const t = state.stock.filter(s => s.location === r).reduce((a, s) => a + s.qty, 0);
-  return t > 0 ? t + ' adet' : '';
+  const count = shelfInventory(r).length;
+  return count > 0 ? count + ' ürün' : 'boş';
 }
 
 function addShelf() {
@@ -1338,6 +1405,8 @@ window.scanProductLabel = scanProductLabel;
 // ─── AFTER RENDER ─────────────────────────────────────────────────────────────
 function afterRender() {
   // Enter key on shelf input
+  const sq = document.getElementById('shelfQuery');
+  if (sq) sq.addEventListener('keydown', e => { if (e.key === 'Enter') queryShelf(); });
   const ns = document.getElementById('newShelf');
   if (ns) ns.addEventListener('keydown', e => { if (e.key === 'Enter') addShelf(); });
   const nm = document.getElementById('newMachine');
