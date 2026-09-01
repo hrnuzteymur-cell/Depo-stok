@@ -1,0 +1,27 @@
+name: Apply uploaded v15
+
+on:
+  push:
+    paths:
+      - '.github/workflows/apply-uploaded-v15.yml'
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rebuild uploaded index
+        run: |
+          cat .tmp-upload/part00.b64 .tmp-upload/part01.b64 .tmp-upload/part02.b64 .tmp-upload/part03.b64 .tmp-upload/part04.b64 .tmp-upload/part05.b64 .tmp-upload/part06.b64 | base64 -d > index.html
+          grep -q '<title>Kansan Depo</title>' index.html
+          grep -q 'Kansan Depo v15' index.html
+          test "$(wc -c < index.html)" -eq 61376
+      - name: Commit uploaded app
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "v15: yüklenen kansan-depo.html dosyasını uygula" || exit 0
+          git push
