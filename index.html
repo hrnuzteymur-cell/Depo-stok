@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>Kansan Depo · v11</title>
+<title>Kansan Depo · v12</title>
 <style>
 :root{--bg:#f3f5f4;--s:#fff;--ink:#172326;--m:#718086;--line:#e3e8e6;--n:#102a36;--n2:#173b4c;--a:#e4a21a;--g:#2e7c58;--r:#b7443c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
@@ -41,7 +41,7 @@ textarea{min-height:82px;resize:vertical}input:focus,select:focus,textarea:focus
   <button data-tab="dashboard">⌂ Ana Sayfa</button><button data-tab="urunler">□ Ürünler</button><button data-tab="giris">＋ Stok Girişi</button><button data-tab="ara">⌕ Ürün Ara</button><button data-tab="raf">▦ Raf Yönetimi</button><button data-tab="transfer">⇄ Raf Transferi</button><button data-tab="makine">⚙ Makineye Çıkış</button><button data-tab="hareket">≡ Hareketler</button>
  </nav>
 </aside>
-<header class="top">Depo Yönetim Paneli <span style="margin-left:auto;font-size:10px;color:#8a989d;font-weight:700">v11</span></header>
+<header class="top">Depo Yönetim Paneli <span style="margin-left:auto;font-size:10px;color:#8a989d;font-weight:700">v12</span></header>
 <main id="main"></main>
 <nav class="bottom">
  <button data-tab="dashboard">⌂<br>Ana</button><button data-tab="urunler">□<br>Ürün</button><button data-tab="ara">⌕<br>Ara</button><button data-tab="giris">＋<br>Giriş</button><button data-tab="transfer">⇄<br>Transfer</button><button data-tab="raf">▦<br>Raf</button>
@@ -89,7 +89,54 @@ async function detectBarcode(source){if(!('BarcodeDetector' in window))return ''
 async function scanBarcodeValue(title){await openCamera(title,false);const video=document.getElementById('scanVideo');return await new Promise((resolve,reject)=>{let tries=0;scanTimer=setInterval(async()=>{tries++;const v=await detectBarcode(video);if(v){closeScanner();resolve(v)}else if(tries>100){closeScanner();reject(new Error('Barkod okunamadı. Tekrar dene.'))}},250)})}
 async function scanBarcodeToInput(id,title){try{const v=await scanBarcodeValue(title);const el=document.getElementById(id);if(el)el.value=v}catch(e){alert(e.message)}}async function scanShelfToSelect(id,title){try{const v=(await scanBarcodeValue(title)).trim().toUpperCase();if(!state.shelves.includes(v))return alert('Okutulan raf kayıtlı değil: '+v);const el=document.getElementById(id);if(el)el.value=v}catch(e){alert(e.message)}}
 function loadTesseract(){if(window.Tesseract)return Promise.resolve(window.Tesseract);if(tesseractLoading)return tesseractLoading;tesseractLoading=new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';s.onload=()=>resolve(window.Tesseract);s.onerror=()=>reject(new Error('OCR bileşeni yüklenemedi.'));document.head.appendChild(s)});return tesseractLoading}
-function cleanOCRDescription(text,code){const lines=String(text||'').split(/\r?\n/).map(x=>x.replace(/\s+/g,' ').trim()).filter(Boolean),codeNorm=String(code||'').replace(/\s/g,''),junk=/^(barkod|barcode|raf kodu|raf|tarih|date|barkod bas|barkod baş)/i,date=/\b\d{1,2}[.\-/]\d{1,2}[.\-/]\d{2,4}\b/,kept=[];for(let line of lines){const compact=line.replace(/\s/g,'');if(!line||junk.test(line)||date.test(line))continue;if(codeNorm&&(compact===codeNorm||compact.includes(codeNorm)))continue;if(/^\d{5,}$/.test(compact))continue;if(line.length<2)continue;kept.push(line)}return kept.join(' ').replace(/\s+([),.;:])/g,'$1').replace(/([(])\s+/g,'$1').trim()}
+function isJunkLabelLine(line){
+ line=String(line||'').replace(/\s+/g,' ').trim();
+ if(!line)return true;
+ if(/^(barkod|barcode|raf kodu|raf|tarih|date|barkod bas|barkod baş)/i.test(line))return true;
+ if(/\b\d{1,2}[.\-/]\d{1,2}[.\-/]\d{2,4}\b/.test(line))return true;
+ return false;
+}
+function normalizeCodeText(v){return String(v||'').toUpperCase().replace(/[^A-Z0-9]/g,'')}
+function cleanOCRDescription(text,code){
+ const lines=String(text||'').split(/\r?\n/).map(x=>x.replace(/\s+/g,' ').trim()).filter(Boolean);
+ const codeNorm=normalizeCodeText(code);
+ let codeIndex=-1;
+ for(let i=0;i<lines.length;i++){
+   const n=normalizeCodeText(lines[i]);
+   if(codeNorm && (n===codeNorm || n.includes(codeNorm))){codeIndex=i;break}
+ }
+ if(codeIndex>=0){
+   for(let i=codeIndex+1;i<Math.min(lines.length,codeIndex+4);i++){
+     const line=lines[i],n=normalizeCodeText(line);
+     if(!isJunkLabelLine(line)&&n!==codeNorm&&!/^\d{5,}$/.test(n)&&/[A-ZÇĞİÖŞÜ]/i.test(line)&&line.length>=3)return line.trim();
+   }
+ }
+ return '';
+}
+function extractDescriptionNearCode(data,code){
+ const codeNorm=normalizeCodeText(code);
+ const rawLines=Array.isArray(data?.lines)?data.lines:[];
+ const lines=rawLines.map(l=>({text:String(l.text||'').replace(/\s+/g,' ').trim(),bbox:l.bbox||{}})).filter(l=>l.text);
+ if(lines.length){
+   const ci=lines.findIndex(l=>{const n=normalizeCodeText(l.text);return codeNorm&&(n===codeNorm||n.includes(codeNorm))});
+   if(ci>=0){
+     const c=lines[ci],cb=c.bbox||{};
+     const candidates=lines.map((l,i)=>({l,i})).filter(({l,i})=>{
+       if(i===ci||isJunkLabelLine(l.text))return false;
+       const n=normalizeCodeText(l.text);
+       if(!n||n===codeNorm||/^\d{5,}$/.test(n))return false;
+       if(!/[A-ZÇĞİÖŞÜ]/i.test(l.text)||l.text.length<3)return false;
+       const b=l.bbox||{};
+       if(Number.isFinite(cb.y1)&&Number.isFinite(b.y0)&&b.y0<cb.y1-5)return false;
+       if(Number.isFinite(cb.x0)&&Number.isFinite(b.x0)&&Math.abs(b.x0-cb.x0)>Math.max(180,(cb.x1||cb.x0)-cb.x0+80))return false;
+       return true;
+     }).sort((a,b)=>(a.l.bbox?.y0??99999)-(b.l.bbox?.y0??99999));
+     if(candidates.length)return candidates[0].l.text.trim();
+     for(let i=ci+1;i<Math.min(lines.length,ci+4);i++)if(!isJunkLabelLine(lines[i].text))return lines[i].text.trim();
+   }
+ }
+ return cleanOCRDescription(data?.text||'',code);
+}
 async function scanProductLabel(){try{await openCamera('Ürün Etiketini Tara',true);const video=document.getElementById('scanVideo'),msg=document.getElementById('scanMsg'),btn=document.getElementById('captureBtn'),bar=document.getElementById('ocrBar');msg.textContent='Etiketin tamamı net görünsün. Etiketi Tara’ya dokun.';btn.onclick=async()=>{btn.disabled=true;btn.textContent='İşleniyor...';const canvas=document.createElement('canvas');canvas.width=video.videoWidth||1280;canvas.height=video.videoHeight||720;canvas.getContext('2d').drawImage(video,0,0,canvas.width,canvas.height);let code=await detectBarcode(canvas);try{const T=await loadTesseract();const res=await T.recognize(canvas,'tur+eng',{logger:m=>{if(m.status==='recognizing text'&&bar)bar.style.width=Math.round((m.progress||0)*100)+'%'}}),raw=res?.data?.text||'';if(!code){const nums=raw.match(/\b\d{6,14}\b/g)||[];code=nums.sort((a,b)=>b.length-a.length)[0]||''}if(!code){btn.disabled=false;btn.textContent='Tekrar Tara';msg.textContent='Ürün kodu okunamadı.';return}const existing=pBy(code),desc=existing?.description||cleanOCRDescription(raw,code);closeScanner();state.tab='urunler';save();render();document.getElementById('pCode').value=code;document.getElementById('pDescription').value=desc;const status=document.getElementById('labelStatus');if(existing){document.getElementById('pUnit').value=existing.unit||'Adet';status.className='status ok';status.textContent='Kayıtlı ürün bulundu. Tanım otomatik getirildi.'}else if(desc){status.className='status ok';status.textContent='Etiket okundu. Ürün kodu ve ürün tanımı otomatik dolduruldu.'}else{status.className='status warn';status.textContent='Ürün kodu okundu; ürün tanımı çıkarılamadı. Tanımı elle düzelt.'}}catch(e){closeScanner();state.tab='urunler';save();render();document.getElementById('pCode').value=code||'';const status=document.getElementById('labelStatus');status.className='status err';status.textContent=(code?'Ürün kodu okundu. ':'')+'OCR tamamlanamadı: '+e.message}}}catch(e){closeScanner();alert('Kamera açılamadı: '+e.message)}}
 render();
 </script>
