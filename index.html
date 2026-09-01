@@ -3,201 +3,1501 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#102a36">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-<title>Kansan Depo · v14</title>
+<title>Kansan Depo · v16</title>
 <style>
-:root{--bg:#f3f5f4;--s:#fff;--ink:#172326;--m:#718086;--line:#e3e8e6;--n:#102a36;--n2:#173b4c;--a:#e4a21a;--g:#2e7c58;--r:#b7443c}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
-button,input,select,textarea{font:inherit}.app{min-height:100vh}.side{position:fixed;left:0;top:0;bottom:0;width:238px;background:var(--n);color:#fff;padding:22px 15px;z-index:20}
-.brand{padding:5px 10px 22px;border-bottom:1px solid #ffffff18;margin-bottom:15px}.mark{width:42px;height:42px;border-radius:13px;background:var(--a);color:var(--n);display:grid;place-items:center;font-weight:900;margin-bottom:10px}
-.brand b{display:block}.brand small{color:#9fb2bb}.nav{display:flex;flex-direction:column;gap:5px}.nav button{border:0;background:transparent;color:#b8c7cd;border-radius:11px;padding:12px;text-align:left;font-weight:700}
-.nav button.active{background:#ffffff18;color:#fff}.top{margin-left:238px;height:66px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 26px;font-weight:800;position:sticky;top:0;z-index:10}
-main{margin-left:238px;padding:25px 28px 85px}.welcome h2,.head h2{margin:4px 0 6px;font-size:27px}.welcome p,.head p,.note{color:var(--m);font-size:11px}.ey{font-size:9px;letter-spacing:.15em;color:#789097;font-weight:900}
-.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin:18px 0}.act{border:1px solid var(--line);background:#fff;border-radius:16px;min-height:92px;padding:15px;text-align:left;cursor:pointer}.act b,.act small{display:block}
-.act b{font-size:13px}.act small{font-size:9px;color:var(--m);margin-top:4px}.act.primary{background:var(--n2);color:#fff}.act.primary small{color:#c2d0d6}.panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:17px;margin-bottom:14px}
-.panel.accent{border:2px solid #cfe0da}.title{font-weight:900;font-size:13px;margin-bottom:13px}.grid{display:grid;gap:10px}.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
-.field{display:flex;flex-direction:column;gap:6px}.field label{font-size:9px;text-transform:uppercase;color:#74868c;font-weight:900}input,select,textarea{width:100%;border:1px solid #dce3e1;background:#fbfcfc;border-radius:10px;padding:11px 12px;outline:none;color:var(--ink)}
-textarea{min-height:82px;resize:vertical}input:focus,select:focus,textarea:focus{border-color:#6d8c98;box-shadow:0 0 0 3px #edf2f3}.scanrow,.row{display:flex;gap:8px;align-items:stretch;width:100%}.scanrow input{flex:1;min-width:0}
-.btn,.scanbtn{border:0;border-radius:10px;font-weight:800;cursor:pointer}.btn{padding:11px 14px;background:var(--n2);color:#fff}.btn.sec{background:#edf2f1;color:var(--n2)}.btn.danger{background:var(--r)}.scanbtn{width:56px;min-width:56px;background:#e8efef;color:#173b4c;font-size:22px;display:grid;place-items:center}
-.scanbig{width:100%;min-height:82px;border:2px dashed #b8cac4;border-radius:14px;background:#f7faf9;color:var(--n2);font-weight:900;font-size:16px;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer}.scanbig span{font-size:28px}
-.status{margin-top:10px;padding:10px 12px;border-radius:10px;background:#f1f5f4;font-size:11px;color:#5f7279}.status.ok{background:#e8f4ed;color:#286a4a}.status.warn{background:#fff4dc;color:#7a5a13}.status.err{background:#f9e9e7;color:#923b35}
-.table{overflow:auto;border:1px solid #edf0ef;border-radius:12px}table{width:100%;border-collapse:collapse;font-size:11px}th,td{padding:10px;border-bottom:1px solid #edf0ef;white-space:nowrap;text-align:left}th{font-size:8px;text-transform:uppercase;color:#7c8c92;background:#f8faf9}
-.badge{padding:4px 7px;border-radius:999px;font-size:8px;font-weight:900}.in{background:#e5f3eb;color:var(--g)}.out{background:#f8e8e6;color:var(--r)}.move{background:#eaf0f3;color:var(--n2)}.empty{text-align:center;color:var(--m);padding:28px}
-.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}.chip{display:inline-flex;gap:7px;align-items:center;background:#edf2f1;border-radius:999px;padding:6px 9px;font-size:11px}.chip button{border:0;background:transparent;color:var(--r);font-weight:900}
-.bottom{display:none}.overlay{position:fixed;inset:0;background:rgba(6,20,27,.94);z-index:99999;padding:16px;color:#fff;display:flex;flex-direction:column}.overlay-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.overlay video{width:100%;max-height:62vh;object-fit:cover;border-radius:14px;background:#111}.overlay-actions{display:flex;gap:9px;margin-top:12px}.overlay-actions .btn{flex:1}.overlay-msg{padding:10px 2px;font-size:12px;color:#c8d5da}.progress{height:7px;background:#ffffff20;border-radius:999px;overflow:hidden;margin-top:8px}.progress i{display:block;height:100%;width:0;background:#e4a21a;transition:width .2s}
-@media(max-width:900px){.actions{grid-template-columns:repeat(2,1fr)}.g4,.g3{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:720px){.side{display:none}.top{margin-left:0;height:58px;padding:0 15px}main{margin-left:0;padding:18px 12px 92px}.welcome h2,.head h2{font-size:23px}.actions{grid-template-columns:1fr 1fr;gap:9px}.act{min-height:104px}.g4,.g3,.g2{grid-template-columns:1fr}.panel{padding:14px}.bottom{position:fixed;left:8px;right:8px;bottom:8px;height:66px;background:#102a36f6;border-radius:19px;display:grid;grid-template-columns:repeat(6,1fr);padding:6px;z-index:30}.bottom button{border:0;background:transparent;color:#9fb2ba;border-radius:13px;font-size:8px;font-weight:800}.bottom button.active{background:#ffffff18;color:#fff}.overlay{padding:10px}.overlay video{max-height:58vh}}
+  :root {
+    --bg: #f0f2f5;
+    --surface: #ffffff;
+    --border: #e2e6ea;
+    --ink: #1a1d21;
+    --muted: #6b7280;
+    --brand: #1e40af;
+    --brand-light: #eff6ff;
+    --brand-dark: #1e3a8a;
+    --green: #15803d;
+    --green-bg: #f0fdf4;
+    --red: #b91c1c;
+    --red-bg: #fef2f2;
+    --amber: #92400e;
+    --amber-bg: #fffbeb;
+    --radius: 12px;
+    --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: var(--bg); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; }
+  
+  /* Layout */
+  .layout { display: flex; height: 100vh; overflow: hidden; }
+  
+  /* Sidebar */
+  .sidebar {
+    width: 240px; flex-shrink: 0; background: var(--brand-dark);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .sidebar-brand {
+    padding: 20px 18px 16px; border-bottom: 1px solid rgba(255,255,255,.1);
+  }
+  .brand-icon {
+    width: 38px; height: 38px; background: #3b82f6; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 17px; color: #fff; margin-bottom: 10px;
+  }
+  .brand-name { font-weight: 800; font-size: 14px; color: #fff; line-height: 1.2; }
+  .brand-sub { font-size: 11px; color: rgba(255,255,255,.5); margin-top: 2px; }
+  .sidebar-nav { flex: 1; padding: 10px 10px; overflow-y: auto; }
+  .nav-section { margin-bottom: 6px; }
+  .nav-label { font-size: 9px; font-weight: 700; color: rgba(255,255,255,.35); letter-spacing: .08em; padding: 8px 8px 4px; text-transform: uppercase; }
+  .nav-btn {
+    display: flex; align-items: center; gap: 10px; width: 100%;
+    padding: 9px 10px; border: 0; background: transparent; color: rgba(255,255,255,.65);
+    border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; text-align: left;
+    transition: background .15s, color .15s;
+  }
+  .nav-btn:hover { background: rgba(255,255,255,.08); color: #fff; }
+  .nav-btn.active { background: rgba(255,255,255,.15); color: #fff; }
+  .nav-icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
+  .sidebar-footer { padding: 12px 18px; border-top: 1px solid rgba(255,255,255,.1); }
+  .ver { font-size: 10px; color: rgba(255,255,255,.3); }
+  
+  /* Main */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .topbar {
+    height: 56px; background: var(--surface); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 24px; gap: 12px; flex-shrink: 0;
+  }
+  .topbar-title { font-weight: 800; font-size: 16px; }
+  .topbar-back {
+    display: none; align-items: center; gap: 6px; border: 0; background: transparent;
+    color: var(--brand); font-size: 13px; font-weight: 700; cursor: pointer; padding: 0;
+  }
+  .topbar-back.visible { display: flex; }
+  .spacer { flex: 1; }
+  .page { flex: 1; overflow-y: auto; padding: 20px 24px; }
 
-/* v13 - tek ana sayfa */
-.side,.bottom{display:none!important}
-.top{margin-left:0!important}
-main{margin-left:0!important;max-width:1180px;margin-right:auto!important;margin-left:auto!important;padding-bottom:40px!important}
-#activeTool{scroll-margin-top:78px;margin-top:18px}
-.tool-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 12px}
-.tool-head b{font-size:16px}
-@media(max-width:720px){main{padding:18px 12px 40px!important}.actions{grid-template-columns:1fr 1fr!important}.top{padding:0 16px!important}}
+  /* Cards & Panels */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 14px; box-shadow: var(--shadow); }
+  .card-title { font-weight: 800; font-size: 14px; margin-bottom: 14px; }
+  .card-sub { font-size: 12px; color: var(--muted); margin-bottom: 14px; margin-top: -10px; }
 
-/* v14 - sabit tam ekran sayfalar */
-html,body{height:100%;overflow:hidden!important}
-body{overscroll-behavior:none}
-.app{height:100dvh!important;min-height:0!important;overflow:hidden!important}
-.top{position:fixed!important;left:0;right:0;top:0;height:58px!important;z-index:100!important}
-main{position:fixed!important;left:0!important;right:0!important;top:58px!important;bottom:0!important;margin:0!important;max-width:none!important;padding:14px!important;overflow:hidden!important}
-.side,.bottom{display:none!important}
-.welcome{height:108px;overflow:hidden}
-.welcome h2{font-size:clamp(22px,5vw,34px)!important;line-height:1.05!important;margin:3px 0 8px!important}
-.welcome p{margin:0!important}
-.actions{height:calc(100dvh - 58px - 108px - 102px - 42px)!important;min-height:0!important;margin:10px 0!important;display:grid!important;grid-template-columns:repeat(2,1fr)!important;grid-template-rows:repeat(3,1fr)!important;gap:9px!important}
-.act{min-height:0!important;height:auto!important;padding:12px!important;overflow:hidden}
-.act b{font-size:clamp(13px,3.6vw,18px)!important;line-height:1.08}.act small{font-size:clamp(9px,2.6vw,12px)!important}
-main>.panel,.welcome~.panel{height:92px!important;margin:0!important;padding:12px!important;overflow:hidden!important}
-.screenPage{height:100%;display:flex;flex-direction:column;overflow:hidden}
-.screenBack{height:46px;flex:0 0 46px;display:flex;align-items:flex-start}
-.screenBack .btn{padding:8px 11px!important;font-size:12px!important}
-.screenBody{flex:1;min-height:0;overflow:hidden!important;display:flex;flex-direction:column}
-.screenBody>.panel,.screenBody>div>.panel{margin:0!important;height:100%!important;max-height:100%!important;overflow:hidden!important;padding:12px!important}
-.screenBody .grid{gap:7px!important}
-.screenBody .field{gap:4px!important}
-.screenBody input,.screenBody select,.screenBody textarea{padding:8px 9px!important;min-height:38px!important;font-size:14px!important}
-.screenBody textarea{min-height:64px!important;max-height:84px!important}
-.screenBody .btn{padding:9px 11px!important;font-size:13px!important}
-.screenBody .scanbtn{width:46px!important;min-width:46px!important;font-size:18px!important}
-.screenBody .scanbig{min-height:62px!important;font-size:14px!important}
-.screenBody .title{margin-bottom:8px!important;font-size:15px!important}
-.screenBody .note{font-size:10px!important}
-.screenBody .table{max-height:42vh!important;overflow:hidden!important;font-size:9px!important}
-.screenBody table{font-size:9px!important;table-layout:fixed!important}
-.screenBody th,.screenBody td{padding:5px!important;overflow:hidden!important;text-overflow:ellipsis!important}
-.screenBody .chips{max-height:72px!important;overflow:hidden!important;margin-top:6px!important}
-@media(max-width:720px){main{padding:10px!important}.welcome{height:98px}.actions{height:calc(100dvh - 58px - 98px - 92px - 30px)!important;gap:8px!important}.act{padding:10px!important}.screenBack{height:42px;flex-basis:42px}.screenBody .g4,.screenBody .g3,.screenBody .g2{grid-template-columns:1fr 1fr!important}.screenBody .panel{border-radius:14px!important}.screenBody .table{max-height:34vh!important}}
-@media(max-width:430px) and (max-height:760px){.screenBody input,.screenBody select{min-height:34px!important;padding:6px 8px!important}.screenBody .grid{gap:5px!important}.screenBody .field label{font-size:8px!important}.screenBody textarea{min-height:52px!important}.screenBody .title{font-size:13px!important}.screenBody .btn{padding:7px 9px!important}.screenBody .panel{padding:9px!important}}
+  /* Dashboard grid */
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 14px; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); }
+  .stat-value { font-size: 26px; font-weight: 900; color: var(--ink); line-height: 1; }
+  .stat-label { font-size: 11px; color: var(--muted); margin-top: 4px; font-weight: 600; }
+  .action-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+  .action-btn {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 16px; text-align: left; cursor: pointer; box-shadow: var(--shadow);
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .action-btn:hover { border-color: #93c5fd; box-shadow: 0 4px 12px rgba(30,64,175,.12); }
+  .action-btn.primary { background: var(--brand-dark); border-color: var(--brand-dark); color: #fff; }
+  .action-btn.primary:hover { background: var(--brand); border-color: var(--brand); }
+  .action-icon { font-size: 22px; margin-bottom: 8px; display: block; }
+  .action-name { font-weight: 800; font-size: 13px; display: block; }
+  .action-desc { font-size: 11px; color: var(--muted); display: block; margin-top: 3px; }
+  .action-btn.primary .action-desc { color: rgba(255,255,255,.6); }
 
+  /* Forms */
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 11px; font-weight: 700; color: var(--muted); }
+  .field input, .field select, .field textarea {
+    width: 100%; border: 1.5px solid var(--border); background: var(--bg); border-radius: 8px;
+    padding: 10px 12px; font-size: 14px; color: var(--ink); font-family: inherit; outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    border-color: var(--brand); background: var(--surface); box-shadow: 0 0 0 3px rgba(30,64,175,.1);
+  }
+  .field textarea { resize: vertical; min-height: 72px; }
+  .fgrid { display: grid; gap: 12px; }
+  .g2 { grid-template-columns: 1fr 1fr; }
+  .g3 { grid-template-columns: 1fr 1fr 1fr; }
+  .g4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 10px 18px; border: 0; border-radius: 8px; font-size: 13px; font-weight: 700;
+    cursor: pointer; transition: opacity .15s, background .15s; white-space: nowrap;
+  }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btn-primary { background: var(--brand); color: #fff; }
+  .btn-primary:hover:not(:disabled) { background: var(--brand-dark); }
+  .btn-secondary { background: var(--brand-light); color: var(--brand); }
+  .btn-secondary:hover:not(:disabled) { background: #dbeafe; }
+  .btn-ghost { background: var(--border); color: var(--ink); }
+  .btn-ghost:hover:not(:disabled) { background: #d1d5db; }
+  .btn-danger { background: var(--red-bg); color: var(--red); }
+  .btn-danger:hover:not(:disabled) { background: #fee2e2; }
+  .btn-scan { background: var(--border); color: var(--brand); border-radius: 8px; padding: 10px 13px; font-size: 18px; border: 0; cursor: pointer; flex-shrink: 0; }
+  .scan-row { display: flex; gap: 8px; align-items: flex-end; }
+  .scan-row .field { flex: 1; }
+  .btn-row { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .big-scan {
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    width: 100%; min-height: 72px; border: 2px dashed #93c5fd; border-radius: 10px;
+    background: var(--brand-light); color: var(--brand); font-weight: 800; font-size: 14px;
+    cursor: pointer; margin-bottom: 14px; transition: background .15s;
+  }
+  .big-scan:hover { background: #dbeafe; }
+  .big-scan-icon { font-size: 26px; }
+
+  /* Alert messages */
+  .alert { padding: 10px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; margin-top: 10px; }
+  .alert-success { background: var(--green-bg); color: var(--green); }
+  .alert-warn { background: var(--amber-bg); color: var(--amber); }
+  .alert-error { background: var(--red-bg); color: var(--red); }
+  .alert-info { background: var(--brand-light); color: var(--brand); }
+
+  /* Table */
+  .table-wrap { border: 1px solid var(--border); border-radius: var(--radius); overflow: auto; max-height: 420px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th { background: #f8fafc; font-size: 10px; font-weight: 700; color: var(--muted); padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); position: sticky; top: 0; }
+  td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #f8fafc; }
+  .empty-state { text-align: center; padding: 36px 20px; color: var(--muted); font-size: 13px; }
+  .empty-icon { font-size: 28px; margin-bottom: 8px; }
+
+  /* Badges */
+  .badge { display: inline-flex; padding: 3px 8px; border-radius: 999px; font-size: 10px; font-weight: 800; }
+  .badge-in { background: var(--green-bg); color: var(--green); }
+  .badge-out { background: var(--red-bg); color: var(--red); }
+  .badge-move { background: var(--brand-light); color: var(--brand); }
+  .badge-machine { background: var(--amber-bg); color: var(--amber); }
+
+  /* Tag/chip list */
+  .tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .tag { display: inline-flex; align-items: center; gap: 6px; background: var(--brand-light); color: var(--brand); border-radius: 6px; padding: 5px 10px; font-size: 12px; font-weight: 700; }
+  .tag-remove { background: transparent; border: 0; color: var(--brand); cursor: pointer; font-size: 15px; line-height: 1; padding: 0; opacity: .6; }
+  .tag-remove:hover { opacity: 1; }
+
+  /* Stock detail popup */
+  .stock-locs { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+  .stock-loc-row { display: flex; justify-content: space-between; align-items: center; background: var(--bg); border-radius: 7px; padding: 8px 12px; font-size: 12px; }
+  .loc-name { font-weight: 700; }
+  .loc-qty { font-weight: 800; color: var(--brand); }
+
+  /* Search result product card */
+  .product-result { border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 8px; background: var(--surface); }
+  .product-result-name { font-weight: 800; font-size: 14px; margin-bottom: 2px; }
+  .product-result-code { font-size: 11px; color: var(--muted); }
+  .product-result-stocks { margin-top: 10px; }
+
+  /* Success toast */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px; background: #1a1d21; color: #fff;
+    padding: 12px 18px; border-radius: 10px; font-size: 13px; font-weight: 700;
+    z-index: 9999; transform: translateY(100px); opacity: 0; transition: transform .25s, opacity .25s;
+    max-width: 320px;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* Camera overlay */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.93); z-index: 99999;
+    display: flex; flex-direction: column; padding: 20px; color: #fff;
+  }
+  .overlay-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .overlay-title { font-weight: 800; font-size: 16px; }
+  .overlay-close { background: rgba(255,255,255,.1); border: 0; color: #fff; border-radius: 7px; padding: 8px 12px; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .overlay video { width: 100%; flex: 1; object-fit: cover; border-radius: 12px; background: #111; min-height: 0; }
+  .overlay-msg { font-size: 12px; color: rgba(255,255,255,.6); padding: 10px 0 4px; }
+  .overlay-actions { display: flex; gap: 8px; margin-top: 10px; }
+  .overlay-actions .btn { flex: 1; }
+  .overlay-bar { height: 4px; background: rgba(255,255,255,.15); border-radius: 999px; margin-top: 6px; overflow: hidden; }
+  .overlay-bar-fill { height: 100%; background: #3b82f6; width: 0; transition: width .2s; }
+
+  /* Mobile bottom nav */
+  .bottom-nav { display: none; }
+  
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .stat-grid { grid-template-columns: 1fr 1fr; }
+    .action-grid { grid-template-columns: 1fr 1fr; }
+    .g3, .g4 { grid-template-columns: 1fr 1fr; }
+    .g2 { grid-template-columns: 1fr; }
+    .page { padding: 14px 14px 80px; }
+    .topbar { padding: 0 14px; }
+    .bottom-nav {
+      display: flex; position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--brand-dark); padding: 8px 8px 12px; gap: 4px;
+      z-index: 100; border-top: 1px solid rgba(255,255,255,.1);
+    }
+    .bottom-btn {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+      padding: 6px 4px; border: 0; background: transparent; color: rgba(255,255,255,.5);
+      font-size: 8px; font-weight: 700; border-radius: 7px; cursor: pointer;
+    }
+    .bottom-btn .bi { font-size: 18px; }
+    .bottom-btn.active { background: rgba(255,255,255,.12); color: #fff; }
+    .toast { bottom: 76px; right: 12px; left: 12px; max-width: none; }
+  }
+  @media (max-width: 480px) {
+    .action-grid { grid-template-columns: 1fr 1fr; }
+    .stat-grid { grid-template-columns: 1fr 1fr; }
+    .g3, .g4, .g2 { grid-template-columns: 1fr; }
+  }
+
+  /* v16 — mobil sabit ekran, çakışma ve güvenli alan düzeltmeleri */
+  .layout { height: 100dvh; min-height: 100dvh; }
+  .main { min-width: 0; min-height: 0; }
+  .page { min-height: 0; overflow: hidden; }
+  .page-shell { height: 100%; min-height: 0; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+  .page-shell > .card { margin-bottom: 0; }
+  .page-shell > .card:last-child { min-height: 0; }
+  .page-shell .table-wrap { min-height: 0; }
+  .page-products > .card:last-child,
+  .page-shelves > .card:last-child,
+  .page-machines-def > .card:last-child,
+  .page-movements > .card:last-child,
+  .page-receiving > .card:last-child { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+  .page-products > .card:last-child .table-wrap,
+  .page-shelves > .card:last-child .table-wrap,
+  .page-movements > .card:last-child .table-wrap,
+  .page-receiving > .card:last-child .table-wrap { flex: 1; min-height: 0; overflow: auto; }
+  .tb-status { display:inline-flex; padding:3px 8px; border-radius:999px; font-size:10px; font-weight:800; }
+  .tb-empty { background:#eef2ff; color:#3730a3; }
+  .tb-open { background:var(--amber-bg); color:var(--amber); }
+  .tb-full { background:var(--green-bg); color:var(--green); }
+  .tb-items { display:flex; flex-direction:column; gap:6px; margin-top:10px; max-height:150px; overflow:auto; }
+  .tb-item { display:grid; grid-template-columns:minmax(0,1fr) auto auto; gap:8px; align-items:center; background:var(--bg); border-radius:8px; padding:8px 10px; font-size:12px; }
+  .tb-item b { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .tb-step { font-size:10px; font-weight:900; letter-spacing:.06em; color:var(--brand); text-transform:uppercase; margin-bottom:8px; }
+
+  @media (max-width: 768px) {
+    html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+    .topbar { height: 52px; min-height: 52px; padding: 0 12px; }
+    .topbar-title { font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .topbar-back { flex-shrink: 0; }
+    .page { padding: 10px 10px max(10px, env(safe-area-inset-bottom)); overflow: hidden; }
+    .bottom-nav { display: none !important; }
+    .card { padding: 12px; border-radius: 10px; }
+    .card-title { margin-bottom: 9px; font-size: 13px; }
+    .card-sub { margin: -5px 0 9px; font-size: 10px; }
+    .stat-grid { grid-template-columns: repeat(4, minmax(0,1fr)); gap: 6px; margin-bottom: 8px; }
+    .stat { padding: 9px 7px; min-width: 0; }
+    .stat-value { font-size: 18px; }
+    .stat-label { font-size: 8px; line-height: 1.15; }
+    .action-grid { grid-template-columns: 1fr 1fr; grid-template-rows: repeat(4, minmax(0,1fr)); gap: 7px; margin-bottom: 0; flex: 1; min-height: 0; }
+    .action-btn { padding: 10px; min-height: 0; overflow: hidden; }
+    .action-icon { font-size: 17px; margin-bottom: 4px; }
+    .action-name { font-size: 12px; line-height: 1.1; }
+    .action-desc { font-size: 9px; line-height: 1.15; margin-top: 2px; }
+    .fgrid { gap: 7px; }
+    .g2, .g3, .g4 { grid-template-columns: 1fr 1fr; }
+    .field { gap: 3px; min-width: 0; }
+    .field label { font-size: 9px; }
+    .field input, .field select, .field textarea { padding: 8px 9px; min-height: 36px; font-size: 13px; }
+    .field textarea { min-height: 50px; max-height: 70px; }
+    .btn { padding: 8px 11px; font-size: 12px; }
+    .btn-row { margin-top: 8px; gap: 6px; }
+    .btn-scan { padding: 8px 10px; font-size: 16px; }
+    .big-scan { min-height: 52px; margin-bottom: 9px; font-size: 13px; }
+    .big-scan-icon { font-size: 20px; }
+    .alert { padding: 7px 9px; font-size: 10px; margin-top: 6px !important; }
+    .table-wrap { max-height: none; }
+    table { font-size: 10px; }
+    th { font-size: 8px; padding: 6px 7px; }
+    td { padding: 6px 7px; }
+    .toast { bottom: max(12px, env(safe-area-inset-bottom)); right: 10px; left: 10px; }
+    .overlay { padding: 10px 10px max(10px, env(safe-area-inset-bottom)); }
+    .overlay-head { margin-bottom: 8px; }
+    .overlay video { border-radius: 9px; }
+    .page-dashboard .card.recent-card { display: none; }
+    .page-products { gap: 7px; }
+    .page-products > .card:first-child { flex: 0 0 auto; }
+    .page-products .pending-card { flex: 0 0 auto; }
+    .page-products .pending-card .btn-row { display:none; }
+    .page-products .pending-card .fgrid { grid-template-columns: 1fr 1fr 1fr; }
+    .page-products .pending-card .card-title { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .page-products > .card:last-child { flex:1; }
+    .page-receiving .tb-items { max-height: 90px; }
+  }
+  @media (max-width: 430px) and (max-height: 760px) {
+    .page { padding: 7px; }
+    .card { padding: 9px; }
+    .stat-grid { display:none; }
+    .action-grid { grid-template-rows: repeat(4, minmax(0,1fr)); }
+    .action-desc { display:none; }
+    .action-icon { margin-bottom:2px; }
+    .page-products .big-scan { min-height: 44px; }
+    .page-products .pending-card { padding:8px; }
+    .page-products .pending-badge { display:none; }
+    .field input, .field select { min-height: 32px; padding: 6px 7px; }
+    .btn { padding: 6px 8px; }
+  }
+
+  /* Export/Import section */
+  .data-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .divider { height: 1px; background: var(--border); margin: 14px 0; }
+  
+  /* Pending placement highlight */
+  .pending-card { border: 2px solid #3b82f6; background: var(--brand-light); }
+  .pending-badge { display: inline-flex; background: var(--brand); color: #fff; border-radius: 5px; padding: 3px 8px; font-size: 10px; font-weight: 800; margin-bottom: 8px; }
 </style>
 </head>
 <body>
-<div class="app">
-<aside class="side">
- <div class="brand"><div class="mark">K</div><b>KANSAN DEPO</b><small>Stok & Lokasyon Yönetimi</small></div>
- <nav class="nav">
-  <button data-tab="dashboard">⌂ Ana Sayfa</button><button data-tab="urunler">□ Ürünler</button><button data-tab="giris">＋ Stok Girişi</button><button data-tab="ara">⌕ Ürün Ara</button><button data-tab="raf">▦ Raf Yönetimi</button><button data-tab="transfer">⇄ Raf Transferi</button><button data-tab="makine">⚙ Makineye Çıkış</button><button data-tab="hareket">≡ Hareketler</button>
- </nav>
-</aside>
-<header class="top">Depo Yönetim Paneli <span style="margin-left:auto;font-size:10px;color:#8a989d;font-weight:700">v14</span></header>
-<main id="main"></main>
-<nav class="bottom">
- <button data-tab="dashboard">⌂<br>Ana</button><button data-tab="urunler">□<br>Ürün</button><button data-tab="ara">⌕<br>Ara</button><button data-tab="giris">＋<br>Giriş</button><button data-tab="transfer">⇄<br>Transfer</button><button data-tab="raf">▦<br>Raf</button>
-</nav>
+<div class="layout">
+  <!-- Sidebar (desktop) -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">K</div>
+      <div class="brand-name">Kansan Depo</div>
+      <div class="brand-sub">Stok & Lokasyon Yönetimi</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-label">Genel</div>
+        <button class="nav-btn active" data-page="dashboard"><span class="nav-icon">🏠</span> Ana Sayfa</button>
+        <button class="nav-btn" data-page="search"><span class="nav-icon">🔍</span> Ürün Ara</button>
+        <button class="nav-btn" data-page="movements"><span class="nav-icon">📋</span> Hareketler</button>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Ürün & Stok</div>
+        <button class="nav-btn" data-page="products"><span class="nav-icon">📦</span> Ürünler</button>
+        <button class="nav-btn" data-page="receiving"><span class="nav-icon">🚚</span> Mal Kabul</button>
+        <button class="nav-btn" data-page="entry"><span class="nav-icon">➕</span> Stok Girişi</button>
+        <button class="nav-btn" data-page="transfer"><span class="nav-icon">🔄</span> Raf Transferi</button>
+        <button class="nav-btn" data-page="machine"><span class="nav-icon">⚙️</span> Makineye Çıkış</button>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Tanımlar</div>
+        <button class="nav-btn" data-page="shelves"><span class="nav-icon">🗂️</span> Raf Yönetimi</button>
+        <button class="nav-btn" data-page="machines-def"><span class="nav-icon">🏭</span> Makineler</button>
+        <button class="nav-btn" data-page="settings"><span class="nav-icon">⚙️</span> Ayarlar</button>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="ver">Kansan Depo v16</div>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <div class="main">
+    <header class="topbar">
+      <button class="topbar-back" id="backBtn" onclick="goBack()">← Geri</button>
+      <span class="topbar-title" id="topbarTitle">Ana Sayfa</span>
+      <div class="spacer"></div>
+      <span id="topbarExtra"></span>
+    </header>
+    <div class="page" id="page"></div>
+  </div>
+
+  <!-- Bottom nav (mobile) -->
+  <nav class="bottom-nav">
+    <button class="bottom-btn active" data-page="dashboard"><span class="bi">🏠</span>Ana</button>
+    <button class="bottom-btn" data-page="products"><span class="bi">📦</span>Ürün</button>
+    <button class="bottom-btn" data-page="entry"><span class="bi">➕</span>Giriş</button>
+    <button class="bottom-btn" data-page="search"><span class="bi">🔍</span>Ara</button>
+    <button class="bottom-btn" data-page="transfer"><span class="bi">🔄</span>Transfer</button>
+    <button class="bottom-btn" data-page="movements"><span class="bi">📋</span>Log</button>
+  </nav>
 </div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
 <script>
-const KEY='kansan-depo-v2';
-function load(){try{return JSON.parse(localStorage.getItem(KEY))||null}catch(e){return null}}
-const state=load()||{products:[],stock:[],movements:[],machines:[],shelves:[],tab:'dashboard',pendingPlacementCode:''};
-if(!Array.isArray(state.products))state.products=[];if(!Array.isArray(state.stock))state.stock=[];if(!Array.isArray(state.movements))state.movements=[];if(!Array.isArray(state.machines))state.machines=[];if(!Array.isArray(state.shelves))state.shelves=[];
-state.machines=state.machines.filter(m=>!['LINE-1','LINE-2','OFFLINE-1'].includes(String(m).toUpperCase()));
-state.products=state.products.map(p=>({...p,productCode:String(p.productCode||p.barcode||p.code||'').trim(),description:String(p.description||p.name||'').trim()})).filter(p=>p.productCode);
-state.stock=state.stock.map(s=>({...s,barcode:String(s.barcode||s.productCode||'').trim(),location:String(s.location||'').toUpperCase()}));
-state.stock.forEach(s=>{if(s.location&&!state.shelves.includes(s.location))state.shelves.push(s.location)});
-state.shelves=[...new Set(state.shelves.map(x=>String(x).trim().toUpperCase()).filter(Boolean))].sort();
-function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+// ─── State ───────────────────────────────────────────────────────────────────
+const KEY = 'kansan-depo-v3';
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(KEY)) || null; } catch { return null; }
+}
+const raw = loadState();
+const state = {
+  products: [],
+  stock: [],
+  movements: [],
+  machines: [],
+  shelves: [],
+  page: 'dashboard',
+  pendingCode: '',
+  transportUnits: [],
+  receivingDraft: { tbCode: '', items: [] },
+  ...raw
+};
+// Sanitize
+if (!Array.isArray(state.products)) state.products = [];
+if (!Array.isArray(state.stock)) state.stock = [];
+if (!Array.isArray(state.movements)) state.movements = [];
+if (!Array.isArray(state.machines)) state.machines = [];
+if (!Array.isArray(state.shelves)) state.shelves = [];
+if (!Array.isArray(state.transportUnits)) state.transportUnits = [];
+if (!state.receivingDraft || typeof state.receivingDraft !== 'object') state.receivingDraft = { tbCode: '', items: [] };
+if (!Array.isArray(state.receivingDraft.items)) state.receivingDraft.items = [];
+state.products = state.products.map(p => ({
+  ...p,
+  productCode: String(p.productCode || p.barcode || p.code || '').trim(),
+  description: String(p.description || p.name || '').trim()
+})).filter(p => p.productCode);
+state.stock = state.stock.map(s => ({
+  ...s,
+  barcode: String(s.barcode || s.productCode || '').trim(),
+  location: String(s.location || '').toUpperCase().trim(),
+  qty: Number(s.qty) || 0
+})).filter(s => s.qty > 0);
+state.shelves = [...new Set(state.shelves.map(x => String(x).trim().toUpperCase()).filter(Boolean))].sort();
+state.machines = [...new Set(state.machines.map(x => String(x).trim().toUpperCase()).filter(Boolean))];
+
+function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
 save();
-function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-function uid(){return Date.now()+'-'+Math.random().toString(36).slice(2,8)}function now(){return new Date().toLocaleString('tr-TR')}function num(v){const n=Number(v);return Number.isFinite(n)?n:0}
-function pBy(code){code=String(code||'').trim();return state.products.find(p=>p.productCode===code)}function qty(code){return state.stock.filter(s=>s.barcode===code).reduce((a,s)=>a+num(s.qty),0)}function at(code,loc){return state.stock.find(s=>s.barcode===code&&s.location===loc)}
-function ensure(code){const p=pBy(code);if(!p){alert('Bu ürün kodu kayıtlı değil. Önce Ürün sekmesinden etiketi tarayıp ürün oluştur.');return null}return p}function addStock(code,loc,q){let s=at(code,loc);s?s.qty+=q:state.stock.push({id:uid(),barcode:code,location:loc,qty:q});state.stock=state.stock.filter(x=>x.qty>0)}function remStock(code,loc,q){let s=at(code,loc);if(!s||s.qty<q)return false;s.qty-=q;state.stock=state.stock.filter(x=>x.qty>0);return true}
-function movement(type,code,q,from='',to='',machine='',note=''){const p=pBy(code);state.movements.unshift({id:uid(),date:now(),type,barcode:code,productName:p?.description||'',qty:q,from,to,machine,note})}
-function shelfOptions(selected=''){if(!state.shelves.length)return '<option value="">Önce Raf bölümünden raf ekleyin</option>';return '<option value="">Raf seçiniz</option>'+state.shelves.map(r=>`<option value="${esc(r)}" ${r===selected?'selected':''}>${esc(r)}</option>`).join('')}
-function navActive(){document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===state.tab))}function go(t){state.tab=t;save();render();if(t!=='dashboard')requestAnimationFrame(()=>document.getElementById('activeTool')?.scrollIntoView({behavior:'smooth',block:'start'}))}
-function dashboard(){const tq=state.stock.reduce((a,s)=>a+num(s.qty),0),loc=new Set(state.stock.map(s=>s.location)).size;return `<section class="welcome"><span class="ey">DEPO YÖNETİMİ</span><h2>Bugün ne yapmak istiyorsun?</h2><p>Etiketi tara, ürünü rafa al, transfer et veya makineye çıkar.</p></section><section class="actions"><button class="act primary" onclick="go('urunler')"><b>📷 Etiketi Tara / Ürün Ekle</b><small>Tek görüntüden kod ve tanımı al</small></button><button class="act" onclick="go('giris')"><b>＋ Stok Girişi</b><small>Kayıtlı ürünü rafa ekle</small></button><button class="act" onclick="go('ara')"><b>⌕ Ürün Bul</b><small>Hangi rafta olduğunu gör</small></button><button class="act" onclick="go('raf')"><b>▦ Raf Yönetimi</b><small>Raf tanımla veya sorgula</small></button><button class="act" onclick="go('transfer')"><b>⇄ Transfer</b><small>Raftan rafa taşı</small></button><button class="act" onclick="go('makine')"><b>⚙ Makineye Çıkış</b><small>Makineyi seç ve stoktan düş</small></button></section><div class="panel"><div class="title">Özet</div><div class="grid g4"><div><b>${state.products.length}</b><div class="note">Ürün</div></div><div><b>${tq}</b><div class="note">Stok</div></div><div><b>${loc}</b><div class="note">Aktif Raf</div></div><div><b>${state.movements.length}</b><div class="note">Hareket</div></div></div></div>`}
-function products(){const pending=state.pendingPlacementCode,p=pending?pBy(pending):null;const placement=p?`<div class="panel accent"><div class="title">Rafa Yerleştir</div><div class="note" style="margin-bottom:12px"><b>${esc(p.productCode)} — ${esc(p.description)}</b><br>Ürün kaydedildi. Şimdi aynı ekrandan rafa yerleştirebilirsin.</div><div class="grid g3"><div class="field"><label>Kayıtlı Raf</label><select id="npShelf">${shelfOptions()}</select></div><div class="field"><label>Miktar</label><input id="npQty" type="number" min="0" step="0.01" placeholder="Miktar"></div><div class="field"><label>Not</label><input id="npNote" placeholder="İsteğe bağlı"></div></div><div class="row" style="margin-top:12px;flex-wrap:wrap"><button class="btn" onclick="placeNewProduct()">Rafa Yerleştir / Stoka Al</button><button class="btn sec" onclick="cancelPlacement()">Daha Sonra</button>${!state.shelves.length?'<button class="btn sec" onclick="go(\'raf\')">Önce Raf Ekle</button>':''}</div></div>`:'';return `<div class="head"><span class="ey">ÜRÜN YÖNETİMİ</span><h2>Etiketi Tek Seferde Tara</h2><p>Tek taramada ürün kodu ve ürün tanımı otomatik doldurulur.</p></div><div class="panel"><button class="scanbig" onclick="scanProductLabel()"><span>📷</span> ETİKETİ TARA</button><div id="labelStatus" class="status">Etiketi kameraya göster. Ürün kodu ve ürün tanımı tek seferde otomatik doldurulacak.</div><div class="grid g3" style="margin-top:13px"><div class="field"><label>Ürün Kodu</label><input id="pCode" placeholder="Etiketi tara" autocomplete="off"></div><div class="field"><label>Ürün Tanımı</label><textarea id="pDescription" placeholder="Etiketten otomatik okunacak"></textarea></div><div class="field"><label>Birim</label><select id="pUnit"><option>Adet</option><option>Kg</option><option>Bobin</option><option>Palet</option><option>Koli</option></select></div></div><div style="margin-top:12px"><button class="btn" onclick="saveProductAndPlace()">Kaydet ve Rafa Yerleştir</button></div></div>${placement}<div class="panel"><div class="title">Kayıtlı Ürünler (${state.products.length})</div>${state.products.length?`<div class="table"><table><thead><tr><th>Ürün Kodu</th><th>Ürün Tanımı</th><th>Birim</th><th>Stok</th></tr></thead><tbody>${state.products.map(p=>`<tr><td>${esc(p.productCode)}</td><td>${esc(p.description)}</td><td>${esc(p.unit||'Adet')}</td><td>${qty(p.productCode)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Henüz ürün yok.</div>'}</div>`}
-function saveProductAndPlace(){const code=document.getElementById('pCode').value.trim(),description=document.getElementById('pDescription').value.trim(),unit=document.getElementById('pUnit').value;if(!code)return alert('Önce etiketi tarayıp ürün kodunu al.');if(!description)return alert('Ürün tanımı boş. OCR sonucunu kontrol et veya tanımı elle düzelt.');let p=pBy(code);if(p){p.description=description||p.description;p.unit=unit||p.unit}else state.products.push({id:uid(),productCode:code,barcode:code,code:code,description,name:description,unit});state.pendingPlacementCode=code;save();render()}
-function placeNewProduct(){const code=state.pendingPlacementCode,shelf=document.getElementById('npShelf')?.value||'',q=num(document.getElementById('npQty')?.value),note=document.getElementById('npNote')?.value.trim()||'';if(!shelf)return alert('Kayıtlı bir raf seç.');if(q<=0)return alert('Miktarı gir.');addStock(code,shelf,q);movement('GIRIS',code,q,'',shelf,'',note);state.pendingPlacementCode='';save();alert('Ürün rafa yerleştirildi.');render()}function cancelPlacement(){state.pendingPlacementCode='';save();render()}
-function entry(){return `<div class="panel"><div class="title">Stok Girişi</div><div class="grid g3"><div class="field"><label>Ürün Kodu</label><div class="scanrow"><input id="eCode"><button class="scanbtn" onclick="scanBarcodeToInput('eCode','Ürün kodunu okut')">📷</button></div></div><div class="field"><label>Raf</label><div class="scanrow"><select id="eShelf">${shelfOptions()}</select><button class="scanbtn" onclick="scanShelfToSelect('eShelf','Rafı okut')">📷</button></div></div><div class="field"><label>Miktar</label><input id="eQty" type="number" min="0" step="0.01"></div></div><div style="margin-top:12px"><button class="btn" onclick="entrySave()">Stoka Al</button></div></div>`}
-function entrySave(){const c=eCode.value.trim(),s=eShelf.value,q=num(eQty.value);if(!ensure(c)||!s||q<=0)return;addStock(c,s,q);movement('GIRIS',c,q,'',s);save();alert('Stok girişi kaydedildi.');render()}
-function searchPage(){return `<div class="panel"><div class="title">Ürün Ara</div><div class="row"><div class="scanrow"><input id="sQuery" placeholder="Ürün kodu veya tanımı"><button class="scanbtn" onclick="scanBarcodeToInput('sQuery','Ürün kodunu okut')">📷</button></div><button class="btn" onclick="doSearch()">Ara</button></div><div id="sResult" style="margin-top:13px"></div></div>`}
-function doSearch(){const q=sQuery.value.trim().toLowerCase(),ps=state.products.filter(p=>[p.productCode,p.description].some(v=>String(v).toLowerCase().includes(q)));sResult.innerHTML=ps.length?ps.map(p=>`<div class="panel"><b>${esc(p.description)}</b><div class="note">${esc(p.productCode)}</div></div>`).join(''):'<div class="empty">Ürün bulunamadı.</div>'}
-function rafPage(){const chips=state.shelves.length?`<div class="chips">${state.shelves.map(r=>`<span class="chip"><b>${esc(r)}</b><button onclick="removeShelf('${esc(r)}')">×</button></span>`).join('')}</div>`:'<div class="note">Henüz raf yok.</div>';return `<div class="panel"><div class="title">Raf Tanımları</div><div class="row"><input id="newShelf" placeholder="Örn. 1A.1.1"><button class="btn sec" onclick="addShelf()">Raf Ekle</button></div>${chips}</div>`}
-function addShelf(){const v=newShelf.value.trim().toUpperCase();if(!v)return;if(!state.shelves.includes(v))state.shelves.push(v);save();render()}function removeShelf(v){if(state.stock.some(s=>s.location===v&&s.qty>0))return alert('Bu rafta stok var.');state.shelves=state.shelves.filter(r=>r!==v);save();render()}
-function transferPage(){return `<div class="panel"><div class="title">Raf Transferi</div><div class="grid g4"><div class="field"><label>Ürün Kodu</label><div class="scanrow"><input id="tCode"><button class="scanbtn" onclick="scanBarcodeToInput('tCode','Ürün kodunu okut')">📷</button></div></div><div class="field"><label>Kaynak Raf</label><select id="tFrom">${shelfOptions()}</select></div><div class="field"><label>Hedef Raf</label><select id="tTo">${shelfOptions()}</select></div><div class="field"><label>Miktar</label><input id="tQty" type="number"></div></div><div style="margin-top:12px"><button class="btn" onclick="transferSave()">Transfer Et</button></div></div>`}
-function transferSave(){const c=tCode.value.trim(),f=tFrom.value,t=tTo.value,q=num(tQty.value);if(!ensure(c)||!f||!t||q<=0)return;if(f===t)return alert('Kaynak ve hedef aynı olamaz.');if(!remStock(c,f,q))return alert('Kaynak rafta yeterli stok yok.');addStock(c,t,q);movement('TRANSFER',c,q,f,t);save();alert('Transfer tamamlandı.');render()}
-function machinePage(){const opts=state.machines.length?'<option value="">Makine seçiniz</option>'+state.machines.map(m=>`<option>${esc(m)}</option>`).join(''):'<option value="">Önce aşağıdan makine ekleyin</option>';return `<div class="panel"><div class="title">Makineye Çıkış</div><div class="grid g4"><div class="field"><label>Ürün Kodu</label><div class="scanrow"><input id="mCode"><button class="scanbtn" onclick="scanBarcodeToInput('mCode','Ürün kodunu okut')">📷</button></div></div><div class="field"><label>Çıkış Rafı</label><select id="mFrom">${shelfOptions()}</select></div><div class="field"><label>Miktar</label><input id="mQty" type="number"></div><div class="field"><label>Makine</label><select id="mMachine">${opts}</select></div></div><div style="margin-top:12px"><button class="btn" onclick="machineSave()">Makineye Ver / Stoktan Düş</button></div></div><div class="panel"><div class="title">Makine Tanımları</div><div class="row"><input id="newMachine" placeholder="Makine adını manuel yaz"><button class="btn sec" onclick="addMachine()">Kaydet</button></div></div>`}
-function addMachine(){const v=newMachine.value.trim().toUpperCase();if(v&&!state.machines.includes(v)){state.machines.push(v);save();render()}}function machineSave(){const c=mCode.value.trim(),f=mFrom.value,q=num(mQty.value),m=mMachine.value;if(!ensure(c)||!f||q<=0||!m)return;if(!remStock(c,f,q))return alert('Bu rafta yeterli stok yok.');movement('MAKINE',c,q,f,'',m);save();alert('Makine çıkışı kaydedildi.');render()}
-function movementTable(rows){if(!rows.length)return '<div class="empty">Hareket kaydı yok.</div>';return `<div class="table"><table><thead><tr><th>Tarih</th><th>Tür</th><th>Ürün</th><th>Kod</th><th>Miktar</th><th>Kaynak</th><th>Hedef</th><th>Makine</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.type)}</td><td>${esc(x.productName)}</td><td>${esc(x.barcode)}</td><td>${x.qty}</td><td>${esc(x.from)}</td><td>${esc(x.to)}</td><td>${esc(x.machine)}</td></tr>`).join('')}</tbody></table></div>`}function movementsPage(){return `<div class="panel"><div class="title">Stok Hareket Geçmişi</div>${movementTable(state.movements)}</div>`}
-function activeTool(){return state.tab==='urunler'?products():state.tab==='giris'?entry():state.tab==='ara'?searchPage():state.tab==='raf'?rafPage():state.tab==='transfer'?transferPage():state.tab==='makine'?machinePage():state.tab==='hareket'?movementsPage():''}function render(){navActive();const tool=activeTool();document.getElementById('main').innerHTML=dashboard()+(tool?`<section id="activeTool"><div class="tool-head"><b>Aktif İşlem</b><button class="btn sec" onclick="go('dashboard')">Kapat</button></div>${tool}</section>`:'')}document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));
-let scanStream=null,scanTimer=null,scanOverlay=null,tesseractLoading=null;function closeScanner(){if(scanTimer){clearInterval(scanTimer);scanTimer=null}if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null}if(scanOverlay){scanOverlay.remove();scanOverlay=null}}
-function makeOverlay(title,withCapture=false){closeScanner();const ov=document.createElement('div');ov.className='overlay';scanOverlay=ov;ov.innerHTML=`<div class="overlay-head"><b>${esc(title)}</b><button class="btn sec" id="scanClose">Kapat</button></div><video id="scanVideo" autoplay playsinline></video><div class="overlay-msg" id="scanMsg">Kamerayı etikete yaklaştır.</div>${withCapture?'<div class="progress"><i id="ocrBar"></i></div><div class="overlay-actions"><button class="btn" id="captureBtn">Etiketi Tara</button></div>':''}`;document.body.appendChild(ov);document.getElementById('scanClose').onclick=closeScanner;return ov}
-async function openCamera(title,withCapture=false){if(!navigator.mediaDevices?.getUserMedia)throw new Error('Bu tarayıcı kamera erişimini desteklemiyor.');const ov=makeOverlay(title,withCapture);scanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}}});document.getElementById('scanVideo').srcObject=scanStream;return ov}
-async function detectBarcode(source){if(!('BarcodeDetector' in window))return '';try{const detector=new BarcodeDetector();const codes=await detector.detect(source);return codes?.[0]?.rawValue||''}catch(e){return ''}}
-async function scanBarcodeValue(title){await openCamera(title,false);const video=document.getElementById('scanVideo');return await new Promise((resolve,reject)=>{let tries=0;scanTimer=setInterval(async()=>{tries++;const v=await detectBarcode(video);if(v){closeScanner();resolve(v)}else if(tries>100){closeScanner();reject(new Error('Barkod okunamadı. Tekrar dene.'))}},250)})}
-async function scanBarcodeToInput(id,title){try{const v=await scanBarcodeValue(title);const el=document.getElementById(id);if(el)el.value=v}catch(e){alert(e.message)}}async function scanShelfToSelect(id,title){try{const v=(await scanBarcodeValue(title)).trim().toUpperCase();if(!state.shelves.includes(v))return alert('Okutulan raf kayıtlı değil: '+v);const el=document.getElementById(id);if(el)el.value=v}catch(e){alert(e.message)}}
-function loadTesseract(){if(window.Tesseract)return Promise.resolve(window.Tesseract);if(tesseractLoading)return tesseractLoading;tesseractLoading=new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';s.onload=()=>resolve(window.Tesseract);s.onerror=()=>reject(new Error('OCR bileşeni yüklenemedi.'));document.head.appendChild(s)});return tesseractLoading}
-function isJunkLabelLine(line){
- line=String(line||'').replace(/\s+/g,' ').trim();
- if(!line)return true;
- if(/^(barkod|barcode|raf kodu|raf|tarih|date|barkod bas|barkod baş)/i.test(line))return true;
- if(/\b\d{1,2}[.\-/]\d{1,2}[.\-/]\d{2,4}\b/.test(line))return true;
- return false;
-}
-function normalizeCodeText(v){return String(v||'').toUpperCase().replace(/[^A-Z0-9]/g,'')}
-function cleanOCRDescription(text,code){
- const lines=String(text||'').split(/\r?\n/).map(x=>x.replace(/\s+/g,' ').trim()).filter(Boolean);
- const codeNorm=normalizeCodeText(code);
- let codeIndex=-1;
- for(let i=0;i<lines.length;i++){
-   const n=normalizeCodeText(lines[i]);
-   if(codeNorm && (n===codeNorm || n.includes(codeNorm))){codeIndex=i;break}
- }
- if(codeIndex>=0){
-   for(let i=codeIndex+1;i<Math.min(lines.length,codeIndex+4);i++){
-     const line=lines[i],n=normalizeCodeText(line);
-     if(!isJunkLabelLine(line)&&n!==codeNorm&&!/^\d{5,}$/.test(n)&&/[A-ZÇĞİÖŞÜ]/i.test(line)&&line.length>=3)return line.trim();
-   }
- }
- return '';
-}
-function extractDescriptionNearCode(data,code){
- const codeNorm=normalizeCodeText(code);
- const rawLines=Array.isArray(data?.lines)?data.lines:[];
- const lines=rawLines.map(l=>({text:String(l.text||'').replace(/\s+/g,' ').trim(),bbox:l.bbox||{}})).filter(l=>l.text);
- if(lines.length){
-   const ci=lines.findIndex(l=>{const n=normalizeCodeText(l.text);return codeNorm&&(n===codeNorm||n.includes(codeNorm))});
-   if(ci>=0){
-     const c=lines[ci],cb=c.bbox||{};
-     const candidates=lines.map((l,i)=>({l,i})).filter(({l,i})=>{
-       if(i===ci||isJunkLabelLine(l.text))return false;
-       const n=normalizeCodeText(l.text);
-       if(!n||n===codeNorm||/^\d{5,}$/.test(n))return false;
-       if(!/[A-ZÇĞİÖŞÜ]/i.test(l.text)||l.text.length<3)return false;
-       const b=l.bbox||{};
-       if(Number.isFinite(cb.y1)&&Number.isFinite(b.y0)&&b.y0<cb.y1-5)return false;
-       if(Number.isFinite(cb.x0)&&Number.isFinite(b.x0)&&Math.abs(b.x0-cb.x0)>Math.max(180,(cb.x1||cb.x0)-cb.x0+80))return false;
-       return true;
-     }).sort((a,b)=>(a.l.bbox?.y0??99999)-(b.l.bbox?.y0??99999));
-     if(candidates.length)return candidates[0].l.text.trim();
-     for(let i=ci+1;i<Math.min(lines.length,ci+4);i++)if(!isJunkLabelLine(lines[i].text))return lines[i].text.trim();
-   }
- }
- return cleanOCRDescription(data?.text||'',code);
-}
-async function scanProductLabel(){try{await openCamera('Ürün Etiketini Tara',true);const video=document.getElementById('scanVideo'),msg=document.getElementById('scanMsg'),btn=document.getElementById('captureBtn'),bar=document.getElementById('ocrBar');msg.textContent='Etiketin tamamı net görünsün. Etiketi Tara’ya dokun.';btn.onclick=async()=>{btn.disabled=true;btn.textContent='İşleniyor...';const canvas=document.createElement('canvas');canvas.width=video.videoWidth||1280;canvas.height=video.videoHeight||720;canvas.getContext('2d').drawImage(video,0,0,canvas.width,canvas.height);let code=await detectBarcode(canvas);try{const T=await loadTesseract();const res=await T.recognize(canvas,'tur+eng',{logger:m=>{if(m.status==='recognizing text'&&bar)bar.style.width=Math.round((m.progress||0)*100)+'%'}}),raw=res?.data?.text||'';if(!code){const nums=raw.match(/\b\d{6,14}\b/g)||[];code=nums.sort((a,b)=>b.length-a.length)[0]||''}if(!code){btn.disabled=false;btn.textContent='Tekrar Tara';msg.textContent='Ürün kodu okunamadı.';return}const existing=pBy(code),desc=existing?.description||cleanOCRDescription(raw,code);closeScanner();state.tab='urunler';save();render();document.getElementById('pCode').value=code;document.getElementById('pDescription').value=desc;const status=document.getElementById('labelStatus');if(existing){document.getElementById('pUnit').value=existing.unit||'Adet';status.className='status ok';status.textContent='Kayıtlı ürün bulundu. Tanım otomatik getirildi.'}else if(desc){status.className='status ok';status.textContent='Etiket okundu. Ürün kodu ve ürün tanımı otomatik dolduruldu.'}else{status.className='status warn';status.textContent='Ürün kodu okundu; ürün tanımı çıkarılamadı. Tanımı elle düzelt.'}}catch(e){closeScanner();state.tab='urunler';save();render();document.getElementById('pCode').value=code||'';const status=document.getElementById('labelStatus');status.className='status err';status.textContent=(code?'Ürün kodu okundu. ':'')+'OCR tamamlanamadı: '+e.message}}}catch(e){closeScanner();alert('Kamera açılamadı: '+e.message)}}
-render();
-</script>
 
-<script>
-window.addEventListener('DOMContentLoaded',()=>{
-  window.go=function(t){state.tab=t;save();window.render()};
-  window.render=function(){
-    navActive();
-    const main=document.getElementById('main');
-    const page=state.tab==='dashboard'?dashboard():state.tab==='urunler'?products():state.tab==='giris'?entry():state.tab==='ara'?searchPage():state.tab==='raf'?rafPage():state.tab==='transfer'?transferPage():state.tab==='makine'?machinePage():movementsPage();
-    main.innerHTML=state.tab==='dashboard'?page:`<section class="screenPage"><div class="screenBack"><button class="btn sec" onclick="go('dashboard')">← Ana Sayfa</button></div><div class="screenBody">${page}</div></section>`;
-  };
-  state.tab='dashboard'; save(); render();
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+function esc(v) {
+  return String(v ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function uid() { return Date.now() + '-' + Math.random().toString(36).slice(2, 7); }
+function now() { return new Date().toLocaleString('tr-TR'); }
+function num(v) { const n = Number(v); return Number.isFinite(n) ? n : 0; }
+function pBy(code) { code = String(code || '').trim(); return state.products.find(p => p.productCode === code); }
+function tbQty(code) { return state.transportUnits.reduce((sum, tb) => sum + (tb.items || []).filter(i => i.productCode === code).reduce((a, i) => a + num(i.qty), 0), 0); }
+function totalQty(code) { return state.stock.filter(s => s.barcode === code).reduce((a, s) => a + s.qty, 0) + tbQty(code); }
+function tbBy(code) { code = String(code || '').trim().toUpperCase(); return state.transportUnits.find(t => t.code === code); }
+function tbStatusLabel(tb) { return tb?.status === 'RECEIVED' ? 'Mal Kabul Tamam' : tb?.status === 'OPEN' ? 'Hazırlanıyor' : 'Boş'; }
+function tbStatusClass(tb) { return tb?.status === 'RECEIVED' ? 'tb-full' : tb?.status === 'OPEN' ? 'tb-open' : 'tb-empty'; }
+function qtyAt(code, loc) { const s = state.stock.find(s => s.barcode === code && s.location === loc); return s ? s.qty : 0; }
+function addStock(code, loc, q) {
+  let s = state.stock.find(s => s.barcode === code && s.location === loc);
+  if (s) s.qty += q; else state.stock.push({ id: uid(), barcode: code, location: loc, qty: q });
+}
+function remStock(code, loc, q) {
+  let s = state.stock.find(s => s.barcode === code && s.location === loc);
+  if (!s || s.qty < q) return false;
+  s.qty -= q;
+  state.stock = state.stock.filter(s => s.qty > 0);
+  return true;
+}
+function logMovement(type, code, q, from, to, machine, note) {
+  const p = pBy(code);
+  state.movements.unshift({ id: uid(), date: now(), type, barcode: code, productName: p?.description || '', qty: q, from: from || '', to: to || '', machine: machine || '', note: note || '' });
+}
+function shelfOpts(selected = '', extra = '') {
+  if (!state.shelves.length) return '<option value="">— Önce raf tanımlayın —</option>';
+  return `<option value="">${extra || '— Raf seçin —'}</option>` +
+    state.shelves.map(r => `<option value="${esc(r)}"${r === selected ? ' selected' : ''}>${esc(r)}</option>`).join('');
+}
+function machineOpts(selected = '') {
+  if (!state.machines.length) return '<option value="">— Önce makine tanımlayın —</option>';
+  return `<option value="">— Makine seçin —</option>` +
+    state.machines.map(m => `<option value="${esc(m)}"${m === selected ? ' selected' : ''}>${esc(m)}</option>`).join('');
+}
+
+// ─── Toast ────────────────────────────────────────────────────────────────────
+let toastTimer;
+function toast(msg, type = 'ok') {
+  const el = document.getElementById('toast');
+  el.textContent = (type === 'ok' ? '✓ ' : type === 'err' ? '✕ ' : 'ℹ ') + msg;
+  el.style.background = type === 'ok' ? '#15803d' : type === 'err' ? '#b91c1c' : '#1e40af';
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ─── Navigation ───────────────────────────────────────────────────────────────
+const PAGE_TITLES = {
+  dashboard: 'Ana Sayfa', products: 'Ürünler', receiving: 'Mal Kabul', entry: 'Stok Girişi',
+  search: 'Ürün Ara', shelves: 'Raf Yönetimi', 'machines-def': 'Makine Tanımları',
+  transfer: 'Raf Transferi', machine: 'Makineye Çıkış', movements: 'Hareket Geçmişi',
+  settings: 'Ayarlar'
+};
+function goPage(p, fromHistory = false) {
+  if (!PAGE_TITLES[p]) p = 'dashboard';
+  if (!fromHistory && state.page !== p) history.pushState({ page: p }, '', location.href);
+  state.page = p;
+  save();
+  renderPage();
+}
+function goBack() {
+  if (scanOverlay) { history.back(); return; }
+  if (state.page !== 'dashboard') history.back();
+  else goPage('dashboard', true);
+}
+window.goPage = goPage;
+window.goBack = goBack;
+
+window.addEventListener('popstate', (e) => {
+  if (scanOverlay) { closeScanner(true); return; }
+  const p = e.state?.page || 'dashboard';
+  state.page = PAGE_TITLES[p] ? p : 'dashboard';
+  save();
+  renderPage();
 });
-</script>
 
+function renderPage() {
+  const title = PAGE_TITLES[state.page] || state.page;
+  document.getElementById('topbarTitle').textContent = title;
+  document.getElementById('backBtn').classList.toggle('visible', state.page !== 'dashboard');
+  document.querySelectorAll('[data-page]').forEach(b => b.classList.toggle('active', b.dataset.page === state.page));
+  const pages = { dashboard: renderDashboard, products: renderProducts, receiving: renderReceiving, entry: renderEntry, search: renderSearch, shelves: renderShelves, 'machines-def': renderMachinesDef, transfer: renderTransfer, machine: renderMachine, movements: renderMovements, settings: renderSettings };
+  const fn = pages[state.page] || renderDashboard;
+  const cls = String(state.page).replace(/[^a-z0-9-]/gi, '-');
+  document.getElementById('page').innerHTML = `<div class="page-shell page-${cls}">${fn()}</div>`;
+  afterRender();
+}
+
+// ─── DASHBOARD ───────────────────────────────────────────────────────────────
+function renderDashboard() {
+  const totalQ = state.stock.reduce((a, s) => a + s.qty, 0);
+  const activeLocs = new Set(state.stock.map(s => s.location)).size;
+  const recentMoves = state.movements.slice(0, 5);
+  return `
+  <div class="stat-grid">
+    <div class="stat"><div class="stat-value">${state.products.length}</div><div class="stat-label">Kayıtlı Ürün</div></div>
+    <div class="stat"><div class="stat-value">${totalQ.toLocaleString('tr-TR')}</div><div class="stat-label">Toplam Stok</div></div>
+    <div class="stat"><div class="stat-value">${activeLocs}</div><div class="stat-label">Aktif Raf</div></div>
+    <div class="stat"><div class="stat-value">${state.movements.length}</div><div class="stat-label">Hareket</div></div>
+  </div>
+  <div class="action-grid">
+    <button class="action-btn primary" onclick="goPage('products')">
+      <span class="action-icon">📷</span>
+      <span class="action-name">Ürün Ekle / Tara</span>
+      <span class="action-desc">Etiketten otomatik oku</span>
+    </button>
+    <button class="action-btn" onclick="goPage('receiving')">
+      <span class="action-icon">🚚</span>
+      <span class="action-name">Mal Kabul</span>
+      <span class="action-desc">Boş TB okut, ürünü içine al</span>
+    </button>
+    <button class="action-btn" onclick="goPage('entry')">
+      <span class="action-icon">➕</span>
+      <span class="action-name">Stok Girişi</span>
+      <span class="action-desc">Ürünü rafa ekle</span>
+    </button>
+    <button class="action-btn" onclick="goPage('search')">
+      <span class="action-icon">🔍</span>
+      <span class="action-name">Ürün Bul</span>
+      <span class="action-desc">Hangi rafta kaç adet</span>
+    </button>
+    <button class="action-btn" onclick="goPage('transfer')">
+      <span class="action-icon">🔄</span>
+      <span class="action-name">Transfer</span>
+      <span class="action-desc">Raftan rafa taşı</span>
+    </button>
+    <button class="action-btn" onclick="goPage('machine')">
+      <span class="action-icon">⚙️</span>
+      <span class="action-name">Makineye Çıkış</span>
+      <span class="action-desc">Stoktan düş</span>
+    </button>
+    <button class="action-btn" onclick="goPage('shelves')">
+      <span class="action-icon">🗂️</span>
+      <span class="action-name">Raf Yönetimi</span>
+      <span class="action-desc">Raf tanımla ve görüntüle</span>
+    </button>
+    <button class="action-btn" onclick="goPage('movements')">
+      <span class="action-icon">📋</span>
+      <span class="action-name">Hareketler</span>
+      <span class="action-desc">Tüm geçmiş</span>
+    </button>
+  </div>
+  ${recentMoves.length ? `
+  <div class="card recent-card">
+    <div class="card-title">Son İşlemler</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Tarih</th><th>İşlem</th><th>Ürün</th><th>Miktar</th><th>Detay</th></tr></thead>
+        <tbody>${recentMoves.map(m => `
+          <tr>
+            <td>${esc(m.date)}</td>
+            <td>${moveBadge(m.type)}</td>
+            <td><b>${esc(m.productName || m.barcode)}</b></td>
+            <td>${m.qty}</td>
+            <td style="color:var(--muted);font-size:11px">${m.from && m.to ? m.from + ' → ' + m.to : m.from || m.to || m.machine || ''}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>` : `<div class="card"><div class="empty-state"><div class="empty-icon">📦</div><div>Henüz hareket yok. Bir ürün ekleyerek başlayın.</div></div></div>`}
+  `;
+}
+
+function moveBadge(type) {
+  if (type === 'MAL_KABUL') return '<span class="badge badge-in">Mal Kabul</span>';
+  if (type === 'GIRIS') return '<span class="badge badge-in">Giriş</span>';
+  if (type === 'TRANSFER') return '<span class="badge badge-move">Transfer</span>';
+  if (type === 'MAKINE') return '<span class="badge badge-machine">Makine</span>';
+  if (type === 'CIKIS') return '<span class="badge badge-out">Çıkış</span>';
+  return `<span class="badge">${esc(type)}</span>`;
+}
+
+// ─── PRODUCTS ────────────────────────────────────────────────────────────────
+function renderProducts() {
+  const pending = state.pendingCode ? pBy(state.pendingCode) : null;
+  return `
+  <div class="card">
+    <div class="card-title">Ürün Ekle</div>
+    <button class="big-scan" onclick="scanProductLabel()">
+      <span class="big-scan-icon">📷</span> Etiketi Tara (Otomatik Doldur)
+    </button>
+    <div class="fgrid g3">
+      <div class="field"><label>Ürün Kodu *</label><input id="pCode" placeholder="Tarama veya manuel giriş" autocomplete="off"></div>
+      <div class="field"><label>Ürün Tanımı *</label><input id="pDesc" placeholder="Ürün adı / açıklama"></div>
+      <div class="field"><label>Birim</label>
+        <select id="pUnit"><option>Adet</option><option>Kg</option><option>Bobin</option><option>Palet</option><option>Koli</option><option>Litre</option><option>Metre</option></select>
+      </div>
+    </div>
+    <div id="labelMsg" class="alert alert-info" style="margin-top:10px;display:none"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveProduct()">Kaydet</button>
+      <button class="btn btn-secondary" onclick="saveProductAndGoEntry()">Kaydet & Stok Girişi Yap</button>
+    </div>
+  </div>
+  ${pending ? `
+  <div class="card pending-card">
+    <div class="pending-badge">⏳ Stok Girişi Bekliyor</div>
+    <div class="card-title">${esc(pending.description)} — <code>${esc(pending.productCode)}</code></div>
+    <div class="fgrid g3">
+      <div class="field"><label>Raf *</label><select id="npShelf">${shelfOpts()}</select></div>
+      <div class="field"><label>Miktar *</label><input id="npQty" type="number" min="0.01" step="0.01" placeholder="0"></div>
+      <div class="field"><label>Not</label><input id="npNote" placeholder="İsteğe bağlı"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="placePending()">Rafa Yerleştir</button>
+      <button class="btn btn-ghost" onclick="cancelPending()">Daha Sonra</button>
+      ${!state.shelves.length ? '<button class="btn btn-secondary" onclick="goPage(\'shelves\')">Raf Ekle →</button>' : ''}
+    </div>
+  </div>` : ''}
+  <div class="card">
+    <div class="card-title">Kayıtlı Ürünler (${state.products.length})</div>
+    ${state.products.length ? `
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Ürün Kodu</th><th>Ürün Tanımı</th><th>Birim</th><th>Toplam Stok</th></tr></thead>
+        <tbody>${state.products.map(p => `
+          <tr>
+            <td><b>${esc(p.productCode)}</b></td>
+            <td>${esc(p.description)}</td>
+            <td>${esc(p.unit || 'Adet')}</td>
+            <td><b style="color:var(--brand)">${totalQty(p.productCode).toLocaleString('tr-TR')}</b></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>` : '<div class="empty-state"><div class="empty-icon">📦</div>Henüz ürün yok.</div>'}
+  </div>`;
+}
+
+function saveProduct() {
+  const code = document.getElementById('pCode').value.trim();
+  const desc = document.getElementById('pDesc').value.trim();
+  const unit = document.getElementById('pUnit').value;
+  if (!code) { toast('Ürün kodu gerekli', 'err'); return; }
+  if (!desc) { toast('Ürün tanımı gerekli', 'err'); return; }
+  let p = pBy(code);
+  if (p) { p.description = desc; p.unit = unit; toast('Ürün güncellendi'); }
+  else { state.products.push({ id: uid(), productCode: code, barcode: code, code, description: desc, name: desc, unit }); toast('Ürün kaydedildi'); }
+  save(); renderPage();
+}
+window.saveProduct = saveProduct;
+
+function saveProductAndGoEntry() {
+  const code = document.getElementById('pCode').value.trim();
+  const desc = document.getElementById('pDesc').value.trim();
+  const unit = document.getElementById('pUnit').value;
+  if (!code) { toast('Ürün kodu gerekli', 'err'); return; }
+  if (!desc) { toast('Ürün tanımı gerekli', 'err'); return; }
+  let p = pBy(code);
+  if (p) { p.description = desc; p.unit = unit; }
+  else { state.products.push({ id: uid(), productCode: code, barcode: code, code, description: desc, name: desc, unit }); }
+  state.pendingCode = code;
+  save(); renderPage();
+}
+window.saveProductAndGoEntry = saveProductAndGoEntry;
+
+function placePending() {
+  const code = state.pendingCode;
+  const shelf = document.getElementById('npShelf')?.value || '';
+  const q = num(document.getElementById('npQty')?.value);
+  const note = document.getElementById('npNote')?.value.trim() || '';
+  if (!shelf) { toast('Raf seçin', 'err'); return; }
+  if (q <= 0) { toast('Miktar sıfırdan büyük olmalı', 'err'); return; }
+  if (!pBy(code)) { toast('Ürün bulunamadı', 'err'); return; }
+  addStock(code, shelf, q);
+  logMovement('GIRIS', code, q, '', shelf, '', note);
+  state.pendingCode = '';
+  save();
+  toast('Ürün rafa yerleştirildi ✓');
+  renderPage();
+}
+window.placePending = placePending;
+
+function cancelPending() { state.pendingCode = ''; save(); renderPage(); }
+window.cancelPending = cancelPending;
+
+// ─── MAL KABUL / TAŞIMA BİRİMİ ────────────────────────────────────────────────
+function renderReceiving() {
+  const d = state.receivingDraft || { tbCode:'', items:[] };
+  const tb = d.tbCode ? tbBy(d.tbCode) : null;
+  const units = state.transportUnits.slice().reverse();
+  return `
+  <div class="card">
+    <div class="card-title">Mal Kabul — Taşıma Birimi (TB)</div>
+    <div class="card-sub">Önce boş TB barkodunu okutun. Sonra içine alınacak ürünleri barkodla ekleyin.</div>
+    <div class="tb-step">1 · Boş TB</div>
+    <div class="scan-row">
+      <div class="field" style="flex:1"><label>TB Kodu *</label><input id="rTb" value="${esc(d.tbCode || '')}" placeholder="Boş TB barkodu" autocomplete="off" oninput="receivingTbChanged()"></div>
+      <button class="btn-scan" onclick="scanReceivingTb()" title="TB okut">📷</button>
+    </div>
+    <div id="rTbInfo" class="alert ${tb && tb.status==='RECEIVED' ? 'alert-error' : 'alert-info'}" style="${d.tbCode ? '' : 'display:none'}">${d.tbCode ? (tb ? `TB ${esc(d.tbCode)} — ${tbStatusLabel(tb)}` : `Yeni boş TB: ${esc(d.tbCode)}`) : ''}</div>
+
+    <div class="divider"></div>
+    <div class="tb-step">2 · Ürün Ekle</div>
+    <div class="fgrid g3">
+      <div class="field"><label>Ürün Kodu *</label><div class="scan-row"><div class="field"><input id="rCode" placeholder="Ürün barkodu" autocomplete="off" oninput="receivingProductChanged()"></div><button class="btn-scan" onclick="scanReceivingProduct()">📷</button></div></div>
+      <div class="field"><label>Ürün İsmi *</label><input id="rDesc" placeholder="Ürün adı"></div>
+      <div class="field"><label>Adet *</label><input id="rQty" type="number" min="0.01" step="0.01" placeholder="0"></div>
+    </div>
+    <div class="btn-row"><button class="btn btn-secondary" onclick="addReceivingItem()">＋ TB'ye Ekle</button><button class="btn btn-primary" onclick="completeReceiving()" ${d.items?.length ? '' : 'disabled'}>Mal Kabulü Tamamla</button><button class="btn btn-ghost" onclick="clearReceivingDraft()">Temizle</button></div>
+    ${d.items?.length ? `<div class="tb-items">${d.items.map((i,idx)=>`<div class="tb-item"><b>${esc(i.productCode)} — ${esc(i.description)}</b><span>${num(i.qty).toLocaleString('tr-TR')} ${esc(i.unit||'Adet')}</span><button class="btn btn-danger" style="padding:4px 7px" onclick="removeReceivingItem(${idx})">×</button></div>`).join('')}</div>` : ''}
+  </div>
+  <div class="card">
+    <div class="card-title">Taşıma Birimleri (${state.transportUnits.length})</div>
+    ${units.length ? `<div class="table-wrap"><table><thead><tr><th>TB</th><th>Durum</th><th>Ürün</th><th>Toplam Adet</th><th>Tarih</th></tr></thead><tbody>${units.map(tb=>`<tr><td><b>${esc(tb.code)}</b></td><td><span class="tb-status ${tbStatusClass(tb)}">${tbStatusLabel(tb)}</span></td><td>${(tb.items||[]).length}</td><td>${(tb.items||[]).reduce((a,i)=>a+num(i.qty),0).toLocaleString('tr-TR')}</td><td>${esc(tb.receivedAt || tb.createdAt || '')}</td></tr>`).join('')}</tbody></table></div>` : '<div class="empty-state">Henüz TB kaydı yok.</div>'}
+  </div>`;
+}
+
+function receivingTbChanged() {
+  const v = (document.getElementById('rTb')?.value || '').trim().toUpperCase();
+  state.receivingDraft.tbCode = v;
+  const info = document.getElementById('rTbInfo');
+  if (!info) return;
+  if (!v) { info.style.display='none'; return; }
+  const tb = tbBy(v);
+  info.style.display='';
+  if (tb?.status === 'RECEIVED') { info.className='alert alert-error'; info.textContent=`TB ${v} dolu / mal kabulü tamamlanmış. Boş bir TB okutun.`; }
+  else { info.className='alert alert-success'; info.textContent = tb ? `✓ TB ${v} hazır — ${tbStatusLabel(tb)}` : `✓ Yeni boş TB ${v} hazır.`; }
+  save();
+}
+window.receivingTbChanged = receivingTbChanged;
+
+async function scanReceivingTb() {
+  try {
+    const v = (await scanBarcodeValue('Boş TB Barkodunu Tara')).trim().toUpperCase();
+    const existing = tbBy(v);
+    if (existing?.status === 'RECEIVED') { toast('Bu TB dolu. Boş bir TB okutun.', 'err'); return; }
+    if (!existing) state.transportUnits.push({ code:v, status:'EMPTY', items:[], createdAt:now() });
+    state.receivingDraft = { tbCode:v, items:[] };
+    save(); renderPage(); toast('Boş TB okundu: ' + v);
+  } catch (e) { toast(e.message, 'err'); }
+}
+window.scanReceivingTb = scanReceivingTb;
+
+function receivingProductChanged() {
+  const code = document.getElementById('rCode')?.value.trim();
+  const p = pBy(code);
+  const d = document.getElementById('rDesc');
+  if (p && d && !d.value.trim()) d.value = p.description;
+}
+window.receivingProductChanged = receivingProductChanged;
+
+async function scanReceivingProduct() {
+  try {
+    if (!state.receivingDraft.tbCode) { toast('Önce boş TB okutun', 'err'); return; }
+    const code = (await scanBarcodeValue('Ürün Barkodunu Tara')).trim();
+    const el = document.getElementById('rCode'); if (el) el.value = code;
+    receivingProductChanged();
+  } catch (e) { toast(e.message, 'err'); }
+}
+window.scanReceivingProduct = scanReceivingProduct;
+
+function addReceivingItem() {
+  const tbCode = (state.receivingDraft.tbCode || '').trim().toUpperCase();
+  const code = document.getElementById('rCode')?.value.trim();
+  const desc = document.getElementById('rDesc')?.value.trim();
+  const q = num(document.getElementById('rQty')?.value);
+  if (!tbCode) { toast('Önce boş TB okutun', 'err'); return; }
+  const tb = tbBy(tbCode);
+  if (tb?.status === 'RECEIVED') { toast('Bu TB artık boş değil', 'err'); return; }
+  if (!code) { toast('Ürün kodu gerekli', 'err'); return; }
+  if (!desc) { toast('Ürün ismi gerekli', 'err'); return; }
+  if (q <= 0) { toast('Adet sıfırdan büyük olmalı', 'err'); return; }
+  let p = pBy(code);
+  if (!p) state.products.push({ id:uid(), productCode:code, barcode:code, code, description:desc, name:desc, unit:'Adet' });
+  else if (!p.description) p.description = desc;
+  const ex = state.receivingDraft.items.find(i => i.productCode === code);
+  if (ex) { ex.qty += q; if (desc) ex.description = desc; }
+  else state.receivingDraft.items.push({ productCode:code, description:desc, qty:q, unit:p?.unit || 'Adet' });
+  if (tb) tb.status = 'OPEN';
+  save(); renderPage(); toast(`${code} TB'ye eklendi`);
+}
+window.addReceivingItem = addReceivingItem;
+
+function removeReceivingItem(idx) {
+  state.receivingDraft.items.splice(idx,1); save(); renderPage();
+}
+window.removeReceivingItem = removeReceivingItem;
+
+function clearReceivingDraft() {
+  const code = state.receivingDraft.tbCode;
+  const tb = tbBy(code);
+  if (tb && tb.status === 'OPEN' && !(tb.items||[]).length) tb.status = 'EMPTY';
+  state.receivingDraft = { tbCode:'', items:[] }; save(); renderPage();
+}
+window.clearReceivingDraft = clearReceivingDraft;
+
+function completeReceiving() {
+  const d = state.receivingDraft;
+  const code = (d.tbCode || '').trim().toUpperCase();
+  if (!code) { toast('TB okutun', 'err'); return; }
+  if (!d.items?.length) { toast('TB içine en az bir ürün ekleyin', 'err'); return; }
+  let tb = tbBy(code);
+  if (!tb) { tb = { code, status:'EMPTY', items:[], createdAt:now() }; state.transportUnits.push(tb); }
+  if (tb.status === 'RECEIVED') { toast('Bu TB daha önce mal kabul edilmiş', 'err'); return; }
+  tb.items = d.items.map(i => ({...i}));
+  tb.status = 'RECEIVED';
+  tb.receivedAt = now();
+  tb.items.forEach(i => logMovement('MAL_KABUL', i.productCode, num(i.qty), 'MAL KABUL', `TB:${code}`, '', 'Taşıma birimine alındı'));
+  state.receivingDraft = { tbCode:'', items:[] };
+  save(); renderPage(); toast(`Mal kabul tamamlandı — TB ${code}`);
+}
+window.completeReceiving = completeReceiving;
+
+// ─── ENTRY ───────────────────────────────────────────────────────────────────
+function renderEntry() {
+  return `
+  <div class="card">
+    <div class="card-title">Stok Girişi</div>
+    <div class="card-sub">Kayıtlı bir ürünü seçili rafa ekler.</div>
+    <div class="fgrid g3">
+      <div class="field">
+        <label>Ürün Kodu *</label>
+        <div class="scan-row">
+          <div class="field"><input id="eCode" placeholder="Kod veya tara" autocomplete="off" oninput="fillProductName('eCode','eInfo')"></div>
+          <button class="btn-scan" onclick="scanToInput('eCode', ()=>fillProductName('eCode','eInfo'))" title="Tara">📷</button>
+        </div>
+      </div>
+      <div class="field"><label>Raf *</label>
+        <div class="scan-row">
+          <div class="field"><select id="eShelf">${shelfOpts()}</select></div>
+          <button class="btn-scan" onclick="scanShelfToSelect('eShelf')" title="Rafı tara">📷</button>
+        </div>
+      </div>
+      <div class="field"><label>Miktar *</label><input id="eQty" type="number" min="0.01" step="0.01" placeholder="0"></div>
+    </div>
+    <div id="eInfo" class="alert alert-info" style="margin-top:10px;display:none"></div>
+    <div class="field" style="margin-top:12px"><label>Not (isteğe bağlı)</label><input id="eNote" placeholder=""></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="entrySave()">Stoka Al</button>
+      <button class="btn btn-secondary" onclick="goPage('products')">Yeni Ürün Ekle →</button>
+    </div>
+  </div>`;
+}
+
+function fillProductName(inputId, infoId) {
+  const code = document.getElementById(inputId)?.value.trim();
+  const info = document.getElementById(infoId);
+  if (!info) return;
+  if (!code) { info.style.display = 'none'; return; }
+  const p = pBy(code);
+  if (p) {
+    info.className = 'alert alert-success';
+    info.textContent = `✓ ${p.description} (${p.unit || 'Adet'}) — Mevcut stok: ${totalQty(code)}`;
+    info.style.display = '';
+  } else {
+    info.className = 'alert alert-warn';
+    info.textContent = `Bu ürün kodu kayıtlı değil. Önce Ürünler sayfasından ekleyin.`;
+    info.style.display = '';
+  }
+}
+window.fillProductName = fillProductName;
+
+function entrySave() {
+  const code = document.getElementById('eCode').value.trim();
+  const shelf = document.getElementById('eShelf').value;
+  const q = num(document.getElementById('eQty').value);
+  const note = document.getElementById('eNote')?.value.trim() || '';
+  if (!code) { toast('Ürün kodu girin', 'err'); return; }
+  if (!pBy(code)) { toast('Ürün kayıtlı değil. Önce ekleyin.', 'err'); return; }
+  if (!shelf) { toast('Raf seçin', 'err'); return; }
+  if (q <= 0) { toast('Miktar sıfırdan büyük olmalı', 'err'); return; }
+  addStock(code, shelf, q);
+  logMovement('GIRIS', code, q, '', shelf, '', note);
+  save();
+  toast(`${q} adet ${code} → ${shelf}`);
+  document.getElementById('eCode').value = '';
+  document.getElementById('eQty').value = '';
+  if (document.getElementById('eNote')) document.getElementById('eNote').value = '';
+  const info = document.getElementById('eInfo');
+  if (info) info.style.display = 'none';
+}
+window.entrySave = entrySave;
+
+// ─── SEARCH ──────────────────────────────────────────────────────────────────
+function renderSearch() {
+  return `
+  <div class="card">
+    <div class="card-title">Ürün Ara</div>
+    <div class="fgrid g2">
+      <div class="scan-row">
+        <div class="field" style="flex:1"><input id="sQuery" placeholder="Ürün kodu veya tanımı yazın..." oninput="doSearch()" autocomplete="off"></div>
+        <button class="btn-scan" onclick="scanToInput('sQuery', doSearch)" title="Tara">📷</button>
+      </div>
+      <button class="btn btn-primary" onclick="doSearch()" style="align-self:flex-end">Ara</button>
+    </div>
+  </div>
+  <div id="sResult"></div>`;
+}
+
+function doSearch() {
+  const q = (document.getElementById('sQuery')?.value || '').trim().toLowerCase();
+  const results = document.getElementById('sResult');
+  if (!results) return;
+  if (!q) { results.innerHTML = ''; return; }
+  const matches = state.products.filter(p =>
+    p.productCode.toLowerCase().includes(q) || p.description.toLowerCase().includes(q)
+  );
+  if (!matches.length) {
+    results.innerHTML = '<div class="card"><div class="empty-state"><div class="empty-icon">🔍</div>Ürün bulunamadı.</div></div>';
+    return;
+  }
+  results.innerHTML = matches.map(p => {
+    const locs = state.stock.filter(s => s.barcode === p.productCode);
+    const tbLocs = state.transportUnits.filter(tb => (tb.items || []).some(i => i.productCode === p.productCode)).map(tb => ({ location: 'TB: ' + tb.code, qty: (tb.items || []).filter(i => i.productCode === p.productCode).reduce((a,i)=>a+num(i.qty),0) }));
+    const allLocs = [...locs, ...tbLocs];
+    const total = allLocs.reduce((a, s) => a + s.qty, 0);
+    return `
+    <div class="product-result">
+      <div class="product-result-name">${esc(p.description)}</div>
+      <div class="product-result-code">${esc(p.productCode)} · ${p.unit || 'Adet'}</div>
+      <div class="product-result-stocks">
+        ${allLocs.length ? `
+        <div class="stock-locs">
+          ${allLocs.map(s => `<div class="stock-loc-row"><span class="loc-name">📍 ${esc(s.location)}</span><span class="loc-qty">${s.qty.toLocaleString('tr-TR')} ${p.unit || 'adet'}</span></div>`).join('')}
+          ${allLocs.length > 1 ? `<div class="stock-loc-row" style="background:var(--brand-light)"><span class="loc-name" style="color:var(--brand)">Toplam</span><span class="loc-qty">${total.toLocaleString('tr-TR')} ${p.unit || 'adet'}</span></div>` : ''}
+        </div>` : '<div class="alert alert-warn">Bu ürünün stoku yok.</div>'}
+      </div>
+    </div>`;
+  }).join('');
+}
+window.doSearch = doSearch;
+
+// ─── SHELVES ─────────────────────────────────────────────────────────────────
+function renderShelves() {
+  return `
+  <div class="card">
+    <div class="card-title">Raf Ekle</div>
+    <div class="scan-row">
+      <div class="field" style="flex:1"><input id="newShelf" placeholder="Örn. A1-01, 2B-ÜÇÜNCÜ" autocomplete="off"></div>
+      <button class="btn btn-primary" onclick="addShelf()">Ekle</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Tanımlı Raflar (${state.shelves.length})</div>
+    ${state.shelves.length ? `
+    <div class="tag-list">
+      ${state.shelves.map(r => `
+        <span class="tag">
+          📍 ${esc(r)}
+          <span style="font-size:10px;opacity:.6;margin-left:4px">${qtyOnShelf(r)}</span>
+          <button class="tag-remove" onclick="removeShelf('${esc(r)}')" title="Sil">×</button>
+        </span>`).join('')}
+    </div>
+    <div style="margin-top:14px">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Raf</th><th>Ürün Sayısı</th><th>Toplam Stok</th></tr></thead>
+          <tbody>${state.shelves.map(r => {
+            const items = state.stock.filter(s => s.location === r);
+            const total = items.reduce((a, s) => a + s.qty, 0);
+            return `<tr><td><b>${esc(r)}</b></td><td>${items.length} ürün</td><td>${total.toLocaleString('tr-TR')}</td></tr>`;
+          }).join('')}</tbody>
+        </table>
+      </div>
+    </div>` : '<div class="empty-state"><div class="empty-icon">🗂️</div>Henüz raf tanımlanmadı.</div>'}
+  </div>`;
+}
+
+function qtyOnShelf(r) {
+  const t = state.stock.filter(s => s.location === r).reduce((a, s) => a + s.qty, 0);
+  return t > 0 ? t + ' adet' : '';
+}
+
+function addShelf() {
+  const v = document.getElementById('newShelf')?.value.trim().toUpperCase();
+  if (!v) { toast('Raf adı girin', 'err'); return; }
+  if (state.shelves.includes(v)) { toast('Bu raf zaten var', 'err'); return; }
+  state.shelves.push(v);
+  state.shelves.sort();
+  save(); toast('Raf eklendi: ' + v); renderPage();
+}
+window.addShelf = addShelf;
+
+function removeShelf(r) {
+  if (state.stock.some(s => s.location === r && s.qty > 0)) { toast('Bu rafta stok var, önce transfer edin', 'err'); return; }
+  if (!confirm(`"${r}" rafını silmek istediğinize emin misiniz?`)) return;
+  state.shelves = state.shelves.filter(x => x !== r);
+  save(); toast('Raf silindi'); renderPage();
+}
+window.removeShelf = removeShelf;
+
+// ─── MACHINES DEF ────────────────────────────────────────────────────────────
+function renderMachinesDef() {
+  return `
+  <div class="card">
+    <div class="card-title">Makine Ekle</div>
+    <div class="scan-row">
+      <div class="field" style="flex:1"><input id="newMachine" placeholder="Makine adı (örn. PRES-01)" autocomplete="off"></div>
+      <button class="btn btn-primary" onclick="addMachine()">Ekle</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Tanımlı Makineler (${state.machines.length})</div>
+    ${state.machines.length ? `
+    <div class="tag-list">
+      ${state.machines.map(m => `
+        <span class="tag">
+          ⚙️ ${esc(m)}
+          <button class="tag-remove" onclick="removeMachine('${esc(m)}')" title="Sil">×</button>
+        </span>`).join('')}
+    </div>` : '<div class="empty-state"><div class="empty-icon">🏭</div>Henüz makine tanımlanmadı.</div>'}
+  </div>`;
+}
+
+function addMachine() {
+  const v = document.getElementById('newMachine')?.value.trim().toUpperCase();
+  if (!v) { toast('Makine adı girin', 'err'); return; }
+  if (state.machines.includes(v)) { toast('Bu makine zaten var', 'err'); return; }
+  state.machines.push(v);
+  save(); toast('Makine eklendi: ' + v); renderPage();
+}
+window.addMachine = addMachine;
+
+function removeMachine(m) {
+  if (!confirm(`"${m}" makinesini silmek istediğinize emin misiniz?`)) return;
+  state.machines = state.machines.filter(x => x !== m);
+  save(); toast('Makine silindi'); renderPage();
+}
+window.removeMachine = removeMachine;
+
+// ─── TRANSFER ────────────────────────────────────────────────────────────────
+function renderTransfer() {
+  return `
+  <div class="card">
+    <div class="card-title">Raf Transferi</div>
+    <div class="card-sub">Bir üründen seçilen raftan diğer rafa taşır.</div>
+    <div class="fgrid g2">
+      <div class="field">
+        <label>Ürün Kodu *</label>
+        <div class="scan-row">
+          <div class="field"><input id="tCode" placeholder="Kod veya tara" autocomplete="off" oninput="onTransferCodeChange()"></div>
+          <button class="btn-scan" onclick="scanToInput('tCode', onTransferCodeChange)" title="Tara">📷</button>
+        </div>
+      </div>
+      <div class="field" style="align-self:flex-end"><div id="tInfo" class="alert alert-info" style="display:none"></div></div>
+    </div>
+    <div class="fgrid g3" style="margin-top:12px">
+      <div class="field"><label>Kaynak Raf *</label><select id="tFrom" onchange="onTransferFromChange()">${shelfOpts()}</select></div>
+      <div class="field"><label>Hedef Raf *</label><select id="tTo">${shelfOpts()}</select></div>
+      <div class="field"><label>Miktar *</label><input id="tQty" type="number" min="0.01" step="0.01" placeholder="0"></div>
+    </div>
+    <div id="tShelfInfo" class="alert alert-info" style="margin-top:10px;display:none"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="transferSave()">Transfer Et</button>
+    </div>
+  </div>`;
+}
+
+function onTransferCodeChange() {
+  const code = document.getElementById('tCode')?.value.trim();
+  const info = document.getElementById('tInfo');
+  if (!info) return;
+  if (!code) { info.style.display = 'none'; return; }
+  const p = pBy(code);
+  if (p) {
+    info.className = 'alert alert-success';
+    info.textContent = `✓ ${p.description}`;
+    info.style.display = '';
+    onTransferFromChange();
+  } else {
+    info.className = 'alert alert-warn';
+    info.textContent = 'Ürün kayıtlı değil.';
+    info.style.display = '';
+  }
+}
+window.onTransferCodeChange = onTransferCodeChange;
+
+function onTransferFromChange() {
+  const code = document.getElementById('tCode')?.value.trim();
+  const from = document.getElementById('tFrom')?.value;
+  const shelfInfo = document.getElementById('tShelfInfo');
+  if (!shelfInfo) return;
+  if (!code || !from) { shelfInfo.style.display = 'none'; return; }
+  const q = qtyAt(code, from);
+  if (q > 0) {
+    shelfInfo.className = 'alert alert-success';
+    shelfInfo.textContent = `${from} rafında ${q} adet mevcut.`;
+  } else {
+    shelfInfo.className = 'alert alert-error';
+    shelfInfo.textContent = `${from} rafında bu üründen stok yok.`;
+  }
+  shelfInfo.style.display = '';
+}
+window.onTransferFromChange = onTransferFromChange;
+
+function transferSave() {
+  const code = document.getElementById('tCode').value.trim();
+  const from = document.getElementById('tFrom').value;
+  const to = document.getElementById('tTo').value;
+  const q = num(document.getElementById('tQty').value);
+  if (!code) { toast('Ürün kodu girin', 'err'); return; }
+  if (!pBy(code)) { toast('Ürün kayıtlı değil', 'err'); return; }
+  if (!from) { toast('Kaynak raf seçin', 'err'); return; }
+  if (!to) { toast('Hedef raf seçin', 'err'); return; }
+  if (from === to) { toast('Kaynak ve hedef aynı olamaz', 'err'); return; }
+  if (q <= 0) { toast('Miktar sıfırdan büyük olmalı', 'err'); return; }
+  if (!remStock(code, from, q)) { toast(`${from} rafında yeterli stok yok`, 'err'); return; }
+  addStock(code, to, q);
+  logMovement('TRANSFER', code, q, from, to);
+  save();
+  toast(`${q} adet → ${from} ▸ ${to}`);
+  document.getElementById('tCode').value = '';
+  document.getElementById('tQty').value = '';
+  const inf = document.getElementById('tInfo'); if (inf) inf.style.display = 'none';
+  const si = document.getElementById('tShelfInfo'); if (si) si.style.display = 'none';
+}
+window.transferSave = transferSave;
+
+// ─── MACHINE OUT ──────────────────────────────────────────────────────────────
+function renderMachine() {
+  return `
+  <div class="card">
+    <div class="card-title">Makineye Çıkış</div>
+    <div class="card-sub">Seçili üründen stok düşer, harekete kaydeder.</div>
+    <div class="fgrid g2">
+      <div class="field">
+        <label>Ürün Kodu *</label>
+        <div class="scan-row">
+          <div class="field"><input id="mCode" placeholder="Kod veya tara" autocomplete="off" oninput="fillProductName('mCode','mInfo')"></div>
+          <button class="btn-scan" onclick="scanToInput('mCode', ()=>fillProductName('mCode','mInfo'))" title="Tara">📷</button>
+        </div>
+      </div>
+      <div class="field"><label>Makine *</label><select id="mMachine">${machineOpts()}</select></div>
+    </div>
+    <div class="fgrid g2" style="margin-top:12px">
+      <div class="field"><label>Çıkış Rafı *</label><select id="mFrom">${shelfOpts()}</select></div>
+      <div class="field"><label>Miktar *</label><input id="mQty" type="number" min="0.01" step="0.01" placeholder="0"></div>
+    </div>
+    <div id="mInfo" class="alert alert-info" style="margin-top:10px;display:none"></div>
+    <div class="field" style="margin-top:12px"><label>Not</label><input id="mNote" placeholder="İsteğe bağlı"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="machineSave()">Makineye Ver</button>
+      <button class="btn btn-secondary" onclick="goPage('machines-def')">Makine Ekle →</button>
+    </div>
+  </div>`;
+}
+
+function machineSave() {
+  const code = document.getElementById('mCode').value.trim();
+  const machine = document.getElementById('mMachine').value;
+  const from = document.getElementById('mFrom').value;
+  const q = num(document.getElementById('mQty').value);
+  const note = document.getElementById('mNote')?.value.trim() || '';
+  if (!code) { toast('Ürün kodu girin', 'err'); return; }
+  if (!pBy(code)) { toast('Ürün kayıtlı değil', 'err'); return; }
+  if (!machine) { toast('Makine seçin', 'err'); return; }
+  if (!from) { toast('Çıkış rafı seçin', 'err'); return; }
+  if (q <= 0) { toast('Miktar sıfırdan büyük olmalı', 'err'); return; }
+  if (!remStock(code, from, q)) { toast(`${from} rafında yeterli stok yok`, 'err'); return; }
+  logMovement('MAKINE', code, q, from, '', machine, note);
+  save();
+  toast(`${q} adet → ${machine}`);
+  document.getElementById('mCode').value = '';
+  document.getElementById('mQty').value = '';
+  const inf = document.getElementById('mInfo'); if (inf) inf.style.display = 'none';
+}
+window.machineSave = machineSave;
+
+// ─── MOVEMENTS ────────────────────────────────────────────────────────────────
+function renderMovements() {
+  const filter = state._moveFilter || 'ALL';
+  const filtered = filter === 'ALL' ? state.movements : state.movements.filter(m => m.type === filter);
+  return `
+  <div class="card">
+    <div class="card-title">Hareket Geçmişi (${state.movements.length})</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+      ${['ALL','GIRIS','CIKIS','TRANSFER','MAKINE'].map(t => `
+        <button class="btn ${filter===t?'btn-primary':'btn-ghost'}" style="font-size:11px;padding:7px 12px" onclick="setMoveFilter('${t}')">
+          ${t==='ALL'?'Tümü':t==='GIRIS'?'Giriş':t==='CIKIS'?'Çıkış':t==='TRANSFER'?'Transfer':'Makine'}
+        </button>`).join('')}
+      <div class="spacer"></div>
+      <button class="btn btn-danger" onclick="clearMovements()" style="margin-left:auto;font-size:11px;padding:7px 12px">Geçmişi Temizle</button>
+    </div>
+    ${filtered.length ? `
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Tarih</th><th>İşlem</th><th>Ürün</th><th>Miktar</th><th>Kaynak</th><th>Hedef</th><th>Makine</th><th>Not</th></tr></thead>
+        <tbody>${filtered.map(m => `
+          <tr>
+            <td style="white-space:nowrap;color:var(--muted);font-size:11px">${esc(m.date)}</td>
+            <td>${moveBadge(m.type)}</td>
+            <td><b>${esc(m.productName || m.barcode)}</b><div style="font-size:10px;color:var(--muted)">${esc(m.barcode)}</div></td>
+            <td><b>${m.qty}</b></td>
+            <td>${esc(m.from)}</td>
+            <td>${esc(m.to)}</td>
+            <td>${esc(m.machine)}</td>
+            <td style="color:var(--muted)">${esc(m.note)}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>` : '<div class="empty-state"><div class="empty-icon">📋</div>Hareket kaydı yok.</div>'}
+  </div>`;
+}
+
+function setMoveFilter(f) {
+  state._moveFilter = f; renderPage();
+}
+window.setMoveFilter = setMoveFilter;
+
+function clearMovements() {
+  if (!confirm('Tüm hareket geçmişi silinsin mi? Bu işlem geri alınamaz.')) return;
+  state.movements = [];
+  save(); toast('Hareket geçmişi temizlendi'); renderPage();
+}
+window.clearMovements = clearMovements;
+
+// ─── SETTINGS ─────────────────────────────────────────────────────────────────
+function renderSettings() {
+  return `
+  <div class="card">
+    <div class="card-title">Veri Yönetimi</div>
+    <div class="card-sub">Tüm veriler cihazınızda saklanır.</div>
+    <div class="data-actions">
+      <button class="btn btn-secondary" onclick="exportData()">📤 Dışa Aktar (JSON)</button>
+      <label class="btn btn-secondary" style="cursor:pointer">📥 İçe Aktar (JSON)<input type="file" accept=".json" onchange="importData(event)" style="display:none"></label>
+    </div>
+    <div class="divider"></div>
+    <div class="fgrid g2">
+      <div class="stat" style="text-align:center">
+        <div class="stat-value">${JSON.stringify(state).length / 1024 | 0} KB</div>
+        <div class="stat-label">Veri Boyutu</div>
+      </div>
+      <div class="stat" style="text-align:center">
+        <div class="stat-value">${state.products.length + state.stock.length + state.movements.length + state.transportUnits.length}</div>
+        <div class="stat-label">Toplam Kayıt</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <button class="btn btn-danger" onclick="resetAll()">🗑️ Tüm Verileri Sıfırla</button>
+  </div>
+  <div class="card">
+    <div class="card-title">Uygulama Hakkında</div>
+    <p style="font-size:13px;color:var(--muted);line-height:1.6">
+      <b>Kansan Depo v16</b><br>
+      Stok ve lokasyon yönetim sistemi.<br>
+      Ürün kaydı, barkod tarama, mal kabul/TB, raf yönetimi, transfer ve makine çıkışı desteklenir.<br>
+      Tüm veriler tarayıcınıza kaydedilir.
+    </p>
+  </div>`;
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `kansan-depo-${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+}
+window.exportData = exportData;
+
+function importData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (!data.products) { toast('Geçersiz dosya', 'err'); return; }
+      Object.assign(state, data);
+      save(); toast('Veriler içe aktarıldı'); renderPage();
+    } catch { toast('Dosya okunamadı', 'err'); }
+  };
+  reader.readAsText(file);
+}
+window.importData = importData;
+
+function resetAll() {
+  if (!confirm('TÜM veriler (ürünler, stok, hareketler) kalıcı olarak silinecek. Emin misiniz?')) return;
+  if (!confirm('Son onay: Bu işlem geri alınamaz!')) return;
+  Object.assign(state, { products: [], stock: [], movements: [], machines: [], shelves: [], transportUnits: [], receivingDraft: { tbCode:'', items:[] }, pendingCode: '' });
+  save(); toast('Tüm veriler sıfırlandı'); renderPage();
+}
+window.resetAll = resetAll;
+
+// ─── CAMERA / SCANNER ─────────────────────────────────────────────────────────
+let scanStream = null, scanOverlay = null, scanTimer = null;
+
+function closeScanner(fromHistory = false) {
+  clearInterval(scanTimer); scanTimer = null;
+  if (scanStream) { scanStream.getTracks().forEach(t => t.stop()); scanStream = null; }
+  if (scanOverlay) { scanOverlay.remove(); scanOverlay = null; }
+}
+
+async function openCamera(title, withCapture = false) {
+  closeScanner();
+  if (!navigator.mediaDevices?.getUserMedia) throw new Error('Bu tarayıcı kamera desteklemiyor.');
+  const ov = document.createElement('div');
+  ov.className = 'overlay';
+  ov.innerHTML = `
+    <div class="overlay-head">
+      <span class="overlay-title">${esc(title)}</span>
+      <button class="overlay-close" id="scanClose">Kapat</button>
+    </div>
+    <video id="scanVideo" autoplay playsinline></video>
+    <div class="overlay-msg" id="scanMsg">Kamerayı etikete yaklaştırın.</div>
+    ${withCapture ? '<div class="overlay-bar"><div class="overlay-bar-fill" id="ocrBar"></div></div><div class="overlay-actions"><button class="btn btn-primary" id="captureBtn">📷 Etiketi Tara</button></div>' : ''}
+  `;
+  document.body.appendChild(ov);
+  scanOverlay = ov;
+  document.getElementById('scanClose').onclick = () => closeScanner(false);
+  scanStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } } });
+  document.getElementById('scanVideo').srcObject = scanStream;
+  return ov;
+}
+
+async function detectBarcode(source) {
+  if (!('BarcodeDetector' in window)) return '';
+  try { const det = new BarcodeDetector(); const r = await det.detect(source); return r?.[0]?.rawValue || ''; }
+  catch { return ''; }
+}
+
+async function scanBarcodeValue(title) {
+  await openCamera(title, false);
+  const video = document.getElementById('scanVideo');
+  return new Promise((resolve, reject) => {
+    let tries = 0;
+    scanTimer = setInterval(async () => {
+      tries++;
+      const v = await detectBarcode(video);
+      if (v) { closeScanner(true); resolve(v); }
+      else if (tries > 120) { closeScanner(true); reject(new Error('Barkod okunamadı. Tekrar deneyin.')); }
+    }, 250);
+  });
+}
+
+async function scanToInput(id, callback) {
+  try {
+    const v = await scanBarcodeValue('Barkod Tara');
+    const el = document.getElementById(id);
+    if (el) { el.value = v; if (callback) callback(); }
+  } catch (e) { toast(e.message, 'err'); }
+}
+window.scanToInput = scanToInput;
+
+async function scanShelfToSelect(id) {
+  try {
+    const v = (await scanBarcodeValue('Raf Barkodunu Tara')).trim().toUpperCase();
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (!state.shelves.includes(v)) {
+      if (confirm(`"${v}" rafı kayıtlı değil. Eklensin mi?`)) {
+        state.shelves.push(v); state.shelves.sort(); save();
+        el.innerHTML = shelfOpts(v); el.value = v;
+        toast('Raf eklendi: ' + v);
+      }
+    } else { el.value = v; }
+  } catch (e) { toast(e.message, 'err'); }
+}
+window.scanShelfToSelect = scanShelfToSelect;
+
+// Tesseract (OCR)
+let tesseractLoading = null;
+function loadTesseract() {
+  if (window.Tesseract) return Promise.resolve(window.Tesseract);
+  if (tesseractLoading) return tesseractLoading;
+  tesseractLoading = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+    s.onload = () => resolve(window.Tesseract);
+    s.onerror = () => reject(new Error('OCR yüklenemedi.'));
+    document.head.appendChild(s);
+  });
+  return tesseractLoading;
+}
+
+function isJunk(line) {
+  line = String(line || '').trim();
+  if (!line || line.length < 2) return true;
+  if (/^(barkod|barcode|raf kodu|raf|tarih|date)/i.test(line)) return true;
+  if (/\b\d{1,2}[.\-/]\d{1,2}[.\-/]\d{2,4}\b/.test(line)) return true;
+  return false;
+}
+function normCode(v) { return String(v || '').toUpperCase().replace(/[^A-Z0-9]/g, ''); }
+function extractDesc(text, code) {
+  const lines = String(text || '').split(/\r?\n/).map(x => x.replace(/\s+/g, ' ').trim()).filter(Boolean);
+  const cn = normCode(code);
+  const ci = lines.findIndex(l => { const n = normCode(l); return cn && (n === cn || n.includes(cn)); });
+  if (ci >= 0) {
+    for (let i = ci + 1; i < Math.min(lines.length, ci + 4); i++) {
+      const l = lines[i];
+      if (!isJunk(l) && normCode(l) !== cn && /[A-ZÇĞİÖŞÜa-zçğışöü]{3,}/.test(l)) return l.trim();
+    }
+  }
+  return '';
+}
+
+async function scanProductLabel() {
+  try {
+    await openCamera('Ürün Etiketini Tara', true);
+    const video = document.getElementById('scanVideo');
+    const msg = document.getElementById('scanMsg');
+    const btn = document.getElementById('captureBtn');
+    const bar = document.getElementById('ocrBar');
+    msg.textContent = 'Etiketin tamamını net gösterin, sonra butona basın.';
+    btn.onclick = async () => {
+      btn.disabled = true; btn.textContent = 'İşleniyor...';
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth || 1280;
+      canvas.height = video.videoHeight || 720;
+      canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+      let code = await detectBarcode(canvas);
+      try {
+        const T = await loadTesseract();
+        const res = await T.recognize(canvas, 'tur+eng', { logger: m => { if (m.status === 'recognizing text' && bar) bar.style.width = Math.round((m.progress || 0) * 100) + '%'; } });
+        const raw = res?.data?.text || '';
+        if (!code) {
+          const nums = raw.match(/\b\d{6,14}\b/g) || [];
+          code = nums.sort((a, b) => b.length - a.length)[0] || '';
+        }
+        closeScanner(true);
+        goPage('products', true);
+        setTimeout(() => {
+          const pc = document.getElementById('pCode');
+          const pd = document.getElementById('pDesc');
+          const lm = document.getElementById('labelMsg');
+          if (!code) { if (lm) { lm.className = 'alert alert-error'; lm.textContent = 'Ürün kodu okunamadı.'; lm.style.display = ''; } return; }
+          const existing = pBy(code);
+          const desc = existing?.description || extractDesc(raw, code);
+          if (pc) pc.value = code;
+          if (pd) pd.value = desc;
+          if (lm) {
+            lm.style.display = '';
+            if (existing) { lm.className = 'alert alert-success'; lm.textContent = '✓ Kayıtlı ürün bulundu, bilgiler getirildi.'; }
+            else if (desc) { lm.className = 'alert alert-success'; lm.textContent = '✓ Etiket okundu. Ürün kodu ve tanımı dolduruldu.'; }
+            else { lm.className = 'alert alert-warn'; lm.textContent = '⚠ Ürün kodu okundu ancak tanım çıkarılamadı. Lütfen elle doldurun.'; }
+          }
+        }, 50);
+      } catch (e) {
+        closeScanner(true);
+        toast('OCR hatası: ' + e.message, 'err');
+      }
+    };
+  } catch (e) { closeScanner(true); toast('Kamera açılamadı: ' + e.message, 'err'); }
+}
+window.scanProductLabel = scanProductLabel;
+
+// ─── AFTER RENDER ─────────────────────────────────────────────────────────────
+function afterRender() {
+  // Enter key on shelf input
+  const ns = document.getElementById('newShelf');
+  if (ns) ns.addEventListener('keydown', e => { if (e.key === 'Enter') addShelf(); });
+  const nm = document.getElementById('newMachine');
+  if (nm) nm.addEventListener('keydown', e => { if (e.key === 'Enter') addMachine(); });
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+document.querySelectorAll('[data-page]').forEach(b => b.addEventListener('click', () => goPage(b.dataset.page)));
+history.replaceState({ page: state.page || 'dashboard' }, '', location.href);
+renderPage();
+</script>
 </body>
 </html>
