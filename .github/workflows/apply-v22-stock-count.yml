@@ -58,3 +58,4 @@ jobs:
           git add index.html count.js
           git commit -m 'v22: stok sayımı ve fark düzeltme'
           git push
+# trigger
