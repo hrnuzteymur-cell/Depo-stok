@@ -1,11 +1,37 @@
 let deferredInstallPrompt = null;
 let inventoryActionLocked = false;
+let lastIntegrityAudit = null;
+
+function renderIntegrityStatus() {
+  const target = document.getElementById('topbarExtra');
+  if (!target || !lastIntegrityAudit) return;
+  target.querySelector('#stockIntegrityBtn')?.remove();
+  const button = document.createElement('button');
+  button.id = 'stockIntegrityBtn';
+  button.className = lastIntegrityAudit.ok ? 'btn btn-secondary' : 'btn btn-danger';
+  button.style.cssText = 'font-size:11px;padding:7px 10px;margin-left:6px';
+  button.textContent = lastIntegrityAudit.ok
+    ? (lastIntegrityAudit.warnings?.length ? `Stok ✓ · ${lastIntegrityAudit.warnings.length} uyarı` : 'Stok ✓')
+    : `Stok ⚠ · ${lastIntegrityAudit.issues?.length || 1} hata`;
+  button.title = 'Stok tutarlılık kontrolünü yeniden çalıştır';
+  button.addEventListener('click', () => runStockConsistencyCheck({ silent: false }));
+  target.appendChild(button);
+}
 
 function renderInstallButton() {
   const target = document.getElementById('topbarExtra');
-  if (!target || !deferredInstallPrompt) return;
-  target.innerHTML = '<button class="btn btn-primary" id="installAppBtn" style="font-size:11px;padding:7px 12px">📲 Uygulamayı Yükle</button>';
-  document.getElementById('installAppBtn')?.addEventListener('click', installKansanApp);
+  if (!target) return;
+  target.querySelector('#installAppBtn')?.remove();
+  if (deferredInstallPrompt) {
+    const button = document.createElement('button');
+    button.className = 'btn btn-primary';
+    button.id = 'installAppBtn';
+    button.style.cssText = 'font-size:11px;padding:7px 12px';
+    button.textContent = '📲 Uygulamayı Yükle';
+    button.addEventListener('click', installKansanApp);
+    target.prepend(button);
+  }
+  renderIntegrityStatus();
 }
 
 async function installKansanApp() {
@@ -13,8 +39,7 @@ async function installKansanApp() {
   deferredInstallPrompt.prompt();
   await deferredInstallPrompt.userChoice;
   deferredInstallPrompt = null;
-  const target = document.getElementById('topbarExtra');
-  if (target) target.innerHTML = '';
+  renderInstallButton();
 }
 
 window.addEventListener('beforeinstallprompt', event => {
@@ -25,8 +50,7 @@ window.addEventListener('beforeinstallprompt', event => {
 
 window.addEventListener('appinstalled', () => {
   deferredInstallPrompt = null;
-  const target = document.getElementById('topbarExtra');
-  if (target) target.innerHTML = '';
+  renderInstallButton();
 });
 
 function loadInventoryGuards() {
@@ -40,12 +64,45 @@ function loadInventoryGuards() {
   });
 }
 
+function runStockConsistencyCheck({ silent = false } = {}) {
+  const guards = window.KansanInventoryGuards;
+  if (!guards?.auditState) {
+    if (!silent) toast('Stok tutarlılık modülü hazır değil', 'err');
+    return null;
+  }
+
+  const audit = guards.auditState(state);
+  lastIntegrityAudit = {
+    ...audit,
+    checkedAt: new Date().toISOString()
+  };
+
+  try {
+    localStorage.setItem('kansan-depo-v3-integrity', JSON.stringify(lastIntegrityAudit));
+  } catch {}
+
+  renderIntegrityStatus();
+
+  if (!silent) {
+    if (!audit.ok) {
+      toast(audit.issues[0]?.message || 'Stok tutarlılık hatası bulundu', 'err');
+    } else if (audit.warnings.length) {
+      toast(`Stok tutarlı; ${audit.warnings.length} düzenleme uyarısı var`, 'info');
+    } else {
+      toast(`Stok tutarlı ✓ Toplam ${audit.summary.totalQty.toLocaleString('tr-TR')} birim`, 'ok');
+    }
+  }
+  return audit;
+}
+window.runStockConsistencyCheck = runStockConsistencyCheck;
+
 function rollbackInventory(snapshot, message) {
   state.stock = snapshot.stock;
   state.movements = snapshot.movements;
   state.pendingCode = snapshot.pendingCode;
   save();
   renderPage();
+  runStockConsistencyCheck({ silent: true });
   toast(message || 'Stok bütünlük kontrolü başarısız. İşlem geri alındı.', 'err');
 }
 
@@ -92,6 +149,8 @@ function patchInventoryAction(name, buildValidation, expectedDelta) {
       const movementDelta = state.movements.length - beforeMoves;
       if (!integrity.ok || Math.abs(delta - expectedDelta(checked.qty)) > guards.EPS || movementDelta !== 1) {
         rollbackInventory(snapshot, integrity.ok ? 'Stok matematiği doğrulanamadı. İşlem geri alındı.' : `${integrity.error}. İşlem geri alındı.`);
+      } else {
+        runStockConsistencyCheck({ silent: true });
       }
     } catch (error) {
       rollbackInventory(snapshot, 'İşlem sırasında hata oluştu. Stok geri alındı.');
@@ -172,6 +231,7 @@ window.addEventListener('load', async () => {
   try {
     await loadInventoryGuards();
     enableInventoryGuards();
+    runStockConsistencyCheck({ silent: true });
   } catch (error) {
     console.error(error);
   }
