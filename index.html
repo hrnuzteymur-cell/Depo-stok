@@ -1,127 +1,236 @@
 <!DOCTYPE html>
-<html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#102a36"><title>Kansan Depo</title><style>
-:root{--bg:#f3f5f4;--s:#fff;--ink:#172326;--m:#718086;--line:#e3e8e6;--n:#102a36;--n2:#173b4c;--a:#e4a21a;--g:#2e7c58;--r:#b7443c}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}.app{min-height:100vh}.side{position:fixed;left:0;top:0;bottom:0;width:238px;background:var(--n);color:#fff;padding:22px 15px}.brand{padding:5px 10px 22px;border-bottom:1px solid #ffffff18;margin-bottom:15px}.mark{width:42px;height:42px;border-radius:13px;background:var(--a);color:var(--n);display:grid;place-items:center;font-weight:900;margin-bottom:10px}.brand b{display:block}.brand small{color:#9fb2bb}.nav{display:flex;flex-direction:column;gap:5px}.nav button{border:0;background:transparent;color:#b8c7cd;border-radius:11px;padding:12px;text-align:left;font-weight:700}.nav button.active{background:#ffffff18;color:#fff}.top{margin-left:238px;height:66px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 26px;font-weight:800;position:sticky;top:0;z-index:10}main{margin-left:238px;padding:25px 28px 85px}.welcome h2,.head h2{margin:4px 0 6px;font-size:27px}.welcome p,.head p,.note{color:var(--m);font-size:11px}.ey{font-size:9px;letter-spacing:.15em;color:#789097;font-weight:900}.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin:18px 0}.act{border:1px solid var(--line);background:#fff;border-radius:16px;min-height:92px;padding:15px;text-align:left}.act b,.act small{display:block}.act b{font-size:13px}.act small{font-size:9px;color:var(--m);margin-top:4px}.act.primary{background:var(--n2);color:#fff}.act.primary small{color:#c2d0d6}.panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:17px;margin-bottom:14px}.title{font-weight:900;font-size:13px;margin-bottom:13px}.grid{display:grid;gap:10px}.g2{grid-template-columns:repeat(2,1fr)}.g4{grid-template-columns:repeat(4,1fr)}.field{display:flex;flex-direction:column;gap:6px}.field label{font-size:9px;text-transform:uppercase;color:#74868c;font-weight:900}input,select{width:100%;border:1px solid #dce3e1;background:#fbfcfc;border-radius:10px;padding:11px 12px;outline:none}.scan{display:flex;gap:7px}.scan input{flex:1}.btn{border:0;border-radius:10px;padding:11px 14px;background:var(--n2);color:#fff;font-weight:800}.btn.sec{background:#edf2f1;color:var(--n2)}.table{overflow:auto;border:1px solid #edf0ef;border-radius:12px}table{width:100%;border-collapse:collapse;font-size:11px}th,td{padding:10px;border-bottom:1px solid #edf0ef;white-space:nowrap;text-align:left}th{font-size:8px;text-transform:uppercase;color:#7c8c92;background:#f8faf9}.badge{padding:4px 7px;border-radius:999px;font-size:8px;font-weight:900}.in{background:#e5f3eb;color:var(--g)}.out{background:#f8e8e6;color:var(--r)}.move{background:#eaf0f3;color:var(--n2)}.empty{text-align:center;color:var(--m);padding:28px}.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}.chip{display:inline-flex;gap:7px;align-items:center;background:#edf2f1;border-radius:999px;padding:6px 9px;font-size:11px}.chip button{border:0;background:transparent;color:var(--r);font-weight:900}.bottom{display:none}
-@media(max-width:900px){.actions{grid-template-columns:repeat(2,1fr)}.g4{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:720px){.side{display:none}.top{margin-left:0;height:58px;padding:0 15px}main{margin-left:0;padding:18px 12px 92px}.welcome h2,.head h2{font-size:23px}.actions{grid-template-columns:1fr 1fr;gap:9px}.act{min-height:104px}.g4,.g2{grid-template-columns:1fr}.panel{padding:14px}.bottom{position:fixed;left:8px;right:8px;bottom:8px;height:66px;background:#102a36f6;border-radius:19px;display:grid;grid-template-columns:repeat(6,1fr);padding:6px;z-index:30}.bottom button{border:0;background:transparent;color:#9fb2ba;border-radius:13px;font-size:8px;font-weight:800}.bottom button.active{background:#ffffff18;color:#fff}}
-
-.scanrow{display:flex;gap:8px;align-items:stretch;width:100%}.scanrow input{flex:1;min-width:0}.scanbtn{width:56px;min-width:56px;border:0;border-radius:11px;background:#e8efef;color:#173b4c;font-size:22px;font-weight:800;display:grid;place-items:center;cursor:pointer}.scanbtn:active{transform:scale(.97)}
-</style></head><body><div class="app"><aside class="side"><div class="brand"><div class="mark">K</div><b>KANSAN DEPO</b><small>Stok & Lokasyon Yönetimi</small></div><nav class="nav"><button data-tab="dashboard" class="active">⌂ Ana Sayfa</button><button data-tab="urunler">□ Ürünler</button><button data-tab="giris">＋ Stok Girişi</button><button data-tab="ara">⌕ Ürün Ara</button><button data-tab="raf">▦ Raf Sorgula</button><button data-tab="transfer">⇄ Raf Transferi</button><button data-tab="makine">⚙ Makineye Çıkış</button><button data-tab="hareket">≡ Hareketler</button></nav></aside><header class="top">Depo Yönetim Paneli</header><main id="main"></main><nav class="bottom"><button data-tab="dashboard" class="active">⌂<br>Ana</button><button data-tab="urunler">□<br>Ürün</button><button data-tab="ara">⌕<br>Ara</button><button data-tab="giris">＋<br>Giriş</button><button data-tab="transfer">⇄<br>Transfer</button><button data-tab="raf">▦<br>Raf</button></nav></div><script>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#102a36">
+<title>Kansan Depo</title>
+<style>
+:root{--bg:#f3f5f4;--s:#fff;--ink:#172326;--m:#718086;--line:#e3e8e6;--n:#102a36;--n2:#173b4c;--a:#e4a21a;--g:#2e7c58;--r:#b7443c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+button,input,select,textarea{font:inherit}.app{min-height:100vh}.side{position:fixed;left:0;top:0;bottom:0;width:238px;background:var(--n);color:#fff;padding:22px 15px;z-index:20}
+.brand{padding:5px 10px 22px;border-bottom:1px solid #ffffff18;margin-bottom:15px}.mark{width:42px;height:42px;border-radius:13px;background:var(--a);color:var(--n);display:grid;place-items:center;font-weight:900;margin-bottom:10px}
+.brand b{display:block}.brand small{color:#9fb2bb}.nav{display:flex;flex-direction:column;gap:5px}.nav button{border:0;background:transparent;color:#b8c7cd;border-radius:11px;padding:12px;text-align:left;font-weight:700}
+.nav button.active{background:#ffffff18;color:#fff}.top{margin-left:238px;height:66px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 26px;font-weight:800;position:sticky;top:0;z-index:10}
+main{margin-left:238px;padding:25px 28px 85px}.welcome h2,.head h2{margin:4px 0 6px;font-size:27px}.welcome p,.head p,.note{color:var(--m);font-size:11px}.ey{font-size:9px;letter-spacing:.15em;color:#789097;font-weight:900}
+.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin:18px 0}.act{border:1px solid var(--line);background:#fff;border-radius:16px;min-height:92px;padding:15px;text-align:left;cursor:pointer}.act b,.act small{display:block}
+.act b{font-size:13px}.act small{font-size:9px;color:var(--m);margin-top:4px}.act.primary{background:var(--n2);color:#fff}.act.primary small{color:#c2d0d6}.panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:17px;margin-bottom:14px}
+.panel.accent{border:2px solid #cfe0da}.title{font-weight:900;font-size:13px;margin-bottom:13px}.grid{display:grid;gap:10px}.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.field{display:flex;flex-direction:column;gap:6px}.field label{font-size:9px;text-transform:uppercase;color:#74868c;font-weight:900}input,select,textarea{width:100%;border:1px solid #dce3e1;background:#fbfcfc;border-radius:10px;padding:11px 12px;outline:none;color:var(--ink)}
+textarea{min-height:82px;resize:vertical}input:focus,select:focus,textarea:focus{border-color:#6d8c98;box-shadow:0 0 0 3px #edf2f3}.scanrow,.row{display:flex;gap:8px;align-items:stretch;width:100%}.scanrow input{flex:1;min-width:0}
+.btn,.scanbtn{border:0;border-radius:10px;font-weight:800;cursor:pointer}.btn{padding:11px 14px;background:var(--n2);color:#fff}.btn.sec{background:#edf2f1;color:var(--n2)}.btn.danger{background:var(--r)}.scanbtn{width:56px;min-width:56px;background:#e8efef;color:#173b4c;font-size:22px;display:grid;place-items:center}
+.scanbig{width:100%;min-height:82px;border:2px dashed #b8cac4;border-radius:14px;background:#f7faf9;color:var(--n2);font-weight:900;font-size:16px;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer}.scanbig span{font-size:28px}
+.status{margin-top:10px;padding:10px 12px;border-radius:10px;background:#f1f5f4;font-size:11px;color:#5f7279}.status.ok{background:#e8f4ed;color:#286a4a}.status.warn{background:#fff4dc;color:#7a5a13}.status.err{background:#f9e9e7;color:#923b35}
+.table{overflow:auto;border:1px solid #edf0ef;border-radius:12px}table{width:100%;border-collapse:collapse;font-size:11px}th,td{padding:10px;border-bottom:1px solid #edf0ef;white-space:nowrap;text-align:left}th{font-size:8px;text-transform:uppercase;color:#7c8c92;background:#f8faf9}
+.badge{padding:4px 7px;border-radius:999px;font-size:8px;font-weight:900}.in{background:#e5f3eb;color:var(--g)}.out{background:#f8e8e6;color:var(--r)}.move{background:#eaf0f3;color:var(--n2)}.empty{text-align:center;color:var(--m);padding:28px}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}.chip{display:inline-flex;gap:7px;align-items:center;background:#edf2f1;border-radius:999px;padding:6px 9px;font-size:11px}.chip button{border:0;background:transparent;color:var(--r);font-weight:900}
+.bottom{display:none}.overlay{position:fixed;inset:0;background:rgba(6,20,27,.94);z-index:99999;padding:16px;color:#fff;display:flex;flex-direction:column}.overlay-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.overlay video{width:100%;max-height:62vh;object-fit:cover;border-radius:14px;background:#111}.overlay-actions{display:flex;gap:9px;margin-top:12px}.overlay-actions .btn{flex:1}.overlay-msg{padding:10px 2px;font-size:12px;color:#c8d5da}.progress{height:7px;background:#ffffff20;border-radius:999px;overflow:hidden;margin-top:8px}.progress i{display:block;height:100%;width:0;background:#e4a21a;transition:width .2s}
+@media(max-width:900px){.actions{grid-template-columns:repeat(2,1fr)}.g4,.g3{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:720px){.side{display:none}.top{margin-left:0;height:58px;padding:0 15px}main{margin-left:0;padding:18px 12px 92px}.welcome h2,.head h2{font-size:23px}.actions{grid-template-columns:1fr 1fr;gap:9px}.act{min-height:104px}.g4,.g3,.g2{grid-template-columns:1fr}.panel{padding:14px}.bottom{position:fixed;left:8px;right:8px;bottom:8px;height:66px;background:#102a36f6;border-radius:19px;display:grid;grid-template-columns:repeat(6,1fr);padding:6px;z-index:30}.bottom button{border:0;background:transparent;color:#9fb2ba;border-radius:13px;font-size:8px;font-weight:800}.bottom button.active{background:#ffffff18;color:#fff}.overlay{padding:10px}.overlay video{max-height:58vh}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="side">
+ <div class="brand"><div class="mark">K</div><b>KANSAN DEPO</b><small>Stok & Lokasyon Yönetimi</small></div>
+ <nav class="nav">
+  <button data-tab="dashboard">⌂ Ana Sayfa</button><button data-tab="urunler">□ Ürünler</button><button data-tab="giris">＋ Stok Girişi</button><button data-tab="ara">⌕ Ürün Ara</button><button data-tab="raf">▦ Raf Yönetimi</button><button data-tab="transfer">⇄ Raf Transferi</button><button data-tab="makine">⚙ Makineye Çıkış</button><button data-tab="hareket">≡ Hareketler</button>
+ </nav>
+</aside>
+<header class="top">Depo Yönetim Paneli</header>
+<main id="main"></main>
+<nav class="bottom">
+ <button data-tab="dashboard">⌂<br>Ana</button><button data-tab="urunler">□<br>Ürün</button><button data-tab="ara">⌕<br>Ara</button><button data-tab="giris">＋<br>Giriş</button><button data-tab="transfer">⇄<br>Transfer</button><button data-tab="raf">▦<br>Raf</button>
+</nav>
+</div>
+<script>
 const KEY='kansan-depo-v2';
-function load(){try{return JSON.parse(localStorage.getItem(KEY))}catch(e){return null}}
-const state=load()||{products:[],stock:[],movements:[],machines:[],tab:'dashboard'};
-if(!Array.isArray(state.products))state.products=[];if(!Array.isArray(state.stock))state.stock=[];if(!Array.isArray(state.movements))state.movements=[];if(!Array.isArray(state.machines))state.machines=[];
-state.machines=state.machines.filter(m=>!['LINE-1','LINE-2','OFFLINE-1'].includes(String(m).toUpperCase()));localStorage.setItem(KEY,JSON.stringify(state));
-function save(){localStorage.setItem(KEY,JSON.stringify(state))}function uid(){return Date.now()+'-'+Math.random().toString(36).slice(2,8)}function now(){return new Date().toLocaleString('tr-TR')}function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}function num(v){let n=Number(v);return Number.isFinite(n)?n:0}function pBy(b){return state.products.find(p=>p.barcode===b)}function qty(b){return state.stock.filter(s=>s.barcode===b).reduce((a,s)=>a+s.qty,0)}function at(b,l){return state.stock.find(s=>s.barcode===b&&s.location===l)}function ensure(b){let p=pBy(b);if(!p){alert('Bu barkod ürün kartlarında kayıtlı değil. Önce Ürün sekmesinden yeni ürün oluştur.');return null}return p}function addStock(b,l,q){let s=at(b,l);s?s.qty+=q:state.stock.push({id:uid(),barcode:b,location:l,qty:q});state.stock=state.stock.filter(x=>x.qty>0)}function remStock(b,l,q){let s=at(b,l);if(!s||s.qty<q)return false;s.qty-=q;state.stock=state.stock.filter(x=>x.qty>0);return true}function move(type,b,q,from='',to='',machine='',note=''){let p=pBy(b);state.movements.unshift({id:uid(),date:now(),type,barcode:b,productName:p?.name||'',qty:q,from,to,machine,note})}
-function dash(){let tq=state.stock.reduce((a,s)=>a+s.qty,0),loc=new Set(state.stock.map(s=>s.location)).size;return `<section class="welcome"><span class="ey">DEPO YÖNETİMİ</span><h2>Bugün ne yapmak istiyorsun?</h2><p>Ürün tanımla, bul, rafa al, transfer et veya makineye çıkar.</p></section><section class="actions"><button class="act primary" onclick="go('giris')"><b>＋ Stok Girişi</b><small>Ürünü rafa yerleştir</small></button><button class="act" onclick="go('urunler')"><b>□ Ürünler / Yeni Ürün</b><small>Barkodlu ürün kartı oluştur</small></button><button class="act" onclick="go('ara')"><b>⌕ Ürün Bul</b><small>Hangi rafta olduğunu gör</small></button><button class="act" onclick="go('raf')"><b>▦ Rafı Aç</b><small>Raftaki ürünleri listele</small></button><button class="act" onclick="go('transfer')"><b>⇄ Transfer</b><small>Raftan rafa taşı</small></button><button class="act" onclick="go('makine')"><b>⚙ Makineye Çıkış</b><small>Makineyi kendin tanımla</small></button></section><div class="panel"><div class="title">Özet</div><div class="grid g4"><div><b>${state.products.length}</b><div class="note">Ürün</div></div><div><b>${tq}</b><div class="note">Stok</div></div><div><b>${loc}</b><div class="note">Aktif Raf</div></div><div><b>${state.movements.length}</b><div class="note">Hareket</div></div></div></div>`}
-function products(){return `<div class="head"><span class="ey">ÜRÜN YÖNETİMİ</span><h2>Ürün Kartları</h2><p>Yeni ürün eklemek için barkodu, adı ve birimi kaydet.</p></div><div class="panel"><div class="title">Yeni Ürün Ekle</div><div class="grid g4"><div class="field"><label>Barkod</label><div class="scanrow"><input id="pBarcode" placeholder="Ürün barkodu"><button class="scanbtn" type="button" onclick="scanTo('pBarcode')" title="Ürün barkodunu okut" aria-label="Ürün barkodunu okut">📷</button></div></div><div class="field"><label>Ürün Kodu</label><div class="scanrow"><input id="pCode" placeholder="Kodu okut veya yaz"><button class="scanbtn" type="button" onclick="scanTo(\'pCode\')" title="Ürün kodunu okut" aria-label="Ürün kodunu okut">📷</button></div></div><div class="field"><label>Ürün Adı</label><input id="pName"></div><div class="field"><label>Birim</label><select id="pUnit"><option>Adet</option><option>Kg</option><option>Bobin</option><option>Palet</option><option>Koli</option></select></div></div><div style="margin-top:12px"><button class="btn" onclick="addProduct()">Ürünü Kaydet</button></div></div><div class="panel"><div class="title">Kayıtlı Ürünler (${state.products.length})</div>${state.products.length?`<div class="table"><table><thead><tr><th>Barkod</th><th>Kod</th><th>Ürün</th><th>Birim</th><th>Stok</th></tr></thead><tbody>${state.products.map(p=>`<tr><td>${esc(p.barcode)}</td><td>${esc(p.code)}</td><td>${esc(p.name)}</td><td>${esc(p.unit)}</td><td>${qty(p.barcode)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Henüz ürün yok.</div>'}</div>`}function addProduct(){let b=pBarcode.value.trim(),c=pCode.value.trim(),n=pName.value.trim(),u=pUnit.value;if(!b||!n)return alert('Barkod ve ürün adı zorunlu.');if(pBy(b))return alert('Bu barkod zaten kayıtlı.');state.products.push({id:uid(),barcode:b,code:c,name:n,unit:u});save();alert('Ürün kaydedildi.');render()}
-function entry(){return `<div class="panel"><div class="title">Stok Girişi</div><div class="grid g4"><div class="field"><label>Ürün Barkodu</label><div class="scanrow"><input id="eBarcode"><button class="scanbtn" type="button" onclick="scanTo('eBarcode')" title="Ürün barkodunu okut" aria-label="Ürün barkodunu okut">📷</button></div></div><div class="field"><label>Raf / Lokasyon</label><div class="scanrow"><input id="eLocation" placeholder="Örn. 1A.1.1"><button class="scanbtn" type="button" onclick="scanTo('eLocation')" title="Raf barkodunu okut" aria-label="Raf barkodunu okut">📷</button></div></div><div class="field"><label>Miktar</label><input id="eQty" type="number" min="0"></div><div class="field"><label>Not</label><input id="eNote"></div></div><div style="margin-top:12px"><button class="btn" onclick="entrySave()">Stoka Al</button></div></div>`}function entrySave(){let b=eBarcode.value.trim(),l=eLocation.value.trim().toUpperCase(),q=num(eQty.value);if(!ensure(b)||!l||q<=0)return;addStock(b,l,q);move('GIRIS',b,q,'',l,'',eNote.value.trim());save();alert('Stok girişi kaydedildi.');render()}
-function searchPage(){return `<div class="panel"><div class="title">Ürün Ara</div><div class="scan"><div class="scanrow"><input id="sQuery" placeholder="Barkod, kod veya ürün adı"><button class="scanbtn" type="button" onclick="scanTo('sQuery')" title="Ürün barkodu veya kodunu okut" aria-label="Ürün barkodu veya kodunu okut">📷</button></div><button class="btn" onclick="doSearch()">Ara</button></div><div id="sResult" style="margin-top:13px"></div></div>`}function doSearch(){let q=sQuery.value.trim().toLowerCase(),ps=state.products.filter(p=>[p.barcode,p.code,p.name].some(v=>String(v).toLowerCase().includes(q)));sResult.innerHTML=ps.length?ps.map(p=>{let r=state.stock.filter(s=>s.barcode===p.barcode);return `<div class="panel"><b>${esc(p.name)}</b><div class="note">${esc(p.barcode)} · ${esc(p.code)}</div>${r.length?`<div class="table" style="margin-top:8px"><table><thead><tr><th>Raf</th><th>Miktar</th></tr></thead><tbody>${r.map(s=>`<tr><td>${esc(s.location)}</td><td>${s.qty} ${esc(p.unit)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="note" style="margin-top:8px">Stokta yok.</div>'}</div>`}).join(''):'<div class="empty">Ürün bulunamadı.</div>'}
-function raf(){return `<div class="panel"><div class="title">Raf Sorgula</div><div class="scan"><div class="scanrow"><input id="lQuery" placeholder="Raf kodu"><button class="scanbtn" type="button" onclick="scanTo('lQuery')" title="Raf barkodunu okut" aria-label="Raf barkodunu okut">📷</button></div><button class="btn" onclick="doRaf()">Sorgula</button></div><div id="lResult" style="margin-top:13px"></div></div>`}function doRaf(){let l=lQuery.value.trim().toUpperCase(),r=state.stock.filter(s=>s.location===l);lResult.innerHTML=r.length?`<div class="table"><table><thead><tr><th>Ürün</th><th>Barkod</th><th>Miktar</th></tr></thead><tbody>${r.map(s=>{let p=pBy(s.barcode);return `<tr><td>${esc(p?.name||'')}</td><td>${esc(s.barcode)}</td><td>${s.qty} ${esc(p?.unit||'')}</td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">Bu rafta stok yok.</div>'}
-function transfer(){return `<div class="panel"><div class="title">Raf Transferi</div><div class="grid g4"><div class="field"><label>Ürün Barkodu</label><div class="scanrow"><input id="tBarcode"><button class="scanbtn" type="button" onclick="scanTo('tBarcode')" title="Ürün barkodunu okut" aria-label="Ürün barkodunu okut">📷</button></div></div><div class="field"><label>Kaynak Raf</label><div class="scanrow"><input id="tFrom"><button class="scanbtn" type="button" onclick="scanTo('tFrom')" title="Kaynak rafı okut" aria-label="Kaynak rafı okut">📷</button></div></div><div class="field"><label>Hedef Raf</label><div class="scanrow"><input id="tTo"><button class="scanbtn" type="button" onclick="scanTo('tTo')" title="Hedef rafı okut" aria-label="Hedef rafı okut">📷</button></div></div><div class="field"><label>Miktar</label><input id="tQty" type="number"></div></div><div style="margin-top:12px"><button class="btn" onclick="transferSave()">Transfer Et</button></div></div>`}function transferSave(){let b=tBarcode.value.trim(),f=tFrom.value.trim().toUpperCase(),t=tTo.value.trim().toUpperCase(),q=num(tQty.value);if(!ensure(b)||!f||!t||q<=0)return;if(f===t)return alert('Kaynak ve hedef aynı olamaz.');if(!remStock(b,f,q))return alert('Kaynak rafta yeterli stok yok.');addStock(b,t,q);move('TRANSFER',b,q,f,t);save();alert('Transfer tamamlandı.');render()}
-function machine(){let opts=state.machines.length?`<option value="">Makine seçiniz</option>${state.machines.map(m=>`<option>${esc(m)}</option>`).join('')}`:'<option value="">Önce aşağıdan makine ekleyin</option>';return `<div class="panel"><div class="title">Makineye Çıkış</div><div class="grid g4"><div class="field"><label>Barkod</label><div class="scanrow"><input id="mBarcode"><button class="scanbtn" type="button" onclick="scanTo('mBarcode')" title="Ürün barkodunu okut" aria-label="Ürün barkodunu okut">📷</button></div></div><div class="field"><label>Çıkış Rafı</label><div class="scanrow"><input id="mFrom"><button class="scanbtn" type="button" onclick="scanTo('mFrom')" title="Çıkış rafını okut" aria-label="Çıkış rafını okut">📷</button></div></div><div class="field"><label>Miktar</label><input id="mQty" type="number"></div><div class="field"><label>Makine</label><select id="mMachine">${opts}</select></div></div><div class="grid g2" style="margin-top:10px"><div class="field"><label>Operatör</label><input id="mOperator"></div><div class="field"><label>Not</label><input id="mNote"></div></div><div style="margin-top:12px"><button class="btn" onclick="machineSave()">Makineye Ver / Stoktan Düş</button></div></div><div class="panel"><div class="title">Makine Tanımları</div><div class="scan"><input id="newMachine" placeholder="Makine adını manuel yaz"><button class="btn sec" onclick="addMachine()">Kaydet</button></div>${state.machines.length?`<div class="chips">${state.machines.map(m=>`<span class="chip"><b>${esc(m)}</b><button onclick="removeMachine('${String(m).replace(/'/g,"\\'")}')">×</button></span>`).join('')}</div>`:'<div class="note" style="margin-top:10px">Henüz kayıtlı makine yok.</div>'}</div>`}function addMachine(){let v=newMachine.value.trim().toUpperCase();if(!v)return alert('Makine adını yaz.');if(state.machines.includes(v))return alert('Bu makine zaten kayıtlı.');state.machines.push(v);save();render()}function removeMachine(v){if(!confirm(v+' silinsin mi?'))return;state.machines=state.machines.filter(m=>m!==v);save();render()}function machineSave(){let b=mBarcode.value.trim(),f=mFrom.value.trim().toUpperCase(),q=num(mQty.value),m=mMachine.value;if(!ensure(b)||!f||q<=0)return;if(!m)return alert('Önce makine seç veya yeni makine kaydet.');if(!remStock(b,f,q))return alert('Bu rafta yeterli stok yok.');move('MAKINE',b,q,f,'',m,(mOperator.value.trim()?('Operatör: '+mOperator.value.trim()+' · '):'')+mNote.value.trim());save();alert('Makine çıkışı kaydedildi.');render()}
-function movementTable(r){if(!r.length)return '<div class="empty">Hareket kaydı yok.</div>';return `<div class="table"><table><thead><tr><th>Tarih</th><th>Tür</th><th>Ürün</th><th>Barkod</th><th>Miktar</th><th>Kaynak</th><th>Hedef</th><th>Makine</th></tr></thead><tbody>${r.map(x=>`<tr><td>${esc(x.date)}</td><td><span class="badge ${x.type==='GIRIS'?'in':x.type==='TRANSFER'?'move':'out'}">${esc(x.type)}</span></td><td>${esc(x.productName)}</td><td>${esc(x.barcode)}</td><td>${x.qty}</td><td>${esc(x.from)}</td><td>${esc(x.to)}</td><td>${esc(x.machine)}</td></tr>`).join('')}</tbody></table></div>`}function movements(){return `<div class="panel"><div class="title">Stok Hareket Geçmişi</div>${movementTable(state.movements)}</div>`}
-function render(){document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===state.tab));main.innerHTML=state.tab==='dashboard'?dash():state.tab==='urunler'?products():state.tab==='giris'?entry():state.tab==='ara'?searchPage():state.tab==='raf'?raf():state.tab==='transfer'?transfer():state.tab==='makine'?machine():movements()}function go(t){state.tab=t;save();render()}document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.tab));render();
-</script>
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||null}catch(e){return null}}
+const state=load()||{products:[],stock:[],movements:[],machines:[],shelves:[],tab:'dashboard',pendingPlacementCode:''};
+if(!Array.isArray(state.products))state.products=[];if(!Array.isArray(state.stock))state.stock=[];if(!Array.isArray(state.movements))state.movements=[];if(!Array.isArray(state.machines))state.machines=[];if(!Array.isArray(state.shelves))state.shelves=[];
+state.machines=state.machines.filter(m=>!['LINE-1','LINE-2','OFFLINE-1'].includes(String(m).toUpperCase()));
+state.products=state.products.map(p=>({...p,productCode:String(p.productCode||p.barcode||p.code||'').trim(),description:String(p.description||p.name||'').trim()})).filter(p=>p.productCode);
+state.stock=state.stock.map(s=>({...s,barcode:String(s.barcode||s.productCode||'').trim(),location:String(s.location||'').toUpperCase()}));
+state.stock.forEach(s=>{if(s.location&&!state.shelves.includes(s.location))state.shelves.push(s.location)});
+state.shelves=[...new Set(state.shelves.map(x=>String(x).trim().toUpperCase()).filter(Boolean))].sort();
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+save();
 
-<script id="KANSAN_REAL_SCANNER_V2">
-let __kScanStream=null,__kScanTimer=null,__kScanOverlay=null;
-function closeKansanScanner(){
-  if(__kScanTimer){clearInterval(__kScanTimer);__kScanTimer=null;}
-  if(__kScanStream){__kScanStream.getTracks().forEach(t=>t.stop());__kScanStream=null;}
-  if(__kScanOverlay){__kScanOverlay.remove();__kScanOverlay=null;}
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function uid(){return Date.now()+'-'+Math.random().toString(36).slice(2,8)}
+function now(){return new Date().toLocaleString('tr-TR')}
+function num(v){const n=Number(v);return Number.isFinite(n)?n:0}
+function pBy(code){code=String(code||'').trim();return state.products.find(p=>p.productCode===code)}
+function qty(code){return state.stock.filter(s=>s.barcode===code).reduce((a,s)=>a+num(s.qty),0)}
+function at(code,loc){return state.stock.find(s=>s.barcode===code&&s.location===loc)}
+function ensure(code){const p=pBy(code);if(!p){alert('Bu ürün kodu kayıtlı değil. Önce Ürün sekmesinden etiketi tarayıp ürün oluştur.');return null}return p}
+function addStock(code,loc,q){let s=at(code,loc);s?s.qty+=q:state.stock.push({id:uid(),barcode:code,location:loc,qty:q});state.stock=state.stock.filter(x=>x.qty>0)}
+function remStock(code,loc,q){let s=at(code,loc);if(!s||s.qty<q)return false;s.qty-=q;state.stock=state.stock.filter(x=>x.qty>0);return true}
+function movement(type,code,q,from='',to='',machine='',note=''){const p=pBy(code);state.movements.unshift({id:uid(),date:now(),type,barcode:code,productName:p?.description||'',qty:q,from,to,machine,note})}
+function shelfOptions(selected=''){if(!state.shelves.length)return '<option value="">Önce Raf bölümünden raf ekleyin</option>';return '<option value="">Raf seçiniz</option>'+state.shelves.map(r=>`<option value="${esc(r)}" ${r===selected?'selected':''}>${esc(r)}</option>`).join('')}
+function navActive(){document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===state.tab))}
+function go(t){state.tab=t;save();render()}
+
+function dashboard(){
+ const tq=state.stock.reduce((a,s)=>a+num(s.qty),0),loc=new Set(state.stock.map(s=>s.location)).size;
+ return `<section class="welcome"><span class="ey">DEPO YÖNETİMİ</span><h2>Bugün ne yapmak istiyorsun?</h2><p>Etiketi tara, ürünü rafa al, transfer et veya makineye çıkar.</p></section>
+ <section class="actions">
+ <button class="act primary" onclick="go('urunler')"><b>📷 Etiketi Tara / Ürün Ekle</b><small>Tek görüntüden kod ve tanımı al</small></button>
+ <button class="act" onclick="go('giris')"><b>＋ Stok Girişi</b><small>Kayıtlı ürünü rafa ekle</small></button>
+ <button class="act" onclick="go('ara')"><b>⌕ Ürün Bul</b><small>Hangi rafta olduğunu gör</small></button>
+ <button class="act" onclick="go('raf')"><b>▦ Raf Yönetimi</b><small>Raf tanımla veya sorgula</small></button>
+ <button class="act" onclick="go('transfer')"><b>⇄ Transfer</b><small>Raftan rafa taşı</small></button>
+ <button class="act" onclick="go('makine')"><b>⚙ Makineye Çıkış</b><small>Makineyi seç ve stoktan düş</small></button></section>
+ <div class="panel"><div class="title">Özet</div><div class="grid g4"><div><b>${state.products.length}</b><div class="note">Ürün</div></div><div><b>${tq}</b><div class="note">Stok</div></div><div><b>${loc}</b><div class="note">Aktif Raf</div></div><div><b>${state.movements.length}</b><div class="note">Hareket</div></div></div></div>`;
 }
-async function scanTo(targetId){
-  const target=document.getElementById(targetId);if(!target)return;
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){alert('Bu tarayıcı kamera erişimini desteklemiyor.');return;}
-  if(!('BarcodeDetector' in window)){alert('Bu telefondaki tarayıcı barkod algılamayı desteklemiyor. Chrome ile açmayı dene.');return;}
-  closeKansanScanner();
-  const ov=document.createElement('div');__kScanOverlay=ov;
-  ov.style.cssText='position:fixed;inset:0;background:rgba(6,20,27,.92);z-index:99999;display:flex;flex-direction:column;padding:18px;color:white';
-  ov.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><b>Barkodu okut</b><button id="kScanClose" style="border:0;background:white;color:#173b4c;border-radius:10px;padding:10px 14px;font-weight:800">Kapat</button></div><video id="kScanVideo" autoplay playsinline style="width:100%;max-height:70vh;object-fit:cover;border-radius:14px;background:#111"></video><div style="padding:12px 2px;font-size:13px;color:#c8d5da">Barkodu kameraya göster.</div>';
-  document.body.appendChild(ov);document.getElementById('kScanClose').onclick=closeKansanScanner;
-  try{
-    __kScanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}});
-    const video=document.getElementById('kScanVideo');video.srcObject=__kScanStream;
-    const detector=new BarcodeDetector();
-    __kScanTimer=setInterval(async()=>{try{const codes=await detector.detect(video);if(codes&&codes.length){target.value=codes[0].rawValue||'';target.dispatchEvent(new Event('input',{bubbles:true}));closeKansanScanner();}}catch(e){}},250);
-  }catch(e){closeKansanScanner();alert('Kamera açılamadı. Tarayıcı kamera iznini kontrol et.');}
+
+function products(){
+ const pending=state.pendingPlacementCode,p=pending?pBy(pending):null;
+ const placement=p?`<div class="panel accent"><div class="title">Rafa Yerleştir</div><div class="note" style="margin-bottom:12px"><b>${esc(p.productCode)} — ${esc(p.description)}</b><br>Ürün kaydedildi. Şimdi aynı ekrandan rafa yerleştirebilirsin.</div><div class="grid g3"><div class="field"><label>Kayıtlı Raf</label><select id="npShelf">${shelfOptions()}</select></div><div class="field"><label>Miktar</label><input id="npQty" type="number" min="0" step="0.01" placeholder="Miktar"></div><div class="field"><label>Not</label><input id="npNote" placeholder="İsteğe bağlı"></div></div><div class="row" style="margin-top:12px;flex-wrap:wrap"><button class="btn" onclick="placeNewProduct()">Rafa Yerleştir / Stoka Al</button><button class="btn sec" onclick="cancelPlacement()">Daha Sonra</button>${!state.shelves.length?'<button class="btn sec" onclick="go(\'raf\')">Önce Raf Ekle</button>':''}</div></div>`:'';
+ return `<div class="head"><span class="ey">ÜRÜN YÖNETİMİ</span><h2>Etiketi Tek Seferde Tara</h2><p>Barkod ürün koduna, etiketteki yazı ise ürün tanımına otomatik ayrılır.</p></div>
+ <div class="panel">
+  <button class="scanbig" onclick="scanProductLabel()"><span>📷</span> ETİKETİ TARA</button>
+  <div id="labelStatus" class="status">Etiketi kameraya göster. Tek görüntüden ürün kodu ve tanımı çıkarılacak.</div>
+  <div class="grid g3" style="margin-top:13px">
+   <div class="field"><label>Ürün Kodu (Barkoddan)</label><input id="pCode" placeholder="Etiketi tara" inputmode="numeric"></div>
+   <div class="field"><label>Ürün Tanımı (OCR)</label><textarea id="pDescription" placeholder="Etiketten otomatik okunacak"></textarea></div>
+   <div class="field"><label>Birim</label><select id="pUnit"><option>Adet</option><option>Kg</option><option>Bobin</option><option>Palet</option><option>Koli</option></select></div>
+  </div>
+  <div style="margin-top:12px"><button class="btn" onclick="saveProductAndPlace()">Kaydet ve Rafa Yerleştir</button></div>
+ </div>
+ ${placement}
+ <div class="panel"><div class="title">Kayıtlı Ürünler (${state.products.length})</div>${state.products.length?`<div class="table"><table><thead><tr><th>Ürün Kodu</th><th>Ürün Tanımı</th><th>Birim</th><th>Stok</th></tr></thead><tbody>${state.products.map(p=>`<tr><td>${esc(p.productCode)}</td><td>${esc(p.description)}</td><td>${esc(p.unit||'Adet')}</td><td>${qty(p.productCode)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Henüz ürün yok.</div>'}</div>`;
 }
+function saveProductAndPlace(){
+ const code=document.getElementById('pCode').value.trim(),description=document.getElementById('pDescription').value.trim(),unit=document.getElementById('pUnit').value;
+ if(!code)return alert('Önce etiketi tarayıp ürün kodunu al.');
+ if(!description)return alert('Ürün tanımı boş. OCR sonucunu kontrol et veya tanımı elle düzelt.');
+ let p=pBy(code);
+ if(p){p.description=description||p.description;p.unit=unit||p.unit}else state.products.push({id:uid(),productCode:code,barcode:code,code:code,description,name:description,unit});
+ state.pendingPlacementCode=code;save();render();
+}
+function placeNewProduct(){
+ const code=state.pendingPlacementCode,shelf=document.getElementById('npShelf')?.value||'',q=num(document.getElementById('npQty')?.value),note=document.getElementById('npNote')?.value.trim()||'';
+ if(!shelf)return alert('Kayıtlı bir raf seç.');if(q<=0)return alert('Miktarı gir.');
+ addStock(code,shelf,q);movement('GIRIS',code,q,'',shelf,'',note);state.pendingPlacementCode='';save();alert('Ürün rafa yerleştirildi.');render();
+}
+function cancelPlacement(){state.pendingPlacementCode='';save();render()}
+
+function entry(){
+ return `<div class="panel"><div class="title">Stok Girişi</div><div class="grid g4">
+ <div class="field"><label>Ürün Kodu</label><div class="scanrow"><input id="eCode"><button class="scanbtn" onclick="scanBarcodeToInput('eCode','Ürün kodunu okut')">📷</button></div></div>
+ <div class="field"><label>Raf / Lokasyon</label><div class="scanrow"><select id="eShelf">${shelfOptions()}</select><button class="scanbtn" onclick="scanShelfToSelect('eShelf','Rafı okut')">📷</button></div></div>
+ <div class="field"><label>Miktar</label><input id="eQty" type="number" min="0" step="0.01"></div><div class="field"><label>Not</label><input id="eNote"></div></div>
+ <div style="margin-top:12px"><button class="btn" onclick="entrySave()">Stoka Al</button></div></div>`;
+}
+function entrySave(){const c=eCode.value.trim(),s=eShelf.value,q=num(eQty.value);if(!ensure(c)||!s||q<=0)return;addStock(c,s,q);movement('GIRIS',c,q,'',s,'',eNote.value.trim());save();alert('Stok girişi kaydedildi.');render()}
+
+function searchPage(){return `<div class="panel"><div class="title">Ürün Ara</div><div class="scanrow"><input id="sQuery" placeholder="Ürün kodu veya tanım"><button class="scanbtn" onclick="scanBarcodeToInput('sQuery','Ürün kodunu okut')">📷</button><button class="btn" onclick="doSearch()">Ara</button></div><div id="sResult" style="margin-top:13px"></div></div>`}
+function doSearch(){const q=sQuery.value.trim().toLowerCase();const ps=state.products.filter(p=>[p.productCode,p.description].some(v=>String(v).toLowerCase().includes(q)));sResult.innerHTML=ps.length?ps.map(p=>{const rows=state.stock.filter(s=>s.barcode===p.productCode);return `<div class="panel"><b>${esc(p.description)}</b><div class="note">${esc(p.productCode)}</div>${rows.length?`<div class="table" style="margin-top:8px"><table><thead><tr><th>Raf</th><th>Miktar</th></tr></thead><tbody>${rows.map(s=>`<tr><td>${esc(s.location)}</td><td>${s.qty} ${esc(p.unit||'')}</td></tr>`).join('')}</tbody></table></div>`:'<div class="note" style="margin-top:8px">Stokta yok.</div>'}</div>`}).join(''):'<div class="empty">Ürün bulunamadı.</div>'}
+
+function rafPage(){
+ const chips=state.shelves.length?`<div class="chips">${state.shelves.map(r=>`<span class="chip"><b>${esc(r)}</b><button onclick="removeShelf('${esc(r)}')">×</button></span>`).join('')}</div>`:'<div class="note" style="margin-top:10px">Henüz kayıtlı raf yok.</div>';
+ return `<div class="panel"><div class="title">Raf Tanımları</div><div class="note" style="margin-bottom:10px">Depodaki raf numaralarını burada bir kez kaydet. Sonra bütün stok ve transfer işlemlerinde bu liste kullanılır.</div><div class="scanrow"><input id="newShelf" placeholder="Örn. 1A.1.1"><button class="scanbtn" onclick="scanBarcodeToInput('newShelf','Raf kodunu okut')">📷</button><button class="btn sec" onclick="addShelf()">Raf Ekle</button></div>${chips}</div>
+ <div class="panel"><div class="title">Raf Sorgula</div><div class="scanrow"><select id="lShelf">${shelfOptions()}</select><button class="scanbtn" onclick="scanShelfToSelect('lShelf','Rafı okut')">📷</button><button class="btn" onclick="doRaf()">Sorgula</button></div><div id="lResult" style="margin-top:13px"></div></div>`;
+}
+function addShelf(){const v=newShelf.value.trim().toUpperCase();if(!v)return alert('Raf numarasını yaz veya okut.');if(state.shelves.includes(v))return alert('Bu raf zaten kayıtlı.');state.shelves.push(v);state.shelves.sort();save();render()}
+function removeShelf(v){if(state.stock.some(s=>s.location===v&&s.qty>0))return alert('Bu rafta stok var. Önce ürünleri başka rafa transfer et.');if(confirm(v+' rafı silinsin mi?')){state.shelves=state.shelves.filter(r=>r!==v);save();render()}}
+function doRaf(){const l=lShelf.value;const rows=state.stock.filter(s=>s.location===l);lResult.innerHTML=rows.length?`<div class="table"><table><thead><tr><th>Ürün</th><th>Kod</th><th>Miktar</th></tr></thead><tbody>${rows.map(s=>{const p=pBy(s.barcode);return `<tr><td>${esc(p?.description||'')}</td><td>${esc(s.barcode)}</td><td>${s.qty} ${esc(p?.unit||'')}</td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">Bu rafta stok yok.</div>'}
+
+function transferPage(){return `<div class="panel"><div class="title">Raf Transferi</div><div class="grid g4">
+<div class="field"><label>Ürün Kodu</label><div class="scanrow"><input id="tCode"><button class="scanbtn" onclick="scanBarcodeToInput('tCode','Ürün kodunu okut')">📷</button></div></div>
+<div class="field"><label>Kaynak Raf</label><div class="scanrow"><select id="tFrom">${shelfOptions()}</select><button class="scanbtn" onclick="scanShelfToSelect('tFrom','Kaynak rafı okut')">📷</button></div></div>
+<div class="field"><label>Hedef Raf</label><div class="scanrow"><select id="tTo">${shelfOptions()}</select><button class="scanbtn" onclick="scanShelfToSelect('tTo','Hedef rafı okut')">📷</button></div></div>
+<div class="field"><label>Miktar</label><input id="tQty" type="number" min="0" step="0.01"></div></div><div style="margin-top:12px"><button class="btn" onclick="transferSave()">Transfer Et</button></div></div>`}
+function transferSave(){const c=tCode.value.trim(),f=tFrom.value,t=tTo.value,q=num(tQty.value);if(!ensure(c)||!f||!t||q<=0)return;if(f===t)return alert('Kaynak ve hedef raf aynı olamaz.');if(!remStock(c,f,q))return alert('Kaynak rafta yeterli stok yok.');addStock(c,t,q);movement('TRANSFER',c,q,f,t);save();alert('Transfer tamamlandı.');render()}
+
+function machinePage(){const opts=state.machines.length?'<option value="">Makine seçiniz</option>'+state.machines.map(m=>`<option>${esc(m)}</option>`).join(''):'<option value="">Önce aşağıdan makine ekleyin</option>';return `<div class="panel"><div class="title">Makineye Çıkış</div><div class="grid g4">
+<div class="field"><label>Ürün Kodu</label><div class="scanrow"><input id="mCode"><button class="scanbtn" onclick="scanBarcodeToInput('mCode','Ürün kodunu okut')">📷</button></div></div>
+<div class="field"><label>Çıkış Rafı</label><div class="scanrow"><select id="mFrom">${shelfOptions()}</select><button class="scanbtn" onclick="scanShelfToSelect('mFrom','Çıkış rafını okut')">📷</button></div></div>
+<div class="field"><label>Miktar</label><input id="mQty" type="number" min="0" step="0.01"></div><div class="field"><label>Makine</label><select id="mMachine">${opts}</select></div></div>
+<div class="grid g2" style="margin-top:10px"><div class="field"><label>Operatör</label><input id="mOperator"></div><div class="field"><label>Not</label><input id="mNote"></div></div><div style="margin-top:12px"><button class="btn" onclick="machineSave()">Makineye Ver / Stoktan Düş</button></div></div>
+<div class="panel"><div class="title">Makine Tanımları</div><div class="row"><input id="newMachine" placeholder="Makine adını manuel yaz"><button class="btn sec" onclick="addMachine()">Kaydet</button></div>${state.machines.length?`<div class="chips">${state.machines.map(m=>`<span class="chip"><b>${esc(m)}</b><button onclick="removeMachine('${esc(m)}')">×</button></span>`).join('')}</div>`:'<div class="note" style="margin-top:10px">Henüz kayıtlı makine yok.</div>'}</div>`}
+function addMachine(){const v=newMachine.value.trim().toUpperCase();if(!v)return alert('Makine adını yaz.');if(state.machines.includes(v))return alert('Bu makine zaten kayıtlı.');state.machines.push(v);save();render()}
+function removeMachine(v){if(confirm(v+' silinsin mi?')){state.machines=state.machines.filter(m=>m!==v);save();render()}}
+function machineSave(){const c=mCode.value.trim(),f=mFrom.value,q=num(mQty.value),m=mMachine.value;if(!ensure(c)||!f||q<=0)return;if(!m)return alert('Makine seç.');if(!remStock(c,f,q))return alert('Bu rafta yeterli stok yok.');movement('MAKINE',c,q,f,'',m,(mOperator.value.trim()?('Operatör: '+mOperator.value.trim()+' · '):'')+mNote.value.trim());save();alert('Makine çıkışı kaydedildi.');render()}
+
+function movementTable(rows){if(!rows.length)return '<div class="empty">Hareket kaydı yok.</div>';return `<div class="table"><table><thead><tr><th>Tarih</th><th>Tür</th><th>Ürün</th><th>Kod</th><th>Miktar</th><th>Kaynak</th><th>Hedef</th><th>Makine</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${esc(x.date)}</td><td><span class="badge ${x.type==='GIRIS'?'in':x.type==='TRANSFER'?'move':'out'}">${esc(x.type)}</span></td><td>${esc(x.productName)}</td><td>${esc(x.barcode)}</td><td>${x.qty}</td><td>${esc(x.from)}</td><td>${esc(x.to)}</td><td>${esc(x.machine)}</td></tr>`).join('')}</tbody></table></div>`}
+function movementsPage(){return `<div class="panel"><div class="title">Stok Hareket Geçmişi</div>${movementTable(state.movements)}</div>`}
+
+function render(){navActive();const m=document.getElementById('main');m.innerHTML=state.tab==='dashboard'?dashboard():state.tab==='urunler'?products():state.tab==='giris'?entry():state.tab==='ara'?searchPage():state.tab==='raf'?rafPage():state.tab==='transfer'?transferPage():state.tab==='makine'?machinePage():movementsPage()}
+document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));
+
+let scanStream=null,scanTimer=null,scanOverlay=null,tesseractLoading=null;
+function closeScanner(){if(scanTimer){clearInterval(scanTimer);scanTimer=null}if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null}if(scanOverlay){scanOverlay.remove();scanOverlay=null}}
+function makeOverlay(title,withCapture=false){
+ closeScanner();const ov=document.createElement('div');ov.className='overlay';scanOverlay=ov;ov.innerHTML=`<div class="overlay-head"><b>${esc(title)}</b><button class="btn sec" id="scanClose">Kapat</button></div><video id="scanVideo" autoplay playsinline></video><div class="overlay-msg" id="scanMsg">Kamerayı etikete yaklaştır.</div>${withCapture?'<div class="progress"><i id="ocrBar"></i></div><div class="overlay-actions"><button class="btn" id="captureBtn">Etiketi Tara</button></div>':''}`;document.body.appendChild(ov);document.getElementById('scanClose').onclick=closeScanner;return ov}
+async function openCamera(title,withCapture=false){
+ if(!navigator.mediaDevices?.getUserMedia)throw new Error('Bu tarayıcı kamera erişimini desteklemiyor.');
+ const ov=makeOverlay(title,withCapture);scanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}}});document.getElementById('scanVideo').srcObject=scanStream;return ov
+}
+async function detectBarcode(source){
+ if(!('BarcodeDetector' in window))return '';
+ try{const formats=await BarcodeDetector.getSupportedFormats?.();const wanted=['code_128','ean_13','ean_8','code_39','itf','qr_code'].filter(f=>!formats||formats.includes(f));const detector=new BarcodeDetector(wanted.length?{formats:wanted}:undefined);const codes=await detector.detect(source);return codes?.[0]?.rawValue||''}catch(e){return ''}
+}
+async function scanBarcodeValue(title){
+ try{await openCamera(title,false);const video=document.getElementById('scanVideo');document.getElementById('scanMsg').textContent='Barkodu kameraya göster.';return await new Promise((resolve,reject)=>{let tries=0;scanTimer=setInterval(async()=>{tries++;const v=await detectBarcode(video);if(v){closeScanner();resolve(v)}else if(tries>100){closeScanner();reject(new Error('Barkod okunamadı. Tekrar dene.'))}},250)})}catch(e){closeScanner();throw e}
+}
+async function scanBarcodeToInput(id,title){try{const v=await scanBarcodeValue(title);const el=document.getElementById(id);if(el)el.value=v}catch(e){alert(e.message)}}
+async function scanShelfToSelect(id,title){try{const v=(await scanBarcodeValue(title)).trim().toUpperCase();if(!state.shelves.includes(v))return alert('Okutulan raf kayıtlı değil: '+v+'\nÖnce Raf bölümünden kaydet.');const el=document.getElementById(id);if(el)el.value=v}catch(e){alert(e.message)}}
+
+function loadTesseract(){
+ if(window.Tesseract)return Promise.resolve(window.Tesseract);
+ if(tesseractLoading)return tesseractLoading;
+ tesseractLoading=new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';s.onload=()=>resolve(window.Tesseract);s.onerror=()=>reject(new Error('OCR bileşeni yüklenemedi. İnternet bağlantısını kontrol et.'));document.head.appendChild(s)});
+ return tesseractLoading;
+}
+function cleanOCRDescription(text,code){
+ const lines=String(text||'').split(/\r?\n/).map(x=>x.replace(/\s+/g,' ').trim()).filter(Boolean);
+ const codeNorm=String(code||'').replace(/\s/g,'');
+ const junk=/^(barkod|barcode|raf kodu|raf|tarih|date|barkod bas|barkod baş)/i;
+ const date=/\b\d{1,2}[.\-/]\d{1,2}[.\-/]\d{2,4}\b/;
+ const kept=[];
+ for(let line of lines){
+   const compact=line.replace(/\s/g,'');
+   if(!line||junk.test(line)||date.test(line))continue;
+   if(codeNorm && (compact===codeNorm || compact.includes(codeNorm)))continue;
+   if(/^\d{5,}$/.test(compact))continue;
+   if(line.length<2)continue;
+   kept.push(line);
+ }
+ return kept.join(' ').replace(/\s+([),.;:])/g,'$1').replace(/([(])\s+/g,'$1').trim();
+}
+async function scanProductLabel(){
+ let ov;
+ try{
+  ov=await openCamera('Ürün Etiketini Tara',true);
+  const video=document.getElementById('scanVideo'),msg=document.getElementById('scanMsg'),btn=document.getElementById('captureBtn'),bar=document.getElementById('ocrBar');
+  msg.textContent='Etiketin barkodu ve yazıları net görünsün. Sonra “Etiketi Tara”ya dokun.';
+  btn.onclick=async()=>{
+   btn.disabled=true;btn.textContent='İşleniyor...';msg.textContent='Barkod okunuyor...';
+   const canvas=document.createElement('canvas');canvas.width=video.videoWidth||1280;canvas.height=video.videoHeight||720;canvas.getContext('2d').drawImage(video,0,0,canvas.width,canvas.height);
+   let code=await detectBarcode(canvas);
+   msg.textContent=code?'Ürün kodu bulundu: '+code+' · Tanım okunuyor...':'Barkod bulunamadı, OCR ile kod aranıyor...';
+   try{
+    const T=await loadTesseract();
+    const res=await T.recognize(canvas,'tur+eng',{logger:m=>{if(m.status==='recognizing text'&&bar)bar.style.width=Math.round((m.progress||0)*100)+'%'}});
+    const raw=res?.data?.text||'';
+    if(!code){const nums=raw.match(/\b\d{6,14}\b/g)||[];code=nums.sort((a,b)=>b.length-a.length)[0]||''}
+    if(!code){btn.disabled=false;btn.textContent='Tekrar Tara';msg.textContent='Ürün barkodu okunamadı. Etiketi daha yakından ve düz açıyla tekrar tara.';return}
+    const existing=pBy(code);
+    let desc=existing?.description||cleanOCRDescription(raw,code);
+    closeScanner();state.tab='urunler';save();render();
+    const codeEl=document.getElementById('pCode'),descEl=document.getElementById('pDescription'),status=document.getElementById('labelStatus');
+    codeEl.value=code;descEl.value=desc;
+    if(existing){document.getElementById('pUnit').value=existing.unit||'Adet';status.className='status ok';status.textContent='Kayıtlı ürün bulundu. Tanım mevcut kayıttan getirildi.'}
+    else if(desc){status.className='status ok';status.textContent='Etiket ayrıştırıldı. Ürün kodu barkoddan, ürün tanımı OCR ile dolduruldu. Kaydetmeden önce kontrol et.'}
+    else{status.className='status warn';status.textContent='Ürün kodu okundu ancak tanım güvenilir şekilde çıkarılamadı. Tanımı elle düzeltip kaydedebilirsin.'}
+   }catch(e){closeScanner();state.tab='urunler';save();render();document.getElementById('pCode').value=code||'';const status=document.getElementById('labelStatus');status.className='status err';status.textContent=(code?'Ürün kodu okundu. ':'')+'OCR tamamlanamadı: '+e.message}
+  };
+ }catch(e){closeScanner();alert('Kamera açılamadı: '+e.message)}
+}
+render();
 </script>
-<script id="KANSAN_RAF_URUN_AKIS_V1">
-(function(){
-  if(!Array.isArray(state.shelves)) state.shelves=[];
-  state.stock.forEach(function(x){
-    const r=String(x.location||'').trim().toUpperCase();
-    if(r && !state.shelves.includes(r)) state.shelves.push(r);
-  });
-  if(typeof state.pendingPlacementBarcode!=='string') state.pendingPlacementBarcode='';
-  save();
-
-  function shelfOptions(selected){
-    const current=String(selected||'').toUpperCase();
-    if(!state.shelves.length) return '<option value="">Önce Raf bölümünden raf ekleyin</option>';
-    return '<option value="">Raf seçiniz</option>'+state.shelves.slice().sort().map(function(r){
-      return '<option value="'+esc(r)+'" '+(r===current?'selected':'')+'>'+esc(r)+'</option>';
-    }).join('');
-  }
-  window.shelfOptions=shelfOptions;
-
-  products=function(){
-    const pending=state.pendingPlacementBarcode;
-    const pp=pending?pBy(pending):null;
-    const place=pp?`<div class="panel" style="border:2px solid #dce7e3"><div class="title">Rafa Yerleştir</div><div class="note" style="margin-bottom:12px"><b>${esc(pp.name)}</b> kaydedildi. Aynı ekrandan ilk stok yerleşimini yapabilirsin.</div><div class="grid g4"><div class="field"><label>Ürün Barkodu</label><input id="npBarcode" value="${esc(pp.barcode)}" readonly></div><div class="field"><label>Kayıtlı Raf</label><select id="npShelf">${shelfOptions('')}</select></div><div class="field"><label>Miktar</label><input id="npQty" type="number" min="0" step="0.01" placeholder="Miktar"></div><div class="field"><label>Not</label><input id="npNote" placeholder="İsteğe bağlı"></div></div><div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" onclick="placeNewProduct()">Rafa Yerleştir / Stoka Al</button><button class="btn sec" onclick="cancelNewPlacement()">Daha Sonra</button></div></div>`:'';
-    return `<div class="head"><span class="ey">ÜRÜN YÖNETİMİ</span><h2>Ürün Kartları</h2><p>Yeni ürün ekle, ardından aynı ekranda kayıtlı bir rafa yerleştir.</p></div><div class="panel"><div class="title">Yeni Ürün Ekle</div><div class="grid g4"><div class="field"><label>Barkod</label><div class="scanrow"><input id="pBarcode" placeholder="Ürün barkodu"><button class="scanbtn" type="button" onclick="scanTo('pBarcode')">📷</button></div></div><div class="field"><label>Ürün Kodu</label><div class="scanrow"><input id="pCode" placeholder="Kodu okut veya yaz"><button class="scanbtn" type="button" onclick="scanTo('pCode')">📷</button></div></div><div class="field"><label>Ürün Adı</label><input id="pName"></div><div class="field"><label>Birim</label><select id="pUnit"><option>Adet</option><option>Kg</option><option>Bobin</option><option>Palet</option><option>Koli</option></select></div></div><div style="margin-top:12px"><button class="btn" onclick="addProduct()">Ürünü Kaydet ve Rafa Yerleştir</button></div></div>${place}<div class="panel"><div class="title">Kayıtlı Ürünler (${state.products.length})</div>${state.products.length?`<div class="table"><table><thead><tr><th>Barkod</th><th>Kod</th><th>Ürün</th><th>Birim</th><th>Stok</th></tr></thead><tbody>${state.products.map(p=>`<tr><td>${esc(p.barcode)}</td><td>${esc(p.code)}</td><td>${esc(p.name)}</td><td>${esc(p.unit)}</td><td>${qty(p.barcode)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Henüz ürün yok.</div>'}</div>`;
-  };
-
-  addProduct=function(){
-    const b=pBarcode.value.trim(),c=pCode.value.trim(),n=pName.value.trim(),u=pUnit.value;
-    if(!b||!n)return alert('Barkod ve ürün adı zorunlu.');
-    if(pBy(b))return alert('Bu barkod zaten kayıtlı.');
-    state.products.push({id:uid(),barcode:b,code:c,name:n,unit:u});
-    state.pendingPlacementBarcode=b; save(); render();
-  };
-
-  window.placeNewProduct=function(){
-    const b=state.pendingPlacementBarcode;
-    const shelf=String(document.getElementById('npShelf')?.value||'').trim().toUpperCase();
-    const q=num(document.getElementById('npQty')?.value);
-    const note=String(document.getElementById('npNote')?.value||'').trim();
-    if(!b||!pBy(b))return alert('Ürün bulunamadı.');
-    if(!shelf)return alert('Kayıtlı bir raf seç.');
-    if(!state.shelves.includes(shelf))return alert('Bu raf kayıtlı değil. Önce Raf bölümünden ekle.');
-    if(q<=0)return alert('Miktarı gir.');
-    addStock(b,shelf,q); move('GIRIS',b,q,'',shelf,'',note);
-    state.pendingPlacementBarcode=''; save(); alert('Ürün rafa yerleştirildi ve stok kaydı oluşturuldu.'); render();
-  };
-  window.cancelNewPlacement=function(){state.pendingPlacementBarcode='';save();render();};
-
-  window.addShelf=function(){
-    const v=String(document.getElementById('newShelf')?.value||'').trim().toUpperCase();
-    if(!v)return alert('Raf numarasını yaz.');
-    if(state.shelves.includes(v))return alert('Bu raf zaten kayıtlı.');
-    state.shelves.push(v); save(); render();
-  };
-  window.removeShelf=function(v){
-    v=String(v||'').toUpperCase();
-    if(state.stock.some(s=>String(s.location).toUpperCase()===v && s.qty>0))return alert('Bu rafta stok var. Önce stokları başka rafa transfer et.');
-    if(!confirm(v+' rafı silinsin mi?'))return;
-    state.shelves=state.shelves.filter(r=>r!==v); save(); render();
-  };
-
-  raf=function(){
-    const chips=state.shelves.length?`<div class="chips">${state.shelves.slice().sort().map(r=>`<span class="chip"><b>${esc(r)}</b><button onclick="removeShelf('${String(r).replace(/'/g,"\\'")}')">×</button></span>`).join('')}</div>`:'<div class="note" style="margin-top:10px">Henüz kayıtlı raf yok.</div>';
-    return `<div class="panel"><div class="title">Raf Tanımları</div><div class="note" style="margin-bottom:10px">Depodaki raf numaralarını burada bir kez kaydet.</div><div class="scan"><div class="scanrow"><input id="newShelf" placeholder="Örn. 1A.1.1"><button class="scanbtn" type="button" onclick="scanTo('newShelf')">📷</button></div><button class="btn sec" onclick="addShelf()">Raf Ekle</button></div>${chips}</div><div class="panel"><div class="title">Raf Sorgula</div><div class="scan"><div class="scanrow"><input id="lQuery" placeholder="Raf kodu"><button class="scanbtn" type="button" onclick="scanTo('lQuery')">📷</button></div><button class="btn" onclick="doRaf()">Sorgula</button></div><div id="lResult" style="margin-top:13px"></div></div>`;
-  };
-
-  entry=function(){
-    return `<div class="panel"><div class="title">Stok Girişi</div><div class="grid g4"><div class="field"><label>Ürün Barkodu</label><div class="scanrow"><input id="eBarcode"><button class="scanbtn" type="button" onclick="scanTo('eBarcode')">📷</button></div></div><div class="field"><label>Raf / Lokasyon</label><select id="eLocation">${shelfOptions('')}</select></div><div class="field"><label>Miktar</label><input id="eQty" type="number" min="0"></div><div class="field"><label>Not</label><input id="eNote"></div></div><div style="margin-top:12px"><button class="btn" onclick="entrySave()">Stoka Al</button></div></div>`;
-  };
-
-  transfer=function(){
-    return `<div class="panel"><div class="title">Raf Transferi</div><div class="grid g4"><div class="field"><label>Ürün Barkodu</label><div class="scanrow"><input id="tBarcode"><button class="scanbtn" type="button" onclick="scanTo('tBarcode')">📷</button></div></div><div class="field"><label>Kaynak Raf</label><select id="tFrom">${shelfOptions('')}</select></div><div class="field"><label>Hedef Raf</label><select id="tTo">${shelfOptions('')}</select></div><div class="field"><label>Miktar</label><input id="tQty" type="number"></div></div><div style="margin-top:12px"><button class="btn" onclick="transferSave()">Transfer Et</button></div></div>`;
-  };
-
-  render();
-})();
-</script>
-</body></html>
+</body>
+</html>
