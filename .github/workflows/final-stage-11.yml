@@ -1,0 +1,138 @@
+name: Final Stage 11 Mobile Polish
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/final-stage-11.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Apply final mobile polish
+        shell: bash
+        run: |
+          cat > final-mobile.css <<'EOF'
+          /* Kansan Depo v30 Final - mobile safety and usability layer */
+          :root { --app-vh: 100dvh; }
+          html, body { overscroll-behavior: none; }
+          button, input, select, textarea { touch-action: manipulation; }
+          button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+            outline: 3px solid rgba(30,64,175,.22);
+            outline-offset: 2px;
+          }
+          @media (max-width: 760px) {
+            html, body, .layout { height: var(--app-vh, 100dvh); min-height: var(--app-vh, 100dvh); }
+            .main { min-width: 0; }
+            .page {
+              padding-left: max(12px, env(safe-area-inset-left));
+              padding-right: max(12px, env(safe-area-inset-right));
+              padding-bottom: max(18px, env(safe-area-inset-bottom));
+              -webkit-overflow-scrolling: touch;
+              overscroll-behavior-y: contain;
+            }
+            .topbar {
+              padding-left: max(12px, env(safe-area-inset-left));
+              padding-right: max(12px, env(safe-area-inset-right));
+              min-height: 54px;
+            }
+            .field input, .field select, .field textarea { font-size: 16px; min-height: 44px; }
+            .btn { min-height: 44px; padding: 10px 14px; }
+            .btn-scan { width: 44px; min-width: 44px; min-height: 44px; padding: 8px; }
+            .action-btn { min-height: 78px; }
+            .table-wrap { max-height: min(52dvh, 440px); -webkit-overflow-scrolling: touch; }
+            th, td { padding: 9px 10px; }
+            .toast {
+              left: 12px; right: 12px; bottom: max(12px, env(safe-area-inset-bottom));
+              max-width: none; text-align: center;
+            }
+            .overlay { padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom)); }
+            .overlay-close { min-height: 44px; }
+          }
+          @media (max-width: 380px) {
+            .stat-value { font-size: 22px; }
+            .action-name { font-size: 12px; }
+            .action-desc { font-size: 10px; }
+          }
+          EOF
+
+          cat > final-mobile.js <<'EOF'
+          (() => {
+            const root = document.documentElement;
+            const updateViewport = () => {
+              const h = window.visualViewport?.height || window.innerHeight;
+              if (Number.isFinite(h) && h > 0) root.style.setProperty('--app-vh', `${h}px`);
+            };
+            updateViewport();
+            window.addEventListener('resize', updateViewport, { passive: true });
+            window.visualViewport?.addEventListener('resize', updateViewport, { passive: true });
+            window.visualViewport?.addEventListener('scroll', updateViewport, { passive: true });
+            root.dataset.kansanFinal = 'v30';
+          })();
+          EOF
+
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          if '__TO_BE_FILLED__' in s:
+              raise SystemExit('Placeholder detected; refusing finalization')
+          css = '<link rel="stylesheet" href="final-mobile.css">'
+          js = '<script src="final-mobile.js"></script>'
+          if css not in s:
+              marker = '<link rel="icon" href="icon.svg" type="image/svg+xml">'
+              if marker not in s:
+                  raise SystemExit('Expected icon marker not found')
+              s = s.replace(marker, marker + '\n' + css, 1)
+          if js not in s:
+              if '</body>' not in s:
+                  raise SystemExit('Closing body tag not found')
+              s = s.replace('</body>', js + '\n</body>', 1)
+          s = s.replace('<title>Kansan Depo · v30</title>', '<title>Kansan Depo · v30 Final</title>')
+          p.write_text(s, encoding='utf-8')
+          PY
+
+      - name: Final validation
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          html = Path('index.html').read_text(encoding='utf-8')
+          css = Path('final-mobile.css').read_text(encoding='utf-8')
+          js = Path('final-mobile.js').read_text(encoding='utf-8')
+          checks = {
+            'no_placeholder': '__TO_BE_FILLED__' not in html,
+            'final_title': '<title>Kansan Depo · v30 Final</title>' in html,
+            'css_linked': 'final-mobile.css' in html,
+            'js_linked': 'final-mobile.js' in html,
+            'safe_area': 'safe-area-inset-bottom' in css,
+            'touch_targets': 'min-height: 44px' in css,
+            'keyboard_viewport': 'visualViewport' in js,
+            'mobile_breakpoint': '@media (max-width: 760px)' in css,
+          }
+          failed = [k for k,v in checks.items() if not v]
+          print(checks)
+          if failed:
+              raise SystemExit('FINAL_VALIDATION_FAILED: ' + ', '.join(failed))
+          print('FINAL_STAGE_11_OK')
+          PY
+
+      - name: Commit final stage
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html final-mobile.css final-mobile.js
+          if git diff --cached --quiet; then
+            echo "No changes needed"
+            exit 0
+          fi
+          git commit -m "v30 final: mobil kullanim ve genel son duzenleme"
+          git push origin main
