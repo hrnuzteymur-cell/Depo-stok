@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Kansan Depo · v20</title>
+<title>Kansan Depo · v21</title>
 <style>
   :root {
     --bg: #f0f2f5;
@@ -1161,6 +1161,34 @@ function renderMachine() {
   </div>`;
 }
 
+function issueToMachine(code, machine, from, q) {
+  const EPS = 1e-9;
+  if (!pBy(code)) return { ok: false, error: 'Ürün kayıtlı değil' };
+  if (!state.machines.includes(machine)) return { ok: false, error: 'Makine kayıtlı değil' };
+  if (!state.shelves.includes(from)) return { ok: false, error: 'Çıkış rafı kayıtlı değil' };
+  if (!Number.isFinite(q) || q <= 0) return { ok: false, error: 'Miktar sıfırdan büyük olmalı' };
+
+  const sourceBefore = qtyAt(code, from);
+  const totalBefore = totalQty(code);
+  if (sourceBefore + EPS < q) return { ok: false, error: `${from} rafında yeterli stok yok` };
+
+  const stockBefore = state.stock.map(row => ({ ...row }));
+  if (!remStock(code, from, q)) return { ok: false, error: `${from} rafında yeterli stok yok` };
+
+  const sourceAfter = qtyAt(code, from);
+  const totalAfter = totalQty(code);
+  const valid =
+    Math.abs(sourceAfter - (sourceBefore - q)) <= EPS &&
+    Math.abs(totalAfter - (totalBefore - q)) <= EPS;
+
+  if (!valid) {
+    state.stock = stockBefore;
+    return { ok: false, error: 'Makine çıkışı stok kontrolü başarısız. İşlem geri alındı.' };
+  }
+  return { ok: true, totalBefore, totalAfter };
+}
+window.issueToMachine = issueToMachine;
+
 function machineSave() {
   const code = document.getElementById('mCode').value.trim();
   const machine = document.getElementById('mMachine').value;
@@ -1168,14 +1196,16 @@ function machineSave() {
   const q = num(document.getElementById('mQty').value);
   const note = document.getElementById('mNote')?.value.trim() || '';
   if (!code) { toast('Ürün kodu girin', 'err'); return; }
-  if (!pBy(code)) { toast('Ürün kayıtlı değil', 'err'); return; }
   if (!machine) { toast('Makine seçin', 'err'); return; }
   if (!from) { toast('Çıkış rafı seçin', 'err'); return; }
-  if (q <= 0) { toast('Miktar sıfırdan büyük olmalı', 'err'); return; }
-  if (!remStock(code, from, q)) { toast(`${from} rafında yeterli stok yok`, 'err'); return; }
+
+  const result = issueToMachine(code, machine, from, q);
+  if (!result.ok) { toast(result.error, 'err'); return; }
+
   logMovement('MAKINE', code, q, from, '', machine, note);
   save();
-  toast(`${q} adet → ${machine}`);
+  const unit = pBy(code)?.unit || 'Adet';
+  toast(`${q} ${unit} → ${machine}`);
   document.getElementById('mCode').value = '';
   document.getElementById('mQty').value = '';
   const inf = document.getElementById('mInfo'); if (inf) inf.style.display = 'none';
