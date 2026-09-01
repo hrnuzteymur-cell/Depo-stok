@@ -1,0 +1,60 @@
+name: Apply v22 stock count
+on:
+  push:
+    paths:
+      - '.github/workflows/apply-v22-stock-count.yml'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Integrate count module
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html'); s=p.read_text()
+          if '<title>Kansan Depo · v21</title>' not in s: raise SystemExit('v21 title missing')
+          s=s.replace('<script>','<script src="count.js"></script>\n<script>',1)
+          s=s.replace("        <button class=\"nav-btn\" data-page=\"movements\"><span class=\"nav-icon\">📋</span> Hareketler</button>","        <button class=\"nav-btn\" data-page=\"movements\"><span class=\"nav-icon\">📋</span> Hareketler</button>\n        <button class=\"nav-btn\" data-page=\"count\"><span class=\"nav-icon\">🧮</span> Sayım</button>",1)
+          s=s.replace("  transfer: 'Raf Transferi', machine: 'Makineye Çıkış', movements: 'Hareket Geçmişi',\n  settings: 'Ayarlar'","  transfer: 'Raf Transferi', machine: 'Makineye Çıkış', movements: 'Hareket Geçmişi',\n  count: 'Stok Sayımı', settings: 'Ayarlar'",1)
+          s=s.replace("movements: renderMovements, settings: renderSettings","movements: renderMovements, count: window.renderCount, settings: renderSettings",1)
+          anchor="""    <button class=\"action-btn\" onclick=\"goPage('movements')\">\n      <span class=\"action-icon\">📋</span>\n      <span class=\"action-name\">Hareketler</span>\n      <span class=\"action-desc\">Tüm geçmiş</span>\n    </button>"""
+          s=s.replace(anchor,anchor+"""\n    <button class=\"action-btn\" onclick=\"goPage('count')\">\n      <span class=\"action-icon\">🧮</span>\n      <span class=\"action-name\">Sayım</span>\n      <span class=\"action-desc\">Fiziksel stok kontrolü</span>\n    </button>""",1)
+          s=s.replace("  if (type === 'CIKIS') return '<span class=\"badge badge-out\">Çıkış</span>';","  if (type === 'CIKIS') return '<span class=\"badge badge-out\">Çıkış</span>';\n  if (type === 'SAYIM') return '<span class=\"badge\">Sayım</span>';",1)
+          s=s.replace("['ALL','GIRIS','CIKIS','TRANSFER','MAKINE']","['ALL','GIRIS','CIKIS','TRANSFER','MAKINE','SAYIM']",1)
+          s=s.replace("t==='TRANSFER'?'Transfer':'Makine'","t==='TRANSFER'?'Transfer':t==='MAKINE'?'Makine':'Sayım'",1)
+          s=s.replace('<title>Kansan Depo · v21</title>','<title>Kansan Depo · v22</title>',1)
+          p.write_text(s)
+          PY
+      - name: Verify
+        shell: bash
+        run: |
+          node --check count.js
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text()
+          assert '<title>Kansan Depo · v22</title>' in s
+          assert 'data-page="count"' in s
+          assert "count: 'Stok Sayımı'" in s
+          assert 'count: window.renderCount' in s
+          assert "'SAYIM'" in s
+          PY
+          node <<'JS'
+          const EPS=1e-9; let stock=[{barcode:'P',location:'R',qty:2},{barcode:'P',location:'R',qty:5},{barcode:'P',location:'X',qty:4}];
+          const qtyAt=(c,l)=>stock.filter(s=>s.barcode===c&&s.location===l).reduce((n,s)=>n+s.qty,0); const totalQty=c=>stock.filter(s=>s.barcode===c).reduce((n,s)=>n+s.qty,0);
+          function addStock(c,l,q){let r=stock.find(s=>s.barcode===c&&s.location===l);if(r)r.qty+=q;else stock.push({barcode:c,location:l,qty:q})}
+          function remStock(c,l,q){if(qtyAt(c,l)+EPS<q)return false;let x=q;for(const r of stock.filter(s=>s.barcode===c&&s.location===l)){let t=Math.min(r.qty,x);r.qty-=t;x-=t;if(x<=EPS)break}stock=stock.filter(s=>s.qty>EPS);return x<=EPS}
+          function rec(counted){const before=qtyAt('P','R'), total=totalQty('P'), d=counted-before;if(d>EPS)addStock('P','R',d);else if(d<-EPS&&!remStock('P','R',-d))return false;return Math.abs(qtyAt('P','R')-counted)<=EPS&&Math.abs(totalQty('P')-(total+d))<=EPS}
+          if(!rec(3)||qtyAt('P','R')!==3)throw Error('decrease'); if(!rec(8)||qtyAt('P','R')!==8)throw Error('increase'); if(!rec(0)||qtyAt('P','R')!==0)throw Error('zero'); console.log('COUNT_OK');
+          JS
+      - name: Commit
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html count.js
+          git commit -m 'v22: stok sayımı ve fark düzeltme'
+          git push
