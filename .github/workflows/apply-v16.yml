@@ -1,0 +1,36 @@
+name: Apply v16
+on:
+  push:
+    paths:
+      - '.github/workflows/apply-v16.yml'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rebuild v16 index
+        shell: bash
+        run: |
+          cat .tmp-v16/gz00.txt .tmp-v16/gz01.txt .tmp-v16/gz02.txt | base64 -d | gzip -d > index.html
+          echo 'd37596bb6bf45fdd2a78c29015dd8125ed8dbfd51a8fe03390421586e469cefc  index.html' | sha256sum -c -
+          grep -q '<title>Kansan Depo · v16</title>' index.html
+          grep -q "receiving: 'Mal Kabul'" index.html
+          grep -q 'transportUnits' index.html
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text(encoding='utf-8')
+          a=s.find('<script>')+8
+          b=s.rfind('</script>')
+          Path('/tmp/kansan-v16.js').write_text(s[a:b],encoding='utf-8')
+          PY
+          node --check /tmp/kansan-v16.js
+      - name: Commit v16
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'v16: mobil duzen, geri tusu ve mal kabul TB' || exit 0
+          git push
