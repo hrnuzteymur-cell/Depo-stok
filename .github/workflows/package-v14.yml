@@ -1,4 +1,4 @@
-name: Package v14 ZIP
+name: Package and Inventory Tests
 on:
   push:
     branches: [ main ]
@@ -8,11 +8,18 @@ permissions:
   contents: read
 
 jobs:
-  package:
+  test-and-package:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: JavaScript syntax checks
+        run: |
+          node --check pwa.js
+          node --check sw.js
+          node --check inventory-guards.js
+      - name: Inventory math and integrity tests
+        run: node tests/inventory-guards.test.js
       - name: Create ZIP
         run: |
           zip -r Kansan_Depo_Stok_v14.zip . -x '.git/*' 'Kansan_Depo_Stok_v14.zip'
